@@ -1,0 +1,51 @@
+void quit_quotes_token(t_tokens *current)
+{
+	int		i, j;
+	bool	in_single_quote = false;
+	bool	in_double_quote = false;
+
+	if (!current || !current->content || current->content[0] == '\0')
+		return;
+
+	i = 0;
+	j = 0;
+	while (current->content[i] != '\0')
+	{
+		// Detectamos comillas
+		if (current->content[i] == '\'' || current->content[i] == '"')
+		{
+			// Si no estamos dentro de una comilla activa, la abrimos
+			if (!in_single_quote && !in_double_quote)
+			{
+				if (current->content[i] == '\'')
+					in_single_quote = true;
+				else if (current->content[i] == '"')
+					in_double_quote = true;
+			}
+			// Si encontramos la misma comilla con la que abrimos, la cerramos
+			else if ((in_single_quote && current->content[i] == '\'') ||
+					 (in_double_quote && current->content[i] == '"'))
+			{
+				in_single_quote = false;
+				in_double_quote = false;
+			}
+			// Si la comilla está dentro de una palabra, la eliminamos
+			else if ((ft_isalnum(current->content[i - 1]) && ft_isalnum(current->content[i + 1])))
+			{
+				// No copiamos la comilla
+				i++;
+				continue;
+			}
+			else
+			{
+				current->content[j++] = current->content[i];
+			}
+		}
+		else
+		{
+			current->content[j++] = current->content[i];
+		}
+		i++;
+	}
+	current->content[j] = '\0'; // Terminamos la cadena
+}

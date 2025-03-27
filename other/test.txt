@@ -1,0 +1,1433 @@
+
+✅
+✅ FUNCIONA:
+✅_TESTEO_OK
+✅_NORMA_OK
+❌ BASH_ERROR:
+❌ SINTAX_ERROR
+❌
+🔹
+🔹 ✒ 
+🔹 ✒ REVISAR
+✔
+✒
+🔸
+🚩_PTE_TESTEO
+⚠️_PTE_REVISAR_NORMA
+❌_TESTEO_FALLA_V2: ✒ 
+✅_TESTEO_OK_V2.
+🔐_NO_ENTRA
+✅_SINTAX_ERROR
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•ft_split_with_quotes o ft_split•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+hoa "  mundo"  loco
+'   hola   ' "mundo     "    '"loco"     '       
+echo     '   hola   ' "mundo     "    '"loco"     '       
+      echo     '   hola   ' "mundo     "    '"loco"     '       
+ls<<-l
+ls'<<'-l
+ls '<<' -l
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•check_spaces_line(char *line, t_metachars *meta)•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                                                                   TEST_LINE                                    TEST_EJECUCION
+
+grep | testeo.txt							                                                                                      
+echo "|"						 			                                                                                                  
+echo '|'									                                                                                                  
+echo "\|"									                                                            
+echo "hola | mundo"							                                                                                                         
+echo "hola < mundo"							                                                                                                         
+echo "hola << mundo"						                                                                                                         
+echo "hola >> mundo"						                                                                                                         
+echo "hola > mundo"							                                                                                                         
+echo "hola >> >> > mundo"							                                                                                             
+echo "hola <<< mundo"							                                                                                         
+echo "hola|mundo"						                                                                                               
+echo "hola>>>>>mundo"						                                                                                   
+echo "hola>>mundo"						                                                                                     
+ 
+
+
+grep "|" testeo.txt							                                      
+grep '|' testeo.txt							                                        
+
+<testeo.txt grep '$USER':"$USER"|wc -l>newfile.txt 	
+
+
+echo "hellofromfile4" >file1 >file2 > file3 >>file4|cat <<eof << "end" <file4                                                                                                             
+echo "hellofromfile4">file1>file2 >file3 >>file4 '|' cat <<eof<<"end"<file4                                                                                                            
+echo "hellofromfile4">file1 >file2 > file3 >>file4 | cat <<eof << "end" <file4                                                                                                             
+echo "hellofromfile4">file1>file2 > file3>>file4 | at<<eof"<<" "end" <file4                                                                                                          
+echo "hellofromfile4">file1>file2 > 'file3>>'file4 | at<<eof"<<" "end" <file4                                                                                                       
+echo "hellofromfile4">file1>file2>file3>>file4|cat <<eof << "end" <file4                                                                                                      
+echo "hellofromfile4">file1>file2>file3>>>>>file4|cat <<eof << "end" <file4                                                                                                      
+
+<<                                                                                                                                                    
+>>                                                                                                                                  
+<                                                                                                                                  
+>                                                                                                                                  
+|                                                                                                                                 
+ls|||wc -l                                                                                                                                                       
+echo |                                                                                              
+echo "|"                                                                                                                                                                     
+echo hola |                                                                                                                                                                                                                           
+echo "hello" > file.txt                                                                                                                               
+echo "hello" > test/file.txt                                                                                                                                                             
+echo "hello">test/file.txt
+echo "hello>test/file".txt
+ls "file>>hola" 
+'holamundo|hola'
+'holamundo"|"hola'
+echo "hello">file.txt                                                                                                                                                                    
+echo "hello_word">>file.txt                                                                                                                                                              
+echo "hello_word2">>file.txt                                                                                                                                                                           
+echo "hello">>>file.txt                                                                                                                     
+echo "hello">>>>>file.txt                                                                                                                                
+ls >>>>> list.txt                                                                                                                                           
+echo "hello>>file.txt"                                                                                                                                                                     
+echo>>"hello>>file.txt"                                                                                                                                                             
+clear                                                                                                                                                                                                      
+cat<file.txt                                                                                                                                                                       
+cat<<<<<<file.txt                                                                                                                                                                       
+<<<<<<                                                                                                                                                                                 
+<<<<<<<<                                                                                                              
+exit                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+cat testfile.txt | grep "pattern" | wc -l > count.txt                                                                                                              
+cat testfile.txt|grep "pattern"|wc -l>count.txt                                                                                                              
+cat < testfile.txt | grep "pattern" | sort | uniq > output.txt                                                                                                              
+cat <testfile.txt|grep "pattern"|sort | uniq > output.txt                                                                                                              
+cat < output.txt | wc -l
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── ./ejecutable SOLO O CON OTROS COMANDOS: VER ORDEN TAMBIEN ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+🔹 ✒ REVISAR
+
+ls > test/test_output/list_test.txt                                                                                                                                                     
+ls>test/test_output/list_test.txt                                                                                                                                                     
+ls>>>/test/test_outputs/list_test.txt                                                                            
+test/test_output/test_ejecutable.sh                                                                                  
+./clean_zone_identifiers.sh echo hola								                                   
+echo hola ./clean_zone_identifiers.sh                                                                                
+ls > test_1.txt && ./clean_zone_identifiers.sh                                                                        
+ls > test.txt ./clean_zone_identifiers.sh					                                                                   
+
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                                                                   TEST_LINE                                    TEST_EJECUCION
+
+echo "Hello" | grep H
+echo "Hello" | grep "H"                                                                                                                                
+echo "Hello"|grep "H"                                                                                                                                          
+echo "Hello"|'|'grep "H"                                                                                                                                
+echo "Hello"'|'grep "H"                                                                                                                                
+
+echo "<<<" EOF                                                                                                                                                        
+echo "Hello" >> output.log                                                                                                                               
+echo "Hello" >>output.log                                                                                                                               
+echo "Hello">>output.log                                                                                                                               
+echo "Hello">> output.log                                                                                                                               
+
+ls '|' wc -l                                                                                                                                                        
+ls'|'wc -l                                                                                                                                                        
+ls|'|'|wc -l                                                                                                                                                         
+"ls|wc -l"                                                                                                                                                        
+ls | |
+ls | grep .txt > output.txt
+ls -l | grep "txt"
+ls | grep .txt | wc -l
+ls | grep .txt | cat -e
+ls | grep .txt | xargs cat
+ls | grep .txt | xargs wc -l
+echo hola | wc -l 
+echo "Minishell test" | tr 'a-z' 'A-Z'
+echo "Hello World" | tr ' ' '\n' | sort
+echo "Hello World" | tr ' ' '\n' | grep "o"
+echo "Hello" | cat | grep "H" | wc -l
+echo "line1\nline2" | grep line2
+echo "Hello" | cat | cat | cat
+ls | grep "archivo"
+(echo "Hola"; echo "Mundo") | sort
+echo "Mensaje" | tee log.txt
+ls /noexiste &> output.log 
+
+cd ../Documents
+cd ..
+./test_ejecutable.sh 
+test/test_output/test_ejecutable.sh
+ls > list.txt
+ls > /test/test_outputs/list_test.txt
+<< LIMITER << LIMITER2
+
+grep "text" < input.txt                                                                                                                               
+grep "text" <input.txt                                                                                                                               
+grep "text"<input.txt                                                                                                                               
+grep "text" "<" input.txt                                                                                                                               
+
+echo "test" > out.txt                                                                                                                               
+echo "test"> out.txt                                                                                                                               
+echo "test" >out.txt                                                                                                                               
+echo "test" '">"' out.txt                                                                                                                               
+echo "test">out.txt                                                                                                                               
+
+sort < unsorted.txt > sorted.txt                                                                                                                               
+sort<unsorted.txt>>sorted.txt                                                                                                                               
+sort<unsorted.txt>><sorted.txt                                                                                                                               
+sort < unsorted.txt "'>'" sorted.txt                                                                                                                     
+
+echo "multi-line" | tee output.log | cat                                                                                                                     
+echo "multi-line"|tee output.log|cat                                                                                                                                       
+
+
+grep "pattern" < input.txt | sort                                                                                                                               
+grep "pattern"<input.txt|sort                                                                                                                                         
+
+echo "append this">>>logfile.log                                                                 
+
+
+cat < input.txt | head -n 5                                                                                                                                                        
+cat<input.txt|head -n 5                                                                                                                                                        
+cat<input.txt'|'head -n 5                                                                                                                                                        
+
+ls -l > filelist.txt                                                                                                                                                        
+ls -l|>filelist.txt                                                                                                                                                        
+ls -l|> filelist.txt 
+ls -l'|'> filelist.txt                                                                                                                                                        
+
+
+
+   _   _   _   _   _   _   _   _   _   _   _   _     _   _   _   _   _     _   _     _   _   _   _   _  
+  / \ / \ / \ / \ / \ / \ / \ / \ / \ / \ / \ / \   / \ / \ / \ / \ / \   / \ / \   / \ / \ / \ / \ / \ 
+ ( S | Y | N | T | A | X | _ | E | R | R | O | R ) ( A | N | T | E | S ) ( D | E ) ( T | O | K | E | N )
+  \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/   \_/ \_/ \_/ \_/ \_/   \_/ \_/   \_/ \_/ \_/ \_/ \_/ 
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TABULACIONES:
+echo \t													output: \
+echo \\t												output: \\t
+echo "\t hola" 											output: \t hola
+echo "\\t hola" 										output: \\t hola
+echo '\t hola' 											output: \t hola
+echo '\t hola' 											output: \\t hola
+
+echo "He said: \"Hello\""                                                                  
+echo \
+echo "\t"                                                                                                      
+echo "\"                                                    
+echo '\'                                                    
+echo \n                                                     
+echo "\n"                                                   
+echo '\n'                                                   
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•##•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+✔ comillas abiertas rntran por ✅ SINTAX_ERROR → comillas ebiertas ver subject minishell. 
+	→ patron comando es el primer token: lo mismo para ' y "
+		→ |' y |"					   → espera un comando antes del separador especial 	→ ✅ SINTAX_ERROR
+		→ | algo "/' 																		                        → ✅ SINTAX_ERROR
+
+		→  &&' y &' y ||' y |&'																                  → ✅ SINTAX_ERROR
+		→ '| y '&& y '|| 																	                      → ✅ SINTAX_ERROR
+		→ "| y "&& y "|| 																	                      → ✅ SINTAX_ERROR
+		→ >|' y '>|	y '$| y $|'																                  → ✅ SINTAX_ERROR
+	→ patron redireccion: lo mismo para ' y "
+		→ <' y >' y '< y '>  y lo mismo con >> y << 										        → ✅ SINTAX_ERROR
+		→ ls >' test.txt																	                      → ✅ SINTAX_ERROR
+		→ ls >" test.txt																	                      → ✅ SINTAX_ERROR
+		→ << 'LIMITER y << LIMITER '														                → ✅ SINTAX_ERROR
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•# COMILLAS + REDIR-> entra como SYNTAX_ERROR #•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                                                         TEST_LINE                                    TEST_EJECUCION
+❌<<<< (                                                                                                                             
+❌<'                                                                                                                             
+❌<"                                                                                                                             
+❌wc -l '< testeo.txt                                                                                                                             
+❌wc -l <' testeo.txt                                                                                                                             
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•# COMILLAS + PIPE #•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+
+TEST                                                                        TEST_LINE                                    TEST_EJECUCION
+||											SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+|!											SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+|&											SHELL_ERROR -> -bash: syntax error near unexpected token `|&' -> 2: command not found	
+|'											SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+|"											SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+| ||										SHELL_ERROR -> -bash: syntax error near unexpected token `|' -> 2: command not found	
+||||||||								SHELL_ERROR -> -bash: syntax error near unexpected token `||' -> 2: command not found	
+'|											SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)											 → 	✅_SINTAX_ERROR
+"|											SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)											 → 	✅_SINTAX_ERROR
+"|!											SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)											 → 	✅_SINTAX_ERROR
+'|!											SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS y !)									 →  ✅_SINTAX_ERROR
+
+ls>test.txt || grep "txt"                                                                                                                
+ls>test.txt ||| grep "txt"                                                                                                                
+"|"											                                                                                                                        
+'|'											                                                                                                                        
+"'|'"											                                                                                                                    
+'"'|'"'											                                                                                                                    
+ls "|" wc -ls								SHELL_ERROR -> ls: cannot access '|': No such file or directory + ls: cannot access 'wc': No such file or directory
+ls '|' wc -ls								SHELL_ERROR -> ls: cannot access '|': No such file or directory + ls: cannot access 'wc': No such file or directory
+ls"|"wc -ls  								SHELL_ERROR -> ls|wc: command not found
+"ls""-l" |"wc -w"							SHELL_ERROR -> ls|wc: command not found
+
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•# COMILLAS ABIERTAS #•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                                                          TEST_LINE                                    TEST_EJECUCION
+
+❌echo "Hello, world!" > "output file.txt                                                                                                                                                  
+❌echo 'He said: "Hello!"                                                                                                                                                  
+⚠️echo "He said: "'Hello'!"                                                                                                                                                  
+⚠️echo "He said: " 'Hello'!"                                                                                                                                                  
+⚠️echo "He said: " ' " ' 'Hello'!"                                                                                                                                                  
+⚠️echo "He said: "Hello!"                                                                                                                                                  
+⚠️echo 'He said: 'Hello!'                                                                                                                                                  
+✅echo 'He said: "Hello!"'                                                                                                                                                  
+❌echo 'He said: "He'llo"'                                                                                                                                                  
+✅echo 'He said: "He"llo"'                                                                                                                                                  
+❌echo 'He said: "He"l'lo"'                                                                                                                                                  
+❌echo 'He said: "Hel'lo"'                                                                                                                                                  
+✅echo 'He said: "He"l"lo"'                                                                                                                                                  
+✅echo 'He said: "He"l" "lo"'                                                                                                                                                  
+
+REDIRECCIONES CON OTRO COMANDO Y COMILLAS:
+ECHO:
+✅echo "Hello" > testeo.txt                                                                                                                               
+✅echo "Hello"> testeo.txt                                                                                                                               
+✅echo "Hello" >testeo.txt                                                                                                                               
+✅echo "Hello">testeo.txt                                                                                                                               
+
+✅echo "Hello" > "testeo.txt"                                                                                                                               
+✅echo "Hello" > 'testeo.txt'                                                                                                                               
+✅echo "Hello">"testeo.txt"                                                                                                                               
+
+❌echo "Hello" > "testeo.txt									SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)						 ✅_SINTAX_ERROR
+❌echo "Hello" > 'testeo.txt									SINTAXIS_ERROR (COMO EN COMILLAS ABIERTAS)						 ✅_SINTAX_ERROR
+
+✅echo "Hello" ">" testeo.txt                                                                                                                               
+✅echo "Hello" '>' testeo.txt                                                                                                                               	
+✅echo "Hello"'>' testeo.txt                                                                                                                               
+✅echo "Hello"">" testeo.txt                                                                                                                               
+✅echo "Hello"">"testeo.txt                                                                                                                               
+
+
+❌echo "Hello" | cat ' | grep "H" | wc -l                                                                                                                                                  
+❌ls> 'salida.txt 5269'<>'file.txt                                                                                                                                                  
+❌ls> sali"da.txt 5269'<>'file.txt                                                                                                                                                  
+✅ls>salida.txt 1269'<>file.txt'                                                                                                                                                  
+✅ echo 'Hola mundo'                                                                                                                                       
+✅ echo 'Esto es un "texto" entre comillas'                                                                                                                                       
+✅ echo 'El archivo se llama 'archivo.txt''                                                                                                                                       
+✅ echo 'Comilla simple dentro de comillas dobles: "O'Reilly"'                                                                                                                                       
+✅ echo 'Texto con escape '\'' dentro'                                                                                                                                       
+❌ echo 'Hola mundo                                                                                                                                       
+❌ echo 'Esto es un "texto" entre comillas                                                                                                                                       
+❌ echo 'El archivo se llama archivo.txt                                                                                                                                       
+❌ echo 'Comilla simple dentro de comillas dobles: "O'Reilly                                                                                                                                       
+❌ echo 'Texto con escape '\'' dentro                                                                                                                                       
+✅ echo "Hola mundo"                                                                                                                                       
+✅ echo "Esto es un 'texto' entre comillas"                                                                                                                                       
+✅ echo "El archivo se llama \"archivo.txt\""                                                                                                                                       
+✅ echo "Texto con variable \$HOME dentro"                                                                                                                                       
+✅ echo "Texto con escape \" dentro"                                                                                                                                       
+❌ echo "Hola mundo                                                                                                                                       
+❌ echo "Esto es un 'texto' entre comillas                                                                                                                                       
+❌ echo "El archivo se llama \"archivo.txt                                                                                                                                       
+❌ echo "Texto con variable \$HOME dentro                                                                                                                                       
+❌ echo "Texto con escape \" dentro                                                                                                                                       
+✅ echo 'Texto con "comillas dobles" dentro'                                                                                                                                       
+✅ echo "Texto con 'comillas simples' dentro"                                                                                                                                       
+✅ echo "Comilla simple cerrada correctamente: 'Hola'"                                                                                                                                       
+✅ echo 'Comilla doble cerrada correctamente: "Hola"'                                                                                                                                       
+✅ echo "Texto con 'comillas' dentro y \"dobles\" también"                                                                                                                                       
+❌ echo 'Texto con "comillas dobles dentro'                                                                                                                                       
+❌ echo "Texto con 'comillas simples dentro"                                                                                                                                       
+❌ echo "Comilla simple sin cerrar: 'Hola                                                                                                                                       
+❌ echo 'Comilla doble sin cerrar: "Hola                                                                                                                                       
+❌ echo "Texto con 'comillas' dentro y \"dobles también                                                                                                                                       
+✅ echo "Texto con redirección" > file.txt                                                                                                                                       
+✅ echo 'Texto con << aquí' << fin                                                                                                                                       
+✅ echo "Texto con > redirección" > salida.txt                                                                                                                                       
+✅ echo "Usando pipe correctamente" | cat                                                                                                                                       
+✅ echo 'Comillas cerradas' >> archivo.txt                                                                                                                                       
+❌ echo "Texto con redirección > file.txt                                                                                                                                       
+❌ echo 'Texto con << aquí << fin                                                                                                                                       
+❌ echo "Texto con > redirección > salida.txt                                                                                                                                       
+❌ echo "Usando pipe correctamente | cat                                                                                                                                       
+❌ echo 'Comillas sin cerrar >> archivo.txt                                                                                                                                       
+✅"hola      3>&1,' 4>&3       "                                                                                                                                                   
+✅'hola      3>&1," 4>&3       '                                                                                                                                                  
+❌"hola      3>&1," 4>&3       "                                                                                                                                                  
+❌'hola      3>&1,' 4>&3       '                                                                                                                                                  
+❌'hola      3>&1,' ' ' 4>&3       '                                                                                                                                                  
+❌echo 'hola "'" mundo'                                                                                                                                                  
+❌echo 'He said: "Hello!"                                                                                                                                                  
+❌echo 'He said: "Hello!"                                                                                                                                                  
+❌echo "This is a 'test'                                                                                                                                                  
+✅echo "This is a test'"                                                                                                                                                  
+✅echo "This is a 'test'"                                                                                                                                                  
+✅echo "Hello, world!" > "output file.txt"                                                                                                                                                  
+❌echo 'He said: \'Hello\''                                                                                                                                                                                                                    
+❌echo '"Hello'"                                                                                                                                                                                                                                                            
+✅echo 'He said: "Hello"'                                                                                                                                                   
+✅echo "hola	mundo	unicornio	loco	"                                                                                                                                                  
+✅echo hola    mundo   unicornio       loco                                                                                                                                                  
+✅ls '|' wc -l                                                                                                                                                  
+❌wc -l '< testeo.txt                                                                                                                                                  
+❌wc -l <' testeo.txt                                                                                                                                                  
+✅wc -l '<' testeo.txt                                                          
+✅wc -l "<" testeo.txt                                                          
+
+✅ echo "'Hola' \"Mundo\" 'Prueba' \"de\" 'comillas'"                                                                                                                                       
+✅ echo "Esto es un 'texto' con \"dobles\" y 'simples'"                                                                                                                                       
+✅ echo "'Uno' 'Dos' 'Tres' \"Cuatro\" \"Cinco\""                                                                                                                                       
+✅ echo "'Texto dentro de comillas' \"Más texto\" 'Y más'"                                                                                                                                       
+✅ echo "Combinando 'simples' y \"dobles\" correctamente"                                                                                                                                       
+✅ echo "'Un nivel' \"Otro nivel\" 'Otro más' \"Final\""                                                                                                                                       
+✅ echo "'Texto con \\\"escape\\\" de comillas dobles'"                                                                                                                                       
+✅ echo "\"Texto con \\\"escape\\\" de comillas simples 'correcto'\""                                                                                                                                       
+✅ echo "'Aquí va' 'una cadena' 'de' 'comillas' \"cerradas\""                                                                                                                                       
+✅ echo "'Esto es' \"una prueba\" 'con' \"muchas\" 'comillas'"                                                                                                                                       
+❌ echo "'Hola \"Mundo' 'Prueba \"de' comillas"                                                                                                                                       
+❌ echo "Esto es un 'texto con \"dobles y 'simples"                                                                                                                                       
+❌ echo "'Uno 'Dos' 'Tres \"Cuatro\" \"Cinco"                                                                                                                                       
+❌ echo "'Texto dentro de comillas \"Más texto 'Y más"                                                                                                                                       
+❌ echo "Combinando 'simples y \"dobles correctamente"                                                                                                                                       
+❌ echo "'Un nivel \"Otro nivel 'Otro más \"Final"                                                                                                                                       
+❌ echo "'Texto con \\\"escape de comillas dobles'"                                                                                                                                       
+❌ echo "\"Texto con \\\"escape de comillas simples 'incorrecto"                                                                                                                                       
+❌ echo "'Aquí va 'una cadena de 'comillas \"cerradas"                                                                                                                                       
+❌ echo "'Esto es \"una prueba 'con \"muchas comillas"                                                                                                                                       
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•# QUITAR COMILLAS CERRADAS #•❅──────✧❅✦❅✧──────❅••❅──❅••❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+echo "ho'l'a" ✅ debe dar:echo ho'l'a
+'hola'  ✅ debe dar hola
+"mundo" ✅ debe dar mundo
+"hola" "'mu''ndo'" ✅ debe dar: hola 'mu''ndo'
+"ls''-l" ✅ debe dar: ls''-l
+'ls""-l' ✅ debe dar: ls""-l
+echo "mu"n"do"  debe dar: echo mundo
+
+hola'mundo'✅ debe dar: holamundo
+h'ol'a ✅  debe dar: hola 
+hola'mundo' ✅debe dar: holamundo
+
+"ls''-l" ✅ debe dar:  ls''-l
+'ls""-l' ✅ debe dar: ls""-l
+"ls' '-l"✅ debe dar:  ls' '-l
+
+"ls""-l" ✅ debe dar: ls-l
+"wc""-w" ✅ debe dar: wc-w
+'ls''-l' ✅ debe dar: ls-l
+'wc''-w' ✅ debe dar: wc-w
+'ls""-l' ✅ debe dar: ls""-l
+
+
+'ls" "-l' debe dar: ls" "-l: command not found
+"ls""-l" | "ws""-w" debe dar: [ls-l] ➜ [|] ➜ [ws-w]
+'ls''-l' ls -> ['ls''-l'][ls] (hay espacio 2 split)
+'ls''-l'ls -> ['ls''-l'ls] (no hay espacio 1 split)
+echo " hola 'mundo' loco " ls     -> [echo][" hola 'mundo' loco "][ls]
+echo ' hola "mundo" loco'  ls     -> [echo][' hola "mundo" loco '][ls]
+echo' hola "mundo"loco'ls         -> [echo' hola "mundo"loco'ls] 
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•METACARACTERES NO PERMITIDOS DENTRO DE UN COMANDO•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                                                TEST_LINE                                    TEST_EJECUCION
+❌ech#o hola                                                                     
+❌ech #o hola                                                                    
+❌echo #hola                                                                     
+❌echo#hola                                                                      
+❌ech&&o hola                                                                    
+❌ech&o                                                                          
+❌ech|o                                                                         
+
+✅ech<o                                                                                
+✅ech>o                                                                     
+
+✅sleep 10 | ls -l                                                  🔹?                                         🔹?             
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•REDIRECCIONES NO PERMITIDAS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+🔹🔹 ✒ SIN N NI M: se van con &
+
+TEST                                                                 TEST_LINE                                   TEST_EJECUCION
+❌<<-EOF <<-EOF2                                                                                   
+❌echo "Hola" >&3                                                                                                                          
+❌echo "Hola">&3                                                                                                                                                                                  
+❌echo"Hola" >&3                                                                                                                                                                                 
+✅echo "Hola" '>&3'                                                                                                                         
+✅echo "Hola >&3"                                                                                                                          
+❌echo Hola >&3                                                                                                                                                           
+❌echo Hola>&3                                                                                                                                                            
+❌echoHola>&3                                                                                                                                                           
+❌cat <&3                                                                                                                                                         
+❌ls >&3 file                                                                                                                                                                                                                                 
+
+❌ls error.txt &> 1_output.txt                                                                                                                                                          
+❌ls error.txt&>1_output.txt                                                                                                             
+❌ls error.txt &>1_output.txt                                                                                                             
+❌ls error.txt&> 1_output.txt                                                                                                              
+
+✅ls '/noexiste &> salida.log'                                                                  
+❌ls /noexiste &> salida.log                                                                                                                                         
+❌ls /noexiste&> salida.log                                                                                                                                           
+❌ls /noexiste&>salida.log                                                                                                                                          
+
+❌ls /noexiste &>> salida.log                                                                                                                                          
+❌ls /noexiste&>> salida.log                                                                                                                                        
+❌ls /noexiste&>>salida.log                                                                                                                                       
+
+✅ls /test'>'salida.log                                                                                                                                                  
+
+❌ls &> archivo.txt                                                                                                                                          
+❌ls&>archivo.txt                                                                                                                                           
+❌ls &>archivo.txt                                                                                                                                          
+
+❌ls &>> archivo.txt                                                                                                                                             
+❌ls&>> archivo.txt                                                                                                                                             
+❌ls&>>archivo.txt                                                                                                                                                                                                                                                                                       
+
+
+🔹🔹 ✒ CON N O/Y M:
+❌ BASH_ERROR:
+TEST                                                                TEST_LINE                                    TEST_EJECUCION
+✅exec3>salida.txt                                                                                                                                                           
+❌exec3<>datos.txt                                                                                                                                                          
+❌exec 3<>datos.txt                                                             
+❌exec4>&3                                                                                                                                               
+❌exec3<&-                                                                                                                                               
+✅exec3>>eventos.log                                                                                                                                             
+              
+
+❌ SINTAX_ERROR:
+0.
+❌echo "Error" >&2                                                                                                                                  
+❌echo "Error">&2                                                                                                                                       
+❌echo "Hola" 3>> archivo.txt                                                                                                               
+❌echo "Hola" 3> archivo.txt                                                                                                                                           
+❌echo hola 3>file7                                                                                                                                           
+❌echo hola 3> file7                                                                                                                                            
+✅echo "hola3>file7"                                                                                                                                                       
+✅echo hola3>file7                                                                                                                                                       
+✅echo hola3'>'file7                                                                                                                                                       
+✅echohola3>file7                                                                                                                                                       
+❌exec 3>&1                                                                                                                                                       
+❌exec3>&1                                                                                                                                                   
+
+❌ls /noexiste>>salida.log2>&1                                                                                                                                                      
+❌ls /noexiste>>salida.log 2>&1                                                                                                                                                      
+❌ls/noexiste>>salida.log2>&1                                                                                                                                                      
+
+❌ls > salida.txt 2> error.txt                                                                                                                                            
+✅ls > salida.txt2> error.txt                                                                                               
+✅ls>salida.txt2>error.txt                                                                                                                                                     
+
+❌ls >> archivo.txt 2>> archivo.txt                                                                                                                                             
+❌ls>>archivo.txt 2>>archivo.txt                                                                                                                                             
+✅ls>>archivo.txt2>>archivo.txt                                                                                                                                                     
+
+❌ls 2>&1 > salida.txt                                                                                                                                            
+❌ls 2>&1>salida.txt                                                                                                                                            
+❌ls2>&1>salida.txt                                                                                                                                            
+
+❌ls 2>&1 | wc -l                                                                                                                                            
+
+❌ls > salida.txt 2>&1                                                                                                                                            
+❌ls>salida.txt 2>&1                                                                                                                                            
+❌ls>salida.txt2>&1                                                                                                                                            
+
+
+# Redirigimos la entrada estándar y salida estándar a FD 3
+❌exec 3<&0                                                                                                                                                  
+❌exec 4>&1                                                                                                                                               
+
+# Usamos los descriptores duplicados
+❌cat <&3                                                                                                                                                  
+❌echo "Texto desde FD 4" >&4                                                                                                                                                
+❌exec 3>&1 4>&2                                                                                                                                                 
+❌ls> archivo.txt 2>&1                                                                                                                                                  
+❌exec 3>&- 4>&-                                                                                                                                                 
+
+1.
+❌exec 3> salida.txt                                                                                                                                          
+❌echo "Hola Mundo" >&3                                                                                                                                           
+❌exec 3>&-                                                                                                                                          
+
+2.
+❌exec 3<> datos.txt                                                                                                                                          
+❌echo "Nueva línea" >&3                                                                                                                                              
+❌exec 3<&-                                                                                                                                               
+❌exec 3>&-                                                                                                                                               
+
+3.
+❌exec 3> archivo.txt                                                                                                                                       
+❌exec 4>&3                                                                                                                                           
+❌echo "Texto desde 4" >&4                                                                                                                                         
+❌exec 3>&-                                                                                                                                           
+❌exec 4>&-                                                                                                                                           
+
+4.
+❌exec 3< archivo.txt                                                                                                                                         
+❌cat <&3                                                                                                                                            
+❌exec 3<&-                                                                                                                                            
+
+6.
+❌exec 3>>                                                                                                                                        
+❌echo "Nueva línea agregada" >&3                                                                                                                                           
+❌exec 3>&-                                                                                                                                            
+
+7.
+❌exec 3>> eventos.log                                                                                                                                       
+❌for i in {1..3}; do                                                                                              
+❌    echo "Evento número $i registrado" >&3                                                                                                                                          
+❌done                                                                                               
+❌exec 3>&-                                                                                                                                          
+
+8. 
+❌exec 3<<EOF                                                                                                                                      
+
+
+❌cat <&3                                                                                                                                         
+❌exec 3<&-                                                                                                                                         
+
+9.
+❌exec 3<<EOF                                                                                                                                         
+
+
+❌while read -r linea <&3; do                                                                                            
+❌    echo "Leído desde FD 3: $linea"                                                                                            
+❌done                                                                                           
+
+❌exec 3<&-                                                                                                                                          
+
+10.
+❌exec 3>&1 4>&2                                                                                                                                          
+❌comando &> archivo.txt                                                                                                                                         
+❌exec 3>&- 4>&-                                                                                                                                           
+
+11.
+
+🔹 ✒ <<-EOF, n<<EOF, n<<-EOF  (n<<<EOF y n<<<-EOF NO EXISTEN)
+
+❌3<<EOF                        (VER ESTE CASO)                                                                                                                        
+❌3<<'EOF'                        (VER ESTE CASO)                                                                                                                        
+❌exec3<<EOF                        (VER ESTE CASO)                                                                                                                        
+❌exec3<<-EOF                      (VER ESTE CASO)                                                                                                                        
+❌ls3<<EOF == ls3 << EOF                                                                                                                             
+✅<<LIMITER                                                                                                                                                                                                                          
+❌<<2LIMITER                                                                                                                                            
+✅ls <<2LIMITER                                                                                                                                            
+❌<<<LIMITER                                                                                                                                                 
+✅ls6<<2LIMITER
+❌ls 6<<2LIMITER
+
+1. <<-EOF: ¡Sí, es válido!
+❌<<-EOF <<-EOF2                                                                                                                                 
+❌cat <<-EOF                                                                                                                                                                            
+    Este es un texto
+    con tabulaciones
+    que serán eliminadas.
+EOF
+
+2. 3<<EOF: ¡Sí, es válido!
+❌exec 3<<EOF                                                                                                                                                                           
+Esto es un ejemplo de redirección
+a un descriptor de archivo.
+EOF
+cat <&3  # Leer desde el descriptor de archivo 3
+
+3. 3<<-EOF: ¡Sí, es válido!
+❌exec 3<<-EOF                                                                                                                                                                           
+    Este es un texto con tabulaciones
+    que serán eliminadas antes de ser
+    redirigidas al descriptor 3.
+EOF
+cat <&3  # Leer desde el descriptor de archivo 3
+
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•METACARACTERES NO PERMITIDOS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+deberia dar SINTAXIS_ERROR: ; \t & ( ) \n !  #
+
+TEST                                                                                              TEST_LINE                                    TEST_EJECUCION
+❌echo "Comando 1"; echo "Comando 2"                                                              
+❌echo "Comando; 1"; echo "Comando 2"                                                             
+✅echo "Comando 1" ";" echo "Comando 2"                                                           
+❌echo "Comando 1";echo "Comando 2"                                                                                                                        
+❌echo "Comando; 1";echo "Comando 2"                                                              
+✅echo "Comando 1" ";"echo "Comando 2"                                                            
+✅echo ";hola"                                                                                    
+❌echo 'Comando 1'; echo 'Comando 2'                                                              
+❌echo "Comando; 1"  ; echo "Comando 2"                                                           
+✅echo ';hola'                                                                                    
+❌# echo hola                                                                                                                     
+❌echo ho#la                                                                                                                    
+❌!                                                                                                                    
+❌echo !hola!                                                                                                                     
+✅echo '!hola'                                                                                                                     
+
+FALTA \t                                                                                        
+echo \t                                                                                         
+echo "hola\n"
+
+❌("(HOLA)")                                                                                      
+❌(echo "Comando dentro de paréntesis" && echo "Otro comando dentro")                             
+✅echo "   hola(o no) "                                                                           
+
+❌echo "Prueba 1"; echo "Prueba 2" & (echo "Subshell 1"; echo "Subshell 2")                       
+
+
+
+
+OPERADORES y \:
+
+FALTA \n                                                                                                              
+echo \n                                                                                                               
+
+
+OPERADORES NO PERMITIDOS: &&, ||, ;;, <<<, >|, |&, $|, 2>, 2>>, 2>&1, >&, &>
+
+TEST                                                                                           TEST_LINE                                    TEST_EJECUCION
+❌echo hola && ls                                                                                
+❌echo hola & ls                                                                                 
+❌echo hola&&                                                                                    
+❌echo hola && &                                                                                  
+✅echo 'hola && &'                                                                                  
+❌mkdir mi_carpeta && rm -fr mi_carpeta
+✅mkdir mi_carpeta '&&' rm -fr mi_carpeta
+
+❌echo hola &&ls                                                                                                       
+❌echo hola &ls                                                                                                        
+❌echo hola&&                                                                                                          
+❌echo hola &&&                                                                                                        
+✅echo 'hola &&&'                                                                                                         
+
+✅echo 'hola && &'                                                                                                                    
+❌echo hola & &&                                                                                                                     
+
+ls |& wc -l
+
+COMANDOS A TESTEAR:
+TEST                                                                                   TEST_LINE                                            TEST_EJECUCION
+❌echo "Comando 1" && echo "Comando 2"                                                                                                                       
+✅echo "Comando 1 && echo Comando 2"                                                                                                                       
+✅echo 'Comando 1 && echo Comando 2'                                                                                                                         
+❌echo "Comando 1" &&echo "Comando 2"                                                                                                    
+✅echo "Comando 1 &&echo Comando 2"                                                                                                                        
+✅echo '&&hola'                                                                                                                                                           
+❌echo && hola                                                                                                                                                          
+
+❌echo "Comando 1" || echo "Comando 2"                                                                                                                        
+✅echo "Comando 1 || echo Comando 2"                                                                                      
+✅echo "Comando 1||echo Comando 2"                                                                                                                       
+❌echo Comando 1||echo Comando 2                                                                                                                         
+
+❌read num; case $num in 1) echo "Uno";; 2) echo "Dos";; 3) echo "Tres";; *) echo "Otro";; esac	               
+✅echo "read num; case $num in 1) echo "Uno";; 2) echo "Dos";; 3) echo "Tres";; *) echo "Otro";; esac"       
+
+❌cat <<< "Texto de prueba"                                                                                           
+✅echo "cat <<< Texto de prueba"                                                                                                                  
+
+❌echo "Texto sobrescrito" >| archivo.txt                                                                                                                    
+✅echo "Texto sobrescrito >| archivo.txt"                                                                                                                    
+✅echo 'Texto sobrescrito >| archivo.txt'                                                                                                                    
+❌echo "Texto sobrescrito" >|archivo.txt                                                                                                                                                           
+✅echo "Texto sobrescrito >|archivo.txt"                                                                                                                    
+
+✅echo "Error de prueba |&[ tee archivo.log"                                                                                                               
+❌echo "Error de prueba" |& tee archivo.log                                                                                                                          
+✅echo "Error de prueba |& tee archivo.log"                                                                                                                          
+❌echo "Error de prueba" |&tee archivo.log                                                                                                                          
+✅echo "Error de prueba |&tee archivo.log"                                                                                                                          
+❌echo "Error de prueba" |&[tee archivo.log                                                                                                                                                                 
+
+❌echo "Texto de salida" $| tee archivo.txt                                                                                                                       
+✅echo "Texto de salida $| tee archivo.txt"                                                                                                                         
+❌echo "Texto de salida" $|tee archivo.txt                                                                                                                        
+✅echo "Texto de salida $|tee archivo.txt"                                                                                                                         
+
+
+//testeo de: bool has_invalid_numeric_redir(const char *str, t_metachars *meta):
+
+❌echo "Este es un error" 0> error.txt                                                                                                      
+✅echo "Este es un error" '0> error.txt'                                                                                                   
+✅echo "Este es un error" '0'> error.txt                                                                                                   
+✅echo "Este es un error" '0>' error.txt                                                                                                   
+❌echo "Este es un error" 1> error.txt                                                                                                      
+❌echo "Este es un error" 2> error.txt                                                                                                       
+❌echo "Este es un error" 3> error.txt                                                                                                       
+❌echo "Este es un error" 27> error.txt                                                                                                      
+❌echo "Este es un error" 3025> error.txt                                                                                                      
+❌echo "Este es un error" 3025 > error.txt                                                                                                      
+
+❌echo "Este es un error" 2025 > error.txt                                                                                                  
+❌echo "Este es un error" 3025 > error.txt                                                                                                  
+❌echo "Este es un error" 1125 > error.txt                                                                                             
+❌echo "Este es un error" 1025 > error.txt                                                                                           
+❌echo "Este es un error" 1025> error.txt                                                                                                    
+❌echo "Este es un error" 1025>> error.txt                                                                                               
+❌ls>salida.txt 158<file.txt                                                                                                     
+
+❌echo "Este es un error" 54893> error.txt                                                                                                      
+✅echo "Este es un error"27> error.txt                                                                                                    
+✅echo "Este es un error" "27> error.txt"                                                                                                      
+✅echo "Este es un error" "27> error.txt"                                                                                                      
+✅ls>salida.txt27>file.txt                                                                                                     
+❌ls>salida.txt 27>file.txt                                                                                                      
+✅ls>salida.txt '27>file.txt'                                                                                                      
+✅ls>salida.txt'27>file.txt'                                                                                                      
+❌ls>salida.txt 27<>file.txt                                                                                                     
+❌ls>salida.txt 5269<>file.txt                                                                                                     
+✅ls>salida.txt 5269'<>'file.txt                                                                                                     
+✅ls>salida.txt 5269'<>file.txt'                                                                                                     
+✅ls>salida.txt 1269'<>file.txt'                                                                                                     
+
+❌echo hola 45<<-EOF                                                                                                    
+❌echo hola 45<<-EOF <<EOF2                                                                                                    
+❌echo hola 5789<<-EOF 145<<EOF2                                                                                                    
+❌echo hola 5789 <<-EOF 145<<EOF2                                                                                                     
+✅echo hola '5789<<-EOF 145<<EOF2'                                                                                                     
+❌echo hola 3<<-EOF <<EOF2                                                                                                    
+✅echo hola3<<-EOF <<EOF2                                                                                                    
+✅echo hola3<<-EOF<<EOF2                                                                                                   
+
+
+❌echo "Este es un error" 2> error.txt                                                                                                      
+✅echo "Este es un error 2> error.txt"                                                                                        
+❌echo "Este es un error" 2>error.txt                                                                                        
+✅echo "Este es un error 2>error.txt"                                                                                        
+
+❌echo "Este es otro error" 2>> error.txt                                                                                     
+✅echo "Este es otro error 2>> error.txt"                                                                                     
+❌echo "Este es otro error" 2>>error.txt                                                                                     
+✅echo "Este es otro error 2>>error.txt"                                                                                     
+
+❌echo "Este es un error" 2>&1                                                                                               
+✅echo "Este es un error 2>&1"                                                                                                
+
+❌echo "Salida combinada" >& archivo.txt                                                                                      
+✅echo "Salida combinada >& archivo.txt"                                                                                      
+❌echo "Salida combinada" >&archivo.txt                                                                                      
+✅echo "Salida combinada >&archivo.txt"                                                                                      
+
+❌echo "Texto combinado" &> archivo_combinado.txt                                                                             
+✅echo "Texto combinado &> archivo_combinado.txt"                                                                             
+❌echo "Texto combinado" &>archivo_combinado.txt                                                                             
+✅echo "Texto combinado &>archivo_combinado.txt"                                                                             
+
+ 
+🔹 ✒ REVISAR: is_fd_redirection() testeo
+fd diferentes de 0, 1 y 2:
+TEST                                                                                           TEST_LINE                                    TEST_EJECUCION
+❌echo "Texto para el descriptor 3" 3> archivo3.txt                                              
+❌echo "Texto para el descriptor 3" 4> archivo3.txt                                              
+❌echo "Texto para el descriptor 3" 3>> archivo3.txt                                              
+❌echo "Texto para el descriptor 3" 3>>archivo3.txt                                              
+✅echo "Texto para el descriptor 3 3> archivo3.txt"                                              
+❌echo "Texto para el descriptor 3" 3>archivo3.txt                                               
+❌echo "Texto para el descriptor 3"3> archivo3.txt                                                
+✅echo "Texto para el descriptor 3 3>archivo3.txt"                                               
+
+❌echo "Texto para el descriptor 4" 4>> log.txt                                                  
+✅echo "Texto para el descriptor 4 4>> log.txt"                                                  
+❌echo "Texto para el descriptor 4" 4>>log.txt                                                   
+✅echo "Texto para el descriptor 4 4>>log.txt"                                                   
+
+❌echo "Texto para el descriptor 3" 3>&1                                                           
+✅echo "Texto para el descriptor 3 3>&1"                                                                                                                     
+✅echo "Texto para el descriptor 3    3>&1 o no "                                                
+❌echo "Texto para el descriptor 3"3>&1                                                          
+✅echo "Texto para el descriptor 33>&1"                                                                                                                     
+
+❌echo "Texto para el descriptor 4" 4>&3                                                           
+✅echo "Texto para el descriptor 4 4>&3"                                                                                                                     
+❌echo "Texto para el descriptor 4"4>&3                                                             
+✅echo "Texto para el descriptor 4 4>&3"                                                                                                                     
+
+❌echo "Texto del descriptor 4" <&4                                                                 
+❌echo "Texto del descriptor 4"<&4                                                                                                                     
+✅echo "Texto del descriptor 4 <&4"                                                                                                                     
+
+❌echo "Texto del descriptor 0" <&0                                                                  
+❌echo "Texto del descriptor 0"<&0                                                                                                                     
+✅echo "Texto del descriptor 0 <&0"                                                                                                                     
+
+🔹 ✒ REVISAR: is_fd_redirection() testeo
+fd diferentes de 0, 1 y 2:
+TEST                                                                                          TEST_LINE                                    TEST_EJECUCION
+❌hola mundo     3>file.txt                                                                       
+✅'     3>file.txt          '                                                                                                                     
+✅"hola      3>file.txt          "                                                                                                                     
+✅"hola      '3>file.txt'          "                                                                                                                     
+
+❌ls -l4>>log.txt                                                                                             
+✅'     4>>log.txt          '                                                                                                                      
+✅"hola      4>>log.txt          "                                                                                                                     
+
+❌ls -l 3>&1, 4>&3                                                                                            
+✅'     3>&1, 4>&3          '                                                                                                                     
+✅"hola     3>&1, 4>&3          "                                                                                                                     
+
+❌ls -l<&4, <&0                                                                                             
+✅'    3>&1, 4>&3         '                                                                                                                     
+✅"hola      3>&1, 4>&3       "                                                                                                                     
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•PARENTESIS NO AUTORIZADOS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                                                                         TEST_LINE                                    TEST_EJECUCION
+❌    ls -l &{                                                                                                                 
+✅'   echo hola {'                                                                                                                     
+✅"{"                                                                                                                     
+
+❌ls -l}                                                                                                                 
+✅'}'                                                                                                                     
+✅"    }   "                                                                                                                     
+
+❌[                                                                                                                 
+✅'   ['                                                                                                                     
+✅"[    "                                                                                                                     
+
+❌]                                                                                                                            
+✅'   ]'                                                                                                                     
+✅"]   "                                                                                                                     
+
+❌ echo hola ]                                                                                                      
+✅echo hola ' caracola loca]  o no'                                                                                                                     
+✅"echo]hola"                                                                                                                     
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•COMILLAS DENTRO DE UN COMANDO•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+esto va con split modificado: ft_split_with_quotes()
+
+→ ech"o" hola 		→ ✅ FUNCIONA: → tokeniza echo como comando y hola como argumento, el separador es espacio sin comillas
+→ echo"ho"la 		→ ❌ BASH_ERROR: → echohola: command not found  → tokeniza todo y lo manda como command, no hay separador
+→ echo "ho"la 		→ ✅ FUNCIONA: → tokeniza echo como command y hola como argument, el separador es espacio sin comillas
+→ echo"ho "la 		→ ❌ BASH_ERROR: → echoho la: command not found  → no hay espacio sin comillas como separador y se tokeniza todo, espacio encomillado incluido
+→ echo"ho " la 		→ ❌ BASH_ERROR: → echoho : command not found  → tokeniza command hasta el espacio sin comillas
+
+
+echo "hola 'mundo' loco" -> [echo]["hola 'mundo' loco"]
+echo 'hola "mundo" loco' -> [echo]['hola "mundo" loco']
+echo 'hola "mundo" '|' loco' -> [echo]['hola "mundo" '|][' loco']
+echo "'hola "mundo" '|' loco'" -> [echo]["'hola "mundo" '|' loco'"]
+echo "hola ' mundo" -> [echo]["hola ' mundo"]
+echo 'hola " mundo'-> [echo]['hola " mundo']
+echo "hola mundo loco" -> [echo]["hola mundo loco"]
+echo 'hola mundo loco'-> [echo]['hola mundo loco']
+echo "hola" "mundo" -> [echo]["hola"]["mundo"]
+echo "hola""mundo" && ls -> [echo]["hola""mundo"][&&][ls]
+"ls" | "wc" "-l" -> ["ls"][|]["wc]["-l"]
+"ls""|""wc" "-l" -> ["ls""|""wc]["-l"]
+"ls" "|" "wc" "-l" -> ["ls"]["|"]["wc"]["-l"]
+'ls' "|" 'wc' "-l" -> ['ls']["|"]['wc']["-l"]
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•REDIRECCIONES Y CARACTERES PERMITIDOS DUPLICADOS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                                        TEST_LINE                                    TEST_EJECUCION
+
+cat < testeo.txt > newfile.txt						
+cat<testeo.txt>newfile.txt							
+
+wc -l < testeo.txt 									
+wc -l < "testeo.txt" 								
+wc -l < 'testeo.txt' 								
+wc -l< testeo.txt 									
+wc -l <testeo.txt 									
+wc -l<testeo.txt 									
+
+wc-l<testeo.txt										SHELL_ERROR -> wc-l: command not found
+
+
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•OPERADORES NO PERMITIDOS DUPLICADOS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+❌echo "Texto para el descriptor 3" 3>&1 3>&1                                     
+❌echo "Texto para el descriptor 3" 3>&13>&1                                     
+❌echo "Texto para el descriptor 4" 3> 3> log.txt                                
+❌echo "Texto para el descriptor 4" 4>> 4>> log.txt                              
+❌echo "Texto para el descriptor 4" 4>> 4>>log.txt                               
+❌echo "Texto para el descriptor 4" 4>>4>>log.txt                                
+❌echo "Texto para el descriptor 4" 4>>4>> log.txt                                
+✅echo "Texto para el descriptor 4" '4>> 4>>log.txt    '                             
+
+
+   _   _   _   _   _   _   _   _   _   _   _   _     _   _     _   _     _   _   _   _   _  
+  / \ / \ / \ / \ / \ / \ / \ / \ / \ / \ / \ / \   / \ / \   / \ / \   / \ / \ / \ / \ / \ 
+ ( S | Y | N | T | A | X | _ | E | R | R | O | R ) ( E | N ) ( E | L ) ( T | O | K | E | N )
+  \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/   \_/ \_/   \_/ \_/   \_/ \_/ \_/ \_/ \_/ 
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•HERE_STRING NO PERMITIDAS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+<$													SHELL_ERROR -> -bash: $: No such file or directory						❌_WTF_ se queda pillado en ejecucion, revisar este caso
+<+													SHELL_ERROR -> -bash: +: No such file or directory    					❌_WTF_ se queda pillado en ejecucion, revisar este caso
+<-													SHELL_ERROR -> -bash: -: No such file or directory    					❌_WTF_ se queda pillado en ejecucion, revisar este caso
+
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•HERE-DOC•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+🔹 ✒ REVISAR: estros casos para fase 2
+
+// 🔹 ✒  << .. y << . y 	→ 🔹 va como here_delimiter: .. o .
+// 🔹 ✒  <<.. y <<. 	 	  → 🔹 va como here_delimiter: .. o .
+
+cd << EOF ..              → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+cd << EOF..               → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+
+cd << EOF.                → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+cd << EOF .               → 🔹 va como here_delimiter: .. o . y cd se ejecuta igual que si va sin nada: cd
+
+
+❌<<< LIMITER                                                                                                         
+❌<<< 'LIMITER'                                                                                                        
+❌<<<LIMITER                                                                                                         
+❌<<<'LIMITER'                                                                                                        
+❌echo <<< 'LIMITER'                                                                                                   
+✅echo '<<< LIMITER'                                                                                                    
+
+cat <<END > testfile.txt                                                                                                                                                        
+cat<<END>>testfile.txt                                                                                                                                                         
+cat<<<<<<<END>>>>>>testfile.txt                                                                                                                                 
+cat<<<<<<<END>>>>>>>testfile.txt                                                                                                                                                   
+cat <<EOF | grep "example"                                                                                                                                                        
+cat<<EOF|grep "example"                                                                                                                                                         
+cat<<<<<<<EOF|grep "example"                                                                                                                                                         
+cat<<EOF|grep"example"                                                                                                                                                     
+cat<<EOF|grep "pattern"<input.txt|sort                                                                                                                               
+cat<<EOF |grep "pattern"< input.txt|sort                                                                                                                               
+
+sort<<<<<unsorted.txt>>>>>>sorted.txt                                                                                                                     
+
+cat <<EOF                                                                                                                                                         
+cat<<<EOF                                                                                                                                                                
+cat <<<<EOF                                                                                                                                                                   
+cat <<"EOF"                                                                                                                                                                                                     
+cat<<<"EOF"                                                                                                                                                                                                          
+cat << EOF | wc -l
+cat file.txt | sort
+cat << EOF | grep "pattern" > output.txt
+cat <<< "inline input"                                                                                                                                                        
+cat<<<"inline input"                                                                                                                                                        
+<<<EOF                                                                                                                                                        
+<<< EOF                                                                                                                                                        
+<<< "EOF"                                                                                                                                                        
+"<<< EOF"                                                                                                                                                        
+"<<<"EOF                                                                                                                                                        
+
+
+🔹 ✒ REVISAR: testeo heredoc 
+<< LIMITER
+<< LIMITER << LIMITER2
+<< LIMITER << LIMITER2 << LIMITER3
+<<'LIMITER'
+<< 'LIMITER'
+<<"LIMITER"
+<<"'LIMITER'"
+<<'"LIMITER"'
+
+cat << EOF
+
+cat << EOF <            -> primero here-doc y luego bash: syntax error near unexpected token `newline' y no imprime here-doc
+cat << EOF <<          -> primero here-doc y luego bash: syntax error near unexpected token `newline' y no imprime here-doc
+<<ls<                 -> primero here-doc(con ls como heredoc_delimiter) y luego bash: syntax error near unexpected token `newline'
+<<ls >                -> primero here-doc(con ls como heredoc_delimiter) y luego bash: syntax error near unexpected token `newline'
+cat << EOF <<<        -> primero here-doc y luego bash: syntax error near unexpected token `newline' y no imprime here-doc
+
+cat << EOF <<<<       -> primero bash: syntax error near unexpected token `<' y luego here-doc pero no imprime here-doc
+cat << EOF <<<<<       -> primero bash: syntax error near unexpected token `<<' y luego here-doc pero no imprime here-doc
+cat << EOF << << <       -> primero bash: syntax error near unexpected token `<<' y luego here-doc pero no imprime here-doc
+cat << EOF << >       -> primero bash: syntax error near unexpected token `>' y luego here-doc pero no imprime here-doc
+cat << EOF << >       -> primero bash: syntax error near unexpected token `>' y luego here-doc pero no imprime here-doc
+cat << EOF << >>       -> primero bash: syntax error near unexpected token `>>' y luego here-doc pero no imprime here-doc
+cat << EOF << >> >       -> primero bash: syntax error near unexpected token `>>' y luego here-doc pero no imprime here-doc
+cat << EOF <<<<<<       -> primero bash: syntax error near unexpected token `<<<' y luego here-doc pero no imprime here-doc
+cat << EOF <<<<<<<      -> primero bash: syntax error near unexpected token `<<<' y luego here-doc pero no imprime here-doc
+
+cat << EOF <<EOF2 <<<<<<< -> primero bash: syntax error near unexpected token `<<<' y luego here-doc y here-doc2
+
+
+
+<<ls<<                                                                                                                  
+<<ls'<'            -> here-doc(con ls< como heredoc_delimiter)                                                                                                      
+<<ls'<<'            -> here-doc(con ls<< como heredoc_delimiter)                                                                                                      
+<<ls"<"            -> here-doc(con ls< como heredoc_delimiter)                                                                                                      
+<<ls"<<"            -> here-doc(con ls<< como heredoc_delimiter)
+
+<<ls<<<  -> primero here-doc(con ls como heredoc_delimiter) y luego bash: syntax error near unexpected token `newline'
+
+<<EOF'<<' -> DELIMITER ES: EOF<<
+
+<<ls <<la     -> primero here-doc(con ls como heredoc_delimiter) y luego here-doc(con la como heredoc_delimiter)
+<<ls <<<la   -> solo here-doc here string se pierde
+<<<ls <<la    -> se puede cerrar ls y la 
+<<< EOF <<ls <
+<<< EOF <<ls |
+<<< EOF <<ls | <
+
+<<EOF <<EOF2 <
+<<EOF <<EOF2 <<
+<<EOF <<EOF2 <<<<      -> primero bash: syntax error near unexpected token `<' y luego here-doc y here-doc 2
+<<EOF <<EOF2 << <<     -> primero bash: syntax error near unexpected token `<<' y luego here-doc y here-doc 2
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•BASH_ERROR•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+TEST                                                        TEST_LINE                                    TEST_EJECUCION
+
+🔶 por '<<<' se lo come tokenizacion de << y <
+<<<                                                                                                                                                
+<<<<                                                                                                                                              
+<<<<                                                                                                                                              
+<<<<<                                                                                                                                             
+<<<< ..                                                               
+<<< |
+
+🔶 
+<!													SHELL_ERROR -> -bash: !: No such file or directory						 
+<&													SHELL_ERROR -> -bash: syntax error near unexpected token `newline'		 
+<>													SHELL_ERROR -> -bash: syntax error near unexpected token `newline'		 
+<< (												SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+<<(													SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+<<< (												SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+<<<(												SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+<<<<(												SHELL_ERROR -> bash: syntax error near unexpected token `('				 
+<<<<<<<< (											SHELL_ERROR -> bash: syntax error near unexpected token `<<<'			 
+<<<<<<<<(											SHELL_ERROR -> bash: syntax error near unexpected token `<<<'			 
+
+
+🔶 por 
+<<+	
+>$																															
+>+																															
+>-																															
+>>-																															
+>>+																															
+>>$																															
+>$USER																														
+>'$USER'																														
+>"$USER"																														
+$													SHELL_ERROR -> $: command not found -> 127: command not found			
+
+
+🔶 por -> here_doc  -> SYNTAX_ERROR (COMO EN COMILLAS ABIERTAS)	
+
+❌<<ls<<                                                                                                                  
+✅<<ls'<'                                                                                                                  
+✅<<ls'<<'                                                                                                                  
+<< ls |   ??? hered y luego bash error -> bash: syntax error near unexpected token `|'
+<< ls | |  -> bash error y luego hered
+cat << ls | |  -> bash error y luego hered, pero no imprime command
+
+🔶 por -> here_doc ABIERTO -> SYNTAX_ERROR  + BASH_ERROR
+
+❌<<ls<<<<<                                                                                                                  
+❌<<ls<                                                                                                                  
+❌<<ls<<< == <<ls<< < 
+<<ls < <
+
+🔶 por -> SYNTAX_ERROR: '<<<'
+
+❌<<<ls<<<
+❌<<<ls<<
+
+
+
+🔶 por -> PIPE ABIERTO -> SYNTAX_ERROR (COMO EN COMILLAS ABIERTAS)	
+
+❌<<EOF <<EOF2 |
+❌echo|                                                                                                                   
+❌echo |                                                                                                                  
+❌grep|                                                                                                                  
+❌ls |                                                                                                                  
+❌$|	                                                                                                                  			
+
+
+❌grep "data" | << archivo.txt         ❌falla  revisar                                                                                                                       
+
+❌cat archivo.txt |                                                                                                                                  
+
+❌echo "hola" |
+❌echo hola |                                                                                                                  
+                                                                                          
+❌wc |                                                                                                                   
+
+❌echo $VAR=|                                                                                                                  
+❌echo $VAR|                                                                                                                  
+❌echo $VAR = |                                                                                                                  
+❌echo $VAR= |                                                                                                                  
+
+
+
+🔶 `newline'
+
+<<                                                                                                                        
+>>                                                                                                                        
+<                                                                                                                        
+>                                                                                                                        
+|                                                                                                                        
+<->                                                                                                                                                      
+<+>                                                                                                                                                      
+<$>                                                                                                                                                      
+<$USER<                                                                                                                                                      
+<$USER>                                                                                                                                                      
+ls >                                                                                                                                                       
+echo "Hola" <                                                                                                                                  
+❌'<<'ls<                                                                                                                                  
+❌'<<'ls<<                                                                                                                                  
+❌<ls<<	                                                                                                                                  
+ls <<                                                                                                                                  
+ls >>                                                                                                                                  
+❌>ls>>	                                                                                                                                  
+❌>>ls>>	                                                                                                                                  
+❌>ls>	                                                                                                                                  
+echo "test" >>                                                                                                                                  
+cat < >                                                                                                                                  
+ls | >                 ❌revisar wtf                                                                                                                                         
+ls | >>                ❌ falla                                                                                                     
+
+
+
+🔶 `|'
+
+| | >									                                                                                              
+ls | | >									                                                                                              
+echo > |									                                                                                                                                  
+ls >> |										                                                                                                                                  
+<< |										                                                                                                                                  
+<<|                                                                                                                                      
+<< | |										                                                                                                                                  
+|$											                                                                                                                                   
+<|											                                                                                                                                   
+|											                                                                                                                                   
+|>											                                                                                                                                
+<|											                                                                                                                                   
+| ls                                                                                                                                            
+| ls |         ❌revisar wtf                                                                                                                                  
+| |                                                                                                                                            
+| | ls                                                                                                                                           
+ls >> | |                                                                                                                                           
+ls >> | 
+ls | >>                                                                                                                                 
+| >>                                                                                                                                           
+| <<                                                                                                                                           
+>>|                                                                                                                                            
+| <<                                                                                                                                           
+| >>                                                                                                                                           
+| < >                                                                                                                                           
+| << >>                                                                                                                                           
+| >> <<                                                                                                                                           
+grep "error" | | ls                                                                                                                                  
+echo "Hola" | <                                                                                                                                  
+cat < | grep "test"               ❌revisar wtf                                                                                                                      
+grep "data" | << archivo.txt                                                                                                                                  
+ls << | cat                       ❌revisar wtf                                                                                                             
+echo "Texto" > | grep "Texto"     ❌revisar wtf                                                                                                                              
+grep "dato" >> | wc -l            ❌revisar wtf                                                                                                                       
+ls | | grep "archivo"                                                                                                                                  
+echo "Test" | | cat                                                                                                                                  
+grep "texto" | | | wc -l                                                                                                                                  
+grep "error" << | cat             ❌revisar wtf                                                                                                                    
+ls | >> | cat                                                                                                                                  
+
+
+🔶 `>'
+cat << > archivo.txt                                                                                                                     
+echo "test" < > | wc -l                                                                                                                                  
+grep "dato" >> > | ls                                                                                                                                  
+>> > |                                                                                                                                           
+<< > |                                                                                                                                           
+< > |                                                                                                                                           
+ls >>> list.txt                                                                                                                                  
+>>>                                                                                                                                            
+>> >                                                                                                                                  
+> >                                                                                                                                    
+ls >> > file                                                                                                                                  
+grep "texto" >> >                                                                                                                                  
+grep "data" >> > archivo.txt                                                                                                                                  
+echo "error" > > archivo.txt                                                                                                                                  
+ls>>> list.txt                                                                                                                             
+
+
+🔶 `<'
+< <                                                                                                                                                               
+<< <EOF                                                                                                                                                                 
+<< < EOF                                                                                                                                                                 
+<< <                                                                                                                     
+awk '{print $1}' < <                                                                                                                     
+echo "Hola" > < archivo.txt                                                                                                                     
+<ls<<<<<<< -> <<<         ❌ falla en << en vez de <<<                         
+
+
+🔶 `>>'
+cat << >> | grep "texto"                                                                                                                                  
+> >> |                                                                                                                                           
+<< >> |                                                                                                                                           
+ls << >> |                                                                                                                                  
+>> >> >> >> > | >                                                                                                                                           
+>> >> >> >> > | >>                                                                                                                      
+>> >> >> >> < | >                                                                                                                     
+>> >> >> >> | >                                                                                                                      
+>>>>>>>> | << <<                                                                                                                     
+>>>>>>>>                                                                                                                     
+>>>>                                                                                                                      
+>> >>                                                                                                                     
+>>>>>                                                                                                                       
+ls >>>> list.txt                                                                                                                     
+ls >>>>> list.txt                                                                                                                     
+ls << >>                                                                                                                                           
+ls << >> |                                                                                                                                           
+ls >> >> file                                                                                                                                           
+ls >> >> file                                                                                                                                         
+<< >>                                                                                                                     
+ls>>>>>list.txt                                                                                                                     
+
+
+
+🔶 `<<'
+grep "data" >> <<                                                                                                                     
+
+<< <<                                                                                                                                   
+<< << <                                                                                                                                 
+< << <<< >> >                                                                                                                           
+<< <<EOF											                                                                                    
+< <<EOF												                                                                                    
+cat < < archivo.txt                                                                                                                                  
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•PIPES CON VARS:•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+TEST                                        TEST_LINE                                    TEST_EJECUCION
+* ECHO:
+
+echo "$VAR=|"								output: =|
+echo '$VAR=|'								output: $VAR=|
+echo "$VAR|"								output: |
+echo '$VAR|'								output: $VAR|
+echo "$VAR = |"								output: = |
+echo '$VAR = |'								output: $VAR = |
+echo "$VAR= |"								output: = |
+echo '$VAR= |'								output: $VAR= |
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•VARIABLES NO PERMITIDAS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•PALABRAS NO PERMITIDAS•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+🔹 ✒ REVISAR: testeo
+PALABRAS NO PERMITIDAS: ->❌ SINTAX_ERROR:
+
+alias for while if elif do done case then in esac until coproc else select fi function 
+
+revisar casos:
+✅echo for 
+
+esto debe fallar: ->❌ SINTAX_ERROR:
+
+✅echo alias ll='ls -la'
+❌ alias ll='ls -la'
+✅"alias"
+✅"alias ll='ls -la'"
+
+❌for i in 1 2 3; do echo $i; done
+✅
+
+❌while true; do echo "Loop infinito"; sleep 1; done
+✅
+
+❌ if [ "$x" -eq 5 ]; then echo "x es 5"; fi
+❌ if [ $x -eq 5 ]; then
+✅
+
+❌ elif [ "$y" -gt 10 ]; then echo "y es mayor que 10"
+✅
+
+❌ do echo "Ejecutando comando en bucle"; done
+✅
+
+❌ done
+✅
+
+❌ case "$var" in foo) echo "Es foo" ;; bar) echo "Es bar" ;; esac
+✅
+
+❌ then echo "Ejecutando bloque THEN"
+✅ "then echo "Ejecutando bloque THEN""
+
+❌ in some_folder/*) echo "Coincide con algún archivo"
+✅ echo 'in some_folder/*) echo "Coincide con algún archivo"'
+
+❌ esac
+✅ ls "esac"
+
+❌ until [ "$x" -eq 10 ]; do echo "x no es 10"; x=$((x+1)); done
+✅ "until [ "$x" -eq 10 ]; do echo "x no es 10"; x=$((x+1)); done"
+
+❌ coproc myproc { sleep 5; echo "Proceso terminado"; }
+✅ 'coproc myproc { sleep 5; echo "Proceso terminado"; }'
+
+❌ else echo "Se ejecuta ELSE"
+✅ echo 'else'
+
+❌ select option in "Opción1" "Opción2"; do echo "Elegiste $option"; break; done
+✅' select option in "Opción1" "Opción2"; do echo "Elegiste $option"; break; done'
+
+❌ fi
+✅ "fi"
+
+❌ function my_func { echo "Esto es una función"; }
+✅ 'function my_func { echo "Esto es una función"; }'
+
+
+
+#•❅──────✧❅✦❅✧──────❅••❅──❅•OPERADORES NO PERMITIDOS EN VARIABLES•❅──✧❅✦❅✧──────✧❅✦❅✧─────❅•#
+
+   _   _   _   _     _   _   _   _   _   _   _   _     _   _   _   _   _   _  
+  / \ / \ / \ / \   / \ / \ / \ / \ / \ / \ / \ / \   / \ / \ / \ / \ / \ / \ 
+ ( T | E | S | T ) ( C | O | M | A | N | D | O | S ) ( V | A | R | I | O | S )
+  \_/ \_/ \_/ \_/   \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/   \_/ \_/ \_/ \_/ \_/ \_/ 
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Manejo de archivos y directorios: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+touch testfile 
+mkdir testdir 
+rm testfile 
+rm file1 file2 file3 				(rm puede tener mas de 1 arg)
+rmdir testdir 
+echo "Hello" > file.txt 
+
+touch test_exec.sh
+chmod +x test_exec.sh
+ls -l test_exec.sh
+
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Environment variables: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+echo $HOME
+echo $USER
+echo $?
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Manejo de procesos: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+sleep 3 &
+ps | grep minishell
+kill -9 $(pidof minishell)
+./minishell -c "ls -l"  (revisar este comando????)
+exec ls
+
+
+//#➵⤐──╌╌➣⋆➣╌─⤏➵•➵⤐──╌╌➣⋆➣╌╌── Signal handling: ──╌╌➣⋆➣╌╌⤏➵•➵⤐──╌╌➣⋆➣╌╌➔#
+
+Press Ctrl+C (should print a new prompt)
+Press Ctrl+D (should exit the shell)
+Press Ctrl+\ (should do nothing)
+

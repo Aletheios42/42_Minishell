@@ -1,0 +1,24 @@
+char **ft_tokeniser(const char *line, t_metachars meta)
+{
+	char **token;
+	
+	token=NULL;
+	if (line == NULL)
+	{
+		printf("\033[1;31m🛑 ERROR: en ft_tokeniser: (line == NULL)\n\033[0m"); //testeo
+		return (NULL);
+	}
+	
+	if (is_quotes_present(line))
+		token = ft_split_with_quotes(line, meta);
+	else 
+		token = ft_split(line, ' ');
+	
+	if (!token)
+	{
+		printf("Error: ft_split failed.\n");  //testeo
+		return NULL;
+	}
+	
+	return (token);
+}
