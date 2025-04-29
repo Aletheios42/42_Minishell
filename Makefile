@@ -2,36 +2,51 @@ BIN = minishell
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
 
-## SOURCE CODE
+## Directories
 SRC_DIR = ./Src/
+LIBFT_DIR = ./libft/
 OBJ_DIR = ./Obj/
+INCLUDES_DIR = ./Inc/
 
-SRC_FILES = main.c
+## Files
+SRC_FILES = main.c		\
+			lexer.c		\
+			parser.c	\
+			executor.c	
+
 SRC = $(addprefix $(SRC_DIR), $(SRC_FILES))
-
 OBJ_FILES = $(SRC_FILES:.c=.o)
 OBJ = $(addprefix $(OBJ_DIR), $(OBJ_FILES))
 
-## LINKER
-LINKER=readline
+## Libft
+LIBFT = $(LIBFT_DIR)libft.a
 
-##Includes
-INCLUDES_DIR=./Inc 
+## Libraries and Includes
+LIBS = -lreadline $(LIBFT)
+INCLUDES = -I$(INCLUDES_DIR) -I$(LIBFT_DIR)
 
-all: $(BIN)
+## Targets
+all: $(OBJ_DIR) $(LIBFT) $(BIN)
 
-$(BIN): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -l$(LINKER)  -o $(BIN)
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(BIN): $(OBJ) $(LIBFT)
+	$(CC) $(CFLAGS) $(OBJ) $(LIBS) -o $(BIN)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
-	mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(INCLUDES_DIR)  -c $<  -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_DIR)
 
 clean:
 	rm -rf $(OBJ_DIR)
+	$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
 	rm -f $(BIN)
+	$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
 
