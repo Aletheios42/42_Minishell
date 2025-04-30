@@ -1,0 +1,5 @@
+Los Built_ins son todos los comandos que vienen integrados dentro de shell.
+No necesitan otro proceso y fuincionan desde dentro.
+
+Lista:
+-echo: Imprime strings separados por espacio, si no hay -n, al final va un \n.
