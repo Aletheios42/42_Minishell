@@ -21,8 +21,10 @@ t_token_type set_token(char *tok) {
     return TOKEN_OPEN_PAREN;
   else if (ft_strncmp(tok , ")", 2))
     return TOKEN_CLOSE_PAREN;
+  else if (ft_strncmp(tok , "", 1))
+    return TOKEN_CLOSE_PAREN;
   else
-    return TOKEN_EOF;
+    return TOKEN_WORD;
 }
 
 t_token* lexer(char *input) {

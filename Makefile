@@ -1,6 +1,7 @@
 BIN = minishell
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
+CFLAGS += -g3 -fsanitize=address
 
 ## Directories
 SRC_DIR = ./Src/
@@ -42,12 +43,11 @@ $(LIBFT):
 
 clean:
 	rm -rf $(OBJ_DIR)
-	$(MAKE) -C $(LIBFT_DIR) clean
+	-$(MAKE) -C $(LIBFT_DIR) clean || true
 
 fclean: clean
 	rm -f $(BIN)
-	$(MAKE) -C $(LIBFT_DIR) fclean
-
+	-$(MAKE) -C $(LIBFT_DIR) fclean || true
 re: fclean all
 
 .PHONY: all clean fclean re
