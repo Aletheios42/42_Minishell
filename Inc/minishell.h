@@ -4,7 +4,10 @@
 
 //struct
 typedef struct s_tree {
-    char* sentence;
+    char *infiles;
+    char* cmd;
+    char* options;
+    char *outfiles;
     void* right;
     void* left;
 } t_tree;
@@ -20,7 +23,7 @@ typedef enum e_token_type {
     TOKEN_OR,          // '||'
     TOKEN_OPEN_PAREN,  // '('
     TOKEN_CLOSE_PAREN, // ')'
-    TOKEN_EOF          // Fin de entrada
+    TOKEN_EOF      // Fin de entrada
 } t_token_type;
 
 typedef struct s_token {
