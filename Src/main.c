@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "../libft/libft.h"
 
 
 int main(int ac, char **av, char **env) {
