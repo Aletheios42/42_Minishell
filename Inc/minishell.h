@@ -32,6 +32,12 @@ typedef struct s_token {
     struct s_token  *next;  // Siguiente token en la lista
 } t_token;
 
+typedef struct s_env // estructura para el env
+{
+    char            *value;
+    struct s_env    *next;
+}   t_env;
+
 // Funciones
 t_token* lexer(char *);
 t_tree* parser(t_token*);

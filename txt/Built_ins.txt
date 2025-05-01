@@ -3,3 +3,5 @@ No necesitan otro proceso y fuincionan desde dentro.
 
 Lista:
 -echo: Imprime strings separados por espacio, si no hay -n, al final va un \n.
+-env: Muestra todas las variables del entorno.
+-cd: Change Directory,
