@@ -31,11 +31,9 @@ void evaluate(t_token *tokens) {
     t_token *current = tokens;
     
     while (current) {
-        // Aplicar transición según el tipo del token actual
         DFA_lexer.current_state = 
             DFA_lexer.transition_table[DFA_lexer.current_state][current->type];
         
-        // Verificar si llegamos a estado de error
         if (DFA_lexer.current_state == STATE_ERROR) {
             ft_printf("Error de sintaxis cerca de '%s'\n", current->value);
             return;
@@ -44,9 +42,7 @@ void evaluate(t_token *tokens) {
         current = current->next;
     }
     
-    // Verificar si terminamos en estado final aceptado
     if (DFA_lexer.final_states[DFA_lexer.current_state]) {
-        // Comando sintácticamente correcto
         return;
     } else {
         ft_printf("Error: comando incompleto\n");

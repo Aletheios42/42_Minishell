@@ -19,6 +19,7 @@ int main(int ac, char **av, char **env) {
 
     tokens = lexer(input);
     data_tree = parser(tokens);
+    ft_print_tree(data_tree, 0);
     executor(data_tree, env);
   }
   return 0;

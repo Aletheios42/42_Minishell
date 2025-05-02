@@ -20,26 +20,61 @@ int ft_print_tree(t_tree *tree, int depth)
     
     if (!tree)
         return (ft_printf("(null)"));
+    
     count += ft_print_tree_indent(depth);
-    count += ft_printf("Tree{cmd=\"%s\", opts=\"%s\"\n", 
-            tree->cmd ? tree->cmd : "(null)",
-            tree->options ? tree->options : "(null)");
+    
+    // Print based on node type
+    switch (tree->type) {
+        case NODE_COMMAND:
+            count += ft_printf("Command{");
+            if (tree->data.command.cmd) {
+                count += ft_printf("cmd=\"%s\"", tree->data.command.cmd[0] ? tree->data.command.cmd[0] : "(null)");
+                int i = 1;
+                while (tree->data.command.cmd[i]) {
+                    count += ft_printf(" %s", tree->data.command.cmd[i]);
+                    i++;
+                }
+            } else {
+                count += ft_printf("cmd=(null)");
+            }
+            count += ft_printf(", infiles=\"%s\", outfiles=\"%s\"\n", 
+                tree->data.command.infiles ? tree->data.command.infiles : "(null)",
+                tree->data.command.outfiles ? tree->data.command.outfiles : "(null)");
+            break;
+            
+        case NODE_PIPE:
+        case NODE_AND:
+        case NODE_OR:
+        case NODE_PAREN:
+            count += ft_printf("Operator{type=%d, op=\"%s\"\n", 
+                tree->type,
+                tree->data.operator ? tree->data.operator : "(null)");
+            break;
+            
+        default:
+            count += ft_printf("Unknown{type=%d\n", tree->type);
+    }
+    
     if (tree->left)
     {
         count += ft_print_tree_indent(depth + 1);
         count += ft_printf("left=\n");
         count += ft_print_tree(tree->left, depth + 2);
     }
+    
     if (tree->right)
     {
         count += ft_print_tree_indent(depth + 1);
         count += ft_printf("right=\n");
         count += ft_print_tree(tree->right, depth + 2);
     }
+    
     count += ft_print_tree_indent(depth);
     count += ft_printf("}\n");
+    
     return (count);
 }
+
 
 int ft_print_token(t_token *token)
 {

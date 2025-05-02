@@ -26,13 +26,13 @@ typedef enum {
 // Alfabeto
 typedef enum e_token_type {
     TOKEN_WORD,        // Palabras generales (comandos, argumentos)
-    TOKEN_PIPE,        // '|'
     TOKEN_REDIR_IN,    // '<'
     TOKEN_REDIR_OUT,   // '>'
     TOKEN_APPEND,      // '>>'
     TOKEN_HEREDOC,     // '<<'
     TOKEN_AND,         // '&&'
     TOKEN_OR,          // '||'
+    TOKEN_PIPE,        // '|'
     TOKEN_OPEN_PAREN,  // '('
     TOKEN_CLOSE_PAREN, // ')'
     TOKEN_EOF      // Fin de entrada
