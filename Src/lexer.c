@@ -1,8 +1,59 @@
 #include "../libft/libft.h"
 #include "../Inc/minishell.h"
 
-//ARREGLAR LAS COMPARACIONES
-t_token_type set_token(char *tok) {
+DFA set_lexer_DFA(t_token *tokens) {
+    static DFA DFA_lexer;
+static int transition_matrix[MAX_STATES][MAX_SYMBOLS] = {
+    // TOKEN_WORD, TOKEN_PIPE, TOKEN_REDIR_IN, TOKEN_REDIR_OUT, TOKEN_APPEND, TOKEN_HEREDOC, TOKEN_AND, TOKEN_OR, TOKEN_OPEN_PAREN, TOKEN_CLOSE_PAREN, TOKEN_EOF
+    {STATE_WORD, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_IN_PAREN, STATE_ERROR, STATE_ERROR}, // STATE_INITIAL
+    {STATE_WORD, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_IN_PAREN, STATE_WORD, STATE_ACCEPT}, // STATE_IN_PAREN
+    {STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_IN_DQUOTE, STATE_ERROR}, // STATE_IN_DQUOTE
+    {STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_IN_SQUOTE, STATE_ERROR}, // STATE_IN_SQUOTE
+    {STATE_WORD, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_IN_PAREN, STATE_ERROR, STATE_ERROR}, // STATE_AFTER_OP
+    {STATE_WORD, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_AFTER_OP, STATE_IN_PAREN, STATE_ERROR, STATE_ACCEPT}, // STATE_WORD
+    {STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR, STATE_ERROR}  // STATE_ACCEPT
+};    
+    static int finals[MAX_STATES] = {0};
+    finals[STATE_WORD] = 1;
+    finals[STATE_ACCEPT] = 1;
+    
+    DFA_lexer.transition_table = transition_matrix;
+    DFA_lexer.initial_state = STATE_INITIAL;
+    DFA_lexer.current_state = STATE_INITIAL;
+    DFA_lexer.final_states = finals;
+    DFA_lexer.context = (void*)tokens;
+    
+    return DFA_lexer;
+}
+
+void evaluate(t_token *tokens) {
+    DFA DFA_lexer = set_lexer_DFA(tokens);
+    t_token *current = tokens;
+    
+    while (current) {
+        // Aplicar transición según el tipo del token actual
+        DFA_lexer.current_state = 
+            DFA_lexer.transition_table[DFA_lexer.current_state][current->type];
+        
+        // Verificar si llegamos a estado de error
+        if (DFA_lexer.current_state == STATE_ERROR) {
+            ft_printf("Error de sintaxis cerca de '%s'\n", current->value);
+            return;
+        }
+        
+        current = current->next;
+    }
+    
+    // Verificar si terminamos en estado final aceptado
+    if (DFA_lexer.final_states[DFA_lexer.current_state]) {
+        // Comando sintácticamente correcto
+        return;
+    } else {
+        ft_printf("Error: comando incompleto\n");
+    }
+}
+
+t_token_type set_token_type(char *tok) {
   if (!ft_strncmp(tok , "|", 2))
     return TOKEN_PIPE;
   else if (!ft_strncmp(tok , "<", 2))
@@ -22,34 +73,48 @@ t_token_type set_token(char *tok) {
   else if (!ft_strncmp(tok , ")", 2))
     return TOKEN_CLOSE_PAREN;
   else if (!ft_strncmp(tok , "", 1))
-    return TOKEN_CLOSE_PAREN;
+    return TOKEN_EOF;
   else
     return TOKEN_WORD;
 }
 
-t_token* lexer(char *input) {
-  t_token *tokens = NULL;
-  t_token *aux_tokens = NULL;
-  t_token *new_node = NULL;
-  char *tok;
-  
-  tok = ft_strtok(input, " ");
-  while (tok) {
+t_token* set_token(char *tok){
+
+    t_token *new_node;
+
     new_node = (t_token *)malloc(sizeof(t_token));
     if (!new_node)
       return NULL;
     new_node->value = tok;
-    new_node->type = set_token(tok);
+    new_node->type = set_token_type(tok);
     new_node->next = NULL;
-    
+    new_node->prev = NULL;
+    return new_node;
+}
+
+t_token* lexer(char *input) {
+  t_token *tokens = NULL;
+  t_token *current = NULL;
+  char *tok;
+  
+  tok = ft_strtok(input, " ");
+  while (tok) {
+    t_token *new_node = set_token(tok);
+    if (!new_node)
+      return NULL;
+      
     if (!tokens)
       tokens = new_node;
     else
-      aux_tokens->next = new_node;
-    aux_tokens = new_node;
+    {
+      current->next = new_node;
+      new_node->prev = current;
+    }
     
+    current = new_node;
     tok = ft_strtok(NULL, " ");
   }
   ft_printf("%T", tokens);
+  evaluate(tokens);
   return tokens;
 }
