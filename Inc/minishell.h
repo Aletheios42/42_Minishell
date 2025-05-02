@@ -25,4 +25,9 @@ t_token* lexer(char *);
 t_tree* parser(t_token*);
 void executor(t_tree*, char **);
 
+
+int ft_print_tree_indent(int depth);
+int ft_print_tree(t_tree *tree, int depth);
+int ft_print_token(t_token *token);
+int ft_print_token_list(t_token *tokens);
 #endif
