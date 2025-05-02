@@ -114,7 +114,7 @@ t_token* lexer(char *input) {
     current = new_node;
     tok = ft_strtok(NULL, " ");
   }
-  ft_printf("%T", tokens);
+  ft_print_token_list(tokens);
   evaluate(tokens);
   return tokens;
 }

@@ -3,6 +3,7 @@
 
 
 #include "lexer.h"
+
 //struct
 typedef struct s_tree {
     char *infiles;
