@@ -13,7 +13,8 @@ INCLUDES_DIR = ./Inc/
 SRC_FILES = main.c		\
 			lexer.c		\
 			parser.c	\
-			executor.c	
+			executor.c	\
+			print.c
 
 SRC = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ_FILES = $(SRC_FILES:.c=.o)
