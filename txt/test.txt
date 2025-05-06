@@ -1,0 +1,7 @@
+casos particulares a estudiar:
+caso 1:
+===========================
+test="o a"
+ech$test
+$ a
+===========================

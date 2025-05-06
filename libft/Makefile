@@ -46,6 +46,8 @@ SRC_FILES =	ft_isalpha.c		\
 		ft_memchr.c		\
 		ft_memcmp.c		\
 		ft_strtok.c		\
+		ft_strtok_array.c	\
+		ft_append_to_string_array.c	\
 		ft_strnstr.c		\
 		ft_free_matrix.c	\
 		ft_atoi.c		\
@@ -73,7 +75,7 @@ SRC_FILES =	ft_isalpha.c		\
 		ft_lstdelone.c		\
 		ft_lstclear.c		\
 		ft_lstiter.c		\
-		ft_lstmap.c
+		ft_lstmap.c			\
 
 # Rutas completas
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))

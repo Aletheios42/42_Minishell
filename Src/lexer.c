@@ -49,17 +49,22 @@ void evaluate(t_token *tokens) {
     }
 }
 
+/*
+ * las redirecciones pueden estar juntas o separada
+ * "<infile" o "< infile" asi que ese strncmp esta mal
+ *
+ */
 t_token_type set_token_type(char *tok) {
   if (!ft_strncmp(tok , "|", 2))
     return TOKEN_PIPE;
-  else if (!ft_strncmp(tok , "<", 2))
-    return TOKEN_REDIR_IN;
-  else if (!ft_strncmp(tok , ">", 2))
-    return TOKEN_REDIR_OUT;
   else if (!ft_strncmp(tok , ">>", 3))
     return TOKEN_APPEND;
   else if (!ft_strncmp(tok , "<<", 3))
     return TOKEN_HEREDOC;
+  else if (!ft_strncmp(tok , "<", 2))
+    return TOKEN_REDIR_IN;
+  else if (!ft_strncmp(tok , ">", 2))
+    return TOKEN_REDIR_OUT;
   else if (!ft_strncmp(tok , "&&", 3))
     return TOKEN_AND;
   else if (!ft_strncmp(tok , "||", 3))
@@ -93,6 +98,7 @@ t_token* lexer(char *input) {
   t_token *current = NULL;
   char *tok;
   
+
   tok = ft_strtok(input, " ");
   while (tok) {
     t_token *new_node = set_token(tok);
