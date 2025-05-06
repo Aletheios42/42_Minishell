@@ -15,13 +15,13 @@ typedef struct s_tree {
     t_node_type type;
     
     union {
-        struct {
-            char *infiles;
-            char **cmd; 
-            char *outfiles;
-        } command;
-        
         char *operator;
+
+        struct {
+            char **infiles;
+            char **cmd; 
+            char **outfiles;
+        } command;
     } data;
     
     struct s_tree* right;

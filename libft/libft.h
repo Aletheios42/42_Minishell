@@ -89,5 +89,6 @@ int ft_strlen_gnl(char *s);
 int ft_strchr_gnl(char *s1, char c);
 char strjoin_gnl(char *s1, char c);
 char *ft_strtok(char *chain, const char *delimeter);
+char **ft_append_to_string_array(char ***array, char *str);
 #endif
 #endif

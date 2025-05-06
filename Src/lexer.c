@@ -49,6 +49,11 @@ void evaluate(t_token *tokens) {
     }
 }
 
+/*
+ * las redirecciones pueden estar juntas o separada
+ * "<infile" o "< infile" asi que ese strncmp esta mal
+ *
+ */
 t_token_type set_token_type(char *tok) {
   if (!ft_strncmp(tok , "|", 2))
     return TOKEN_PIPE;

@@ -26,4 +26,5 @@ int	ft_puthex(unsigned long n, char *hexa_base);
 int	ft_putchar(char c);
 int	ft_putstr(char *s);
 int	ft_putptr(unsigned long ptr);
+void ft_put_arraystr(char **array);
 #endif
