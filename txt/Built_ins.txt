@@ -5,3 +5,5 @@ Lista:
 -echo: Imprime strings separados por espacio, si no hay -n, al final va un \n.
 -env: Muestra todas las variables del entorno.
 -cd: Change Directory,
+-pwd: Muestra el directorio actual.
+-exit: Termina el programa con un codigo de salida
