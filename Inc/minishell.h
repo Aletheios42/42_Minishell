@@ -1,6 +1,9 @@
 #ifndef MINISHELL_H
 #define MINISHELL_H
 
+#ifndef BUFF_SIZE
+# define BUFF_SIZE 1024
+
 
 // #include "lexer.h"
 #include "parser.h"
