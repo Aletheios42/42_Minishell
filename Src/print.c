@@ -1,6 +1,7 @@
 #include "../Inc/minishell.h"
 #include "../libft/libft.h" 
 
+// Helper function to indent based on depth
 int ft_print_tree_indent(int depth)
 {
     int count = 0;
@@ -34,13 +35,38 @@ int ft_print_string_array(char **array)
     return count;
 }
 
-// Print tree function with support for string arrays
+// Function to print redirection list
+int ft_print_redirs(t_redir *redirs)
+{
+    int count = 0;
+    t_redir *curr = redirs;
+    
+    if (!curr)
+        return ft_printf("(null)");
+    
+    count += ft_printf("[");
+    while (curr) {
+        count += ft_printf("{type=%d, file=\"%s\"}", 
+                          curr->type, 
+                          curr->filename ? curr->filename : "(null)");
+        
+        if (curr->next)
+            count += ft_printf(", ");
+        
+        curr = curr->next;
+    }
+    count += ft_printf("]");
+    
+    return count;
+}
+
+// Print tree function with support for new command structure
 int ft_print_tree(t_tree *tree, int depth)
 {
     int count = 0;
     
     if (!tree)
-        return (ft_printf("(null)"));
+        return (ft_printf("(null)\n"));
     
     count += ft_print_tree_indent(depth);
     
@@ -48,12 +74,10 @@ int ft_print_tree(t_tree *tree, int depth)
     switch (tree->type) {
         case NODE_COMMAND:
             count += ft_printf("Command{");
-            count += ft_printf("cmd=");
-            count += ft_print_string_array(tree->data.command.cmd);
-            count += ft_printf(", infiles=");
-            count += ft_print_string_array(tree->data.command.infiles);
-            count += ft_printf(", outfiles=");
-            count += ft_print_string_array(tree->data.command.outfiles);
+            count += ft_printf("args=");
+            count += ft_print_string_array(tree->data.command.args);
+            count += ft_printf(", redirs=");
+            count += ft_print_redirs(tree->data.command.redirs);
             count += ft_printf("\n");
             break;
             
@@ -86,39 +110,8 @@ int ft_print_tree(t_tree *tree, int depth)
     
     count += ft_print_tree_indent(depth);
     count += ft_printf("}\n");
+    ft_printf("\n");
     
     return (count);
 }
 
-int ft_print_token(t_token *token)
-{
-    int count = 0;
-    
-    if (!token)
-        return (ft_printf("(null)"));
-    count += ft_printf("Token{value=\"%s\", type=%d", 
-            token->value ? token->value : "(null)", 
-            token->type);
-    if (token->next)
-        count += ft_printf(", next=→}");
-    else
-        count += ft_printf(", next=NULL}");
-    return (count);
-}
-
-int ft_print_token_list(t_token *tokens)
-{
-    int count = 0;
-    t_token *current;
-    
-    if (!tokens)
-        return (ft_printf("(null)"));
-    current = tokens;
-    while (current)
-    {
-        count += ft_print_token(current);
-        count += ft_printf("\n");
-        current = current->next;
-    }
-    return (count);
-}

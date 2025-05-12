@@ -11,7 +11,6 @@ INCLUDES_DIR = ./Inc/
 
 ## Files
 SRC_FILES = main.c		\
-			lexer.c		\
 			parser.c	\
 			executor.c	\
 			print.c

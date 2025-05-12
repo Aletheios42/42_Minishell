@@ -1,154 +1,175 @@
 #include "../Inc/minishell.h"
-#include <stdlib.h>
 #include "../libft/libft.h"
 
-
-
-// Process redirection token and extract filename
-char **handle_redirection(char ***files, t_token **token) {
-    char *filename = NULL;
+t_tree* parse_bin_op(char **input) {
+    t_tree *tree = NULL;
+    char *pos = *input;
     
-    if ((*token)->value[1] == '\0' && (*token)->next && (*token)->next->type == TOKEN_WORD) {
-        // Case: "< infile" (separate tokens)
-        filename = (*token)->next->value;
-        *token = (*token)->next; // Skip the filename token
-    } else {
-        // Case: "<infile" (combined in one token)
-        filename = (*token)->value + 1; // Skip the operator character
+    tree = (t_tree *)malloc(sizeof(t_tree));
+    if (!tree)
+        return NULL;
+    ft_memset(tree, 0, sizeof(t_tree));
+    
+    if (ft_strncmp(pos, "&&", 2) == 0) {
+        tree->type = NODE_AND;
+        tree->data.operator = ft_substr(pos, 0, 2);
+        pos[0] = '\0';
+        pos[1] = '\0';
+        *input = pos + 2;
+    }
+    else if (ft_strncmp(pos, "||", 2) == 0) {
+        tree->type = NODE_OR;
+        tree->data.operator = ft_substr(pos, 0, 2);
+        pos[0] = '\0';
+        pos[1] = '\0';
+        *input = pos + 2;
+    }
+    else if (*pos == '|') {
+        tree->type = NODE_PIPE;
+        tree->data.operator = ft_substr(pos, 0, 1);
+        pos[0] = '\0';
+        *input = pos + 1;
+    }
+    else {
+        free(tree);
+        return NULL;
     }
     
-    return ft_append_to_string_array(files, filename);
+    return tree;
 }
 
-t_tree *parse_cmd(t_token *tokens) {
-    t_tree *node = NULL;
-    t_token *current = tokens;
+void add_redir(t_redir **head, t_redir_type type, char *filename) {
+    t_redir *new_redir = (t_redir *)malloc(sizeof(t_redir));
+    if (!new_redir)
+        return;
+    new_redir->type = type;
+    new_redir->filename = filename;
+    new_redir->next = NULL;
+    
+    if (!*head) {
+        *head = new_redir;
+    } else {
+        t_redir *current = *head;
+        while (current->next)
+            current = current->next;
+        current->next = new_redir;
+    }
+}
+
+t_tree* parse_cmd(char *input) {
+    t_tree *node;
+    t_redir *redirs = NULL;
+    char **cmd_args = NULL;
+    int i = 0;
     
     node = (t_tree *)malloc(sizeof(t_tree));
-    if (!node) 
+    if (!node)
         return NULL;
-    
-    // Initialize all fields to NULL
     ft_memset(node, 0, sizeof(t_tree));
     node->type = NODE_COMMAND;
     
-    while (current) {
-        if (current->type == TOKEN_REDIR_IN || current->type == TOKEN_HEREDOC)
-            node->data.command.infiles = handle_redirection(&node->data.command.infiles, &current);
-        else if (current->type == TOKEN_REDIR_OUT || current->type == TOKEN_APPEND)
-            node->data.command.outfiles = handle_redirection(&node->data.command.outfiles, &current);
-        else if (current->type == TOKEN_WORD)
-            node->data.command.cmd = ft_append_to_string_array(&node->data.command.cmd, current->value);
+    while (input[i]) {
+        while (input[i] == ' ')
+            i++;
         
-        current = current->next;
+        if (!input[i])
+            break;
+            
+        // Check redirections
+        if (!ft_strncmp(&input[i], ">>", 2)) {
+            i += 2;
+            while (input[i] == ' ')
+                i++;
+            int start = i;
+            while (input[i] && input[i] != ' ')
+                i++;
+            char *filename = ft_substr(input, start, i - start);
+            add_redir(&redirs, APPEND, filename);
+        }
+        else if (!ft_strncmp(&input[i], "<<", 2)) {
+            i += 2;
+            while (input[i] == ' ')
+                i++;
+            int start = i;
+            while (input[i] && input[i] != ' ')
+                i++;
+            char *delimiter = ft_substr(input, start, i - start);
+            add_redir(&redirs, HEREDOC, delimiter);
+        }
+        else if (input[i] == '<') {
+            i++;
+            while (input[i] == ' ')
+                i++;
+            int start = i;
+            while (input[i] && input[i] != ' ')
+                i++;
+            char *filename = ft_substr(input, start, i - start);
+            add_redir(&redirs, REDIR_IN, filename);
+        }
+        else if (input[i] == '>') {
+            i++;
+            while (input[i] == ' ')
+                i++;
+            int start = i;
+            while (input[i] && input[i] != ' ')
+                i++;
+            char *filename = ft_substr(input, start, i - start);
+            add_redir(&redirs, REDIR_OUT, filename);
+        }
+        else {
+            // Regular word
+            int start = i;
+            while (input[i] && input[i] != ' ' && input[i] != '<' && input[i] != '>')
+                i++;
+            char *word = ft_substr(input, start, i - start);
+            cmd_args = ft_append_to_string_array(&cmd_args, word);
+        }
     }
+    
+    node->data.command.args = cmd_args;
+    node->data.command.redirs = redirs;
     
     return node;
 }
 
-t_tree *parse_bin_op(t_token *tokens) {
-    t_tree *node = NULL;
-
-    node = (t_tree *)malloc(sizeof(t_tree));
-    if (!node) 
-        return NULL;
-    //
- // Initialize ALL fields (very important)
-    ft_memset(node, 0, sizeof(t_tree));
+t_tree* parse_pipe(char *input) {
+    t_tree *tree = NULL;
+    char *left_tok;
+    char *delims[2] = {"|", NULL};
     
-    if (tokens->type == TOKEN_AND)
-        node->type = NODE_AND;
-    else if (tokens->type ==  TOKEN_OR)
-        node->type = NODE_OR;
-    else if (tokens->type == TOKEN_PIPE)
-        node->type = NODE_PIPE;
-    else 
-      return NULL;
-
-    node->data.operator = tokens->value;
-    node->right = NULL;
-    node->left = NULL;
-
-    return node;
+    left_tok = input;
+    input = ft_strarraystr(input, delims);
+    if (!input)
+        return (parse_cmd(left_tok));
+        
+    tree = parse_bin_op(&input);
+    tree->left = parse_pipe(left_tok);
+    
+    if (input)
+        tree->right = parse_pipe(input);
+    
+    return tree;
 }
 
-t_tree *parse_pipe(t_token *tokens) {
-    t_tree *data_tree = NULL;
-    t_token *left_tokens = tokens;
+t_tree* parse_and_or(char *input) {
+    t_tree *tree = NULL;
+    char *left_tok;
+    char *delims[3] = {"&&", "||", NULL};
     
-    // Search for PIPE operators
-    while (tokens && tokens->type != TOKEN_PIPE)
-        tokens = tokens->next;
+    left_tok = input;
+    input = ft_strarraystr(input, delims);
+    if (!input)
+        return (parse_pipe(left_tok));
+        
+    tree = parse_bin_op(&input);
+    tree->left = parse_and_or(left_tok);
     
-    // If no operator found, move to next precedence level
-    if (!tokens)
-        return (parse_cmd(left_tokens));
+    if (input)
+        tree->right = parse_and_or(input);
     
-    // Create node for the operator
-    data_tree = parse_bin_op(tokens);
-    
-    // Break the token list
-    if (tokens->prev) {
-        tokens->prev->next = NULL;
-        tokens->prev = NULL;
-    }
-    
-    // Handle left side (check if first token was operator)
-    if (left_tokens == tokens)
-        data_tree->left = NULL;
-    else 
-        data_tree->left = parse_cmd(left_tokens);
-
-    
-    // Handle right side (check if operator was last token)
-    if (tokens->next)
-        data_tree->right =  parse_cmd(tokens->next);
-    else
-        data_tree->right =  NULL;
-    
-    return data_tree;
-}
-// Parse expressions with AND/OR
-t_tree *parse_and_or(t_token *tokens) {
-    t_tree *data_tree = NULL;
-    t_token *left_tokens = tokens;
-    
-    // Search for AND/OR operators
-    while (tokens && tokens->type != TOKEN_AND && tokens->type != TOKEN_OR)
-        tokens = tokens->next;
-    
-    // If no operator found, move to next precedence level
-    if (!tokens)
-        return (parse_pipe(left_tokens));
-    
-    // Create node for the operator
-    data_tree = parse_bin_op(tokens);
-    
-    // Break the token list
-    if (tokens->prev) {
-        tokens->prev->next = NULL;
-        tokens->prev = NULL;
-    }
-    
-    // Handle left side (check if first token was operator)
-    if (left_tokens == tokens)
-        data_tree->left = NULL;
-    else 
-        data_tree->left = parse_pipe(left_tokens);
-
-    
-    // Handle right side (check if operator was last token)
-    if (tokens->next)
-        data_tree->right = parse_and_or(tokens->next);
-    else
-        data_tree->right =  NULL;
-    
-    return data_tree;
+    return tree;
 }
 
-// Main parser function
-t_tree *parser(t_token *tokens) {
-    // Start parsing at the lowest precedence level
-    // return parse_and_or(tokens);
-    return parse_and_or(tokens);
+t_tree* parser(char *input) {
+    return parse_and_or(input);
 }

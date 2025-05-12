@@ -2,7 +2,7 @@
 #define MINISHELL_H
 
 
-#include "lexer.h"
+// #include "lexer.h"
 #include "parser.h"
 
 
@@ -15,11 +15,12 @@ typedef struct s_env // estructura para el env
 }   t_env;
 
 // Funciones
-t_token* lexer(char *);
-t_tree* parser(t_token*);
+// t_token* lexer(char *);
+// t_tree* parser(t_token*);
+t_tree *parse_and_or(char*);
 void executor(t_tree*, char **);
 
 
 int ft_print_tree(t_tree *, int );
-int ft_print_token_list(t_token *);
+// int ft_print_token_list(t_token *);
 #endif

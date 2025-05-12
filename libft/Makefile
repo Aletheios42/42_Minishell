@@ -46,7 +46,7 @@ SRC_FILES =	ft_isalpha.c		\
 		ft_memchr.c		\
 		ft_memcmp.c		\
 		ft_strtok.c		\
-		ft_strtok_array.c	\
+		ft_strarraystr.c	\
 		ft_append_to_string_array.c	\
 		ft_strnstr.c		\
 		ft_free_matrix.c	\
