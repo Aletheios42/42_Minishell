@@ -39,7 +39,7 @@ int ft_export(char *args[], t_env *env, t_env *secret)
 		if (args[i][0] == '=')
 			error = -3;
 		else
-			error = is_valid_env(args[i]);
+			error = is_valid_key(args[i]);
 		if (!error)
 			status = print_error(error, args[i]);
 		else if (!is_in_env(env, args[i]))

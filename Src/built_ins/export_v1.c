@@ -12,7 +12,7 @@
 
 #include "../Inc/minishell.h"
 
-int	is_valid_env(const char *arg)
+int	is_valid_key(const char *arg)
 {
 	int	i;
 
@@ -81,12 +81,12 @@ void	env_add(const char *value, t_env *env)
 
 int	print_error(int error, const char *arg)
 {
-	ft_putstr_fd("minishell: export: '", STDERR);
-	ft_putstr_fd(arg, STDERR);
-	ft_putstr_fd("': ", STDERR);
+	ft_putstr_fd("minishell: export: '", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putstr_fd("': ", 2);
 	if (error == -3)
-		ft_putendl_fd("invalid assigment", STDERR);
+		ft_putendl_fd("invalid assigment", 2);
 	else
-		ft_putendl_fd("not a valid identifier", STDERR);
+		ft_putendl_fd("not a valid identifier", 2);
 	return (1);
 }

@@ -8,3 +8,4 @@ Lista:
 -pwd: Muestra el directorio actual.
 -exit: Termina el programa con un codigo de salida
 -export: valida nombres de variables // crea o actualiza variables de entorno
+-unset: Lo contrario de export, elimina variables.
