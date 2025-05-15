@@ -11,6 +11,7 @@ int main(int ac, char **av, char **env) {
   (void)av;
   (void)env;
   char *input;
+  t_token *tokens;
 
    t_tree* data_tree;
 
@@ -20,9 +21,12 @@ int main(int ac, char **av, char **env) {
     input = readline("prompt $ ");
     add_history(input);
 
-    data_tree = parse_and_or(input);
+    tokens = lexer(input);
+
+    data_tree = parser(tokens);
     
-    ft_print_tree(data_tree, 0);
+    (void)data_tree;
+    // ft_print_tree(data_tree, 0);
   }
   return 0;
 }

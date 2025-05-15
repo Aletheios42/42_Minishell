@@ -4,13 +4,13 @@
 char *ft_strarraystr(const char *str, char **patterns) {
     char *earliest = NULL;
     int i = 0;
-    size_t len = ft_strlen(str);
+    int len = ft_strlen(str);
     
     if (!str || !patterns)
         return NULL;
     
     while (patterns[i]) {
-        char *found = ft_strnstr(str, patterns[i], len);
+        char *found = ft_strncmp(str, patterns[i], len);
         
         if (found && (!earliest || found < earliest)) {
             earliest = found;
