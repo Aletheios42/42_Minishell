@@ -12,6 +12,7 @@
 
 #include "../Inc/minishell.h"
 
+
 int	ft_pwd(void)
 {
 	char	cwd[PATH_MAX];
