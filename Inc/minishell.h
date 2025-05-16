@@ -6,6 +6,7 @@
 
 
 // #include "lexer.h"
+#include "lexer.h"
 #include "parser.h"
 
 
@@ -18,12 +19,14 @@ typedef struct s_env // estructura para el env
 }   t_env;
 
 // Funciones
-// t_token* lexer(char *);
-// t_tree* parser(t_token*);
-t_tree *parse_and_or(char*);
+t_token* lexer(char *);
+t_tree* parser(t_token*);
 void executor(t_tree*, char **);
 
 
 int ft_print_tree(t_tree *, int );
+void print_token_list(t_token *head);
+const char *get_token_type_string(t_token_type type);
 // int ft_print_token_list(t_token *);
+#endif
 #endif
