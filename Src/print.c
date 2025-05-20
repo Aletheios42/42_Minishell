@@ -3,8 +3,9 @@
 
 const char *get_token_type_string(t_token_type type) {
     static const char *token_names[] = {
-        "WORD", "REDIR_IN", "REDIR_OUT", "APPEND", "HEREDOC", 
-        "AND", "OR", "PIPE", "OPEN_PAREN", "CLOSE_PAREN", "EOF"
+        "REDIR_IN", "REDIR_OUT", "APPEND", "HEREDOC", 
+        "AND", "OR", "PIPE", "OPEN_PAREN", "CLOSE_PAREN",
+        "WORD", "EOF"
     };
     return token_names[type];
 }

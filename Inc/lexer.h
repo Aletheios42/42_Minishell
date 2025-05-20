@@ -35,6 +35,7 @@ typedef struct s_token {
     char            *value; // Texto del token
     t_token_type     type;  // Tipo de token
     struct s_token  *next;  // Siguiente token en la lista
+    struct s_token  *prev;  // Anterior token en la lista
 } t_token;
 
 // Estructura DFA para el autómata
