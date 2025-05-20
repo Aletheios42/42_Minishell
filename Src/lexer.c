@@ -171,7 +171,6 @@ t_token* lexer(char *input)
             input = tok + 1;
         input = skip_spaces(input);
     }
-    
-    print_token_list(tokens);
+
     return tokens;
 }

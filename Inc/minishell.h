@@ -5,8 +5,6 @@
 # define BUFF_SIZE 1024
 
 
-// #include "lexer.h"
-#include "lexer.h"
 #include "parser.h"
 
 
@@ -19,8 +17,7 @@ typedef struct s_env // estructura para el env
 }   t_env;
 
 // Funciones
-t_token* lexer(char *);
-t_tree* parser(t_token*);
+t_tree* parser(char *);
 void executor(t_tree*, char **);
 
 
