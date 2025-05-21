@@ -1,6 +1,58 @@
 #include "../Inc/minishell.h"
 #include "../libft/libft.h"
 
+// Print a token's type as a string
+const char *get_token_type_string(t_token_type type)
+{
+    static const char *token_names[] = {
+        "REDIR_IN", "REDIR_OUT", "APPEND", "HEREDOC", 
+        "AND", "OR", "PIPE", "PAREN", 
+        "WORD", "LITERAL_WORD", "EOF"
+    };
+    
+    if (type >= 0 && type <= TOKEN_EOF)
+        return token_names[type];
+    return "UNKNOWN";
+}
+
+// Helper function to print a token list with types
+int ft_print_token_list(t_token *head)
+{
+    t_token *current = head;
+    int count = 0;
+    
+    count += ft_printf("[");
+    while (current) {
+        const char *type_str = get_token_type_string(current->type);
+        count += ft_printf("{\"%s\":%s}", current->value, type_str);
+        if (current->next)
+            count += ft_printf(", ");
+        current = current->next;
+    }
+    count += ft_printf("]");
+    
+    return count;
+}
+
+// Print detailed token information
+void print_token_list(t_token *head)
+{
+    t_token *current = head;
+    int i = 0;
+    
+    if (!head) {
+        ft_printf("(empty token list)\n");
+        return;
+    }
+    
+    ft_printf("Token List:\n");
+    while (current) {
+        ft_printf("[%d] Type: %-15s Value: \"%s\"\n", 
+               i++, get_token_type_string(current->type), current->value);
+        current = current->next;
+    }
+}
+
 // Helper function to indent based on depth
 int ft_print_tree_indent(int depth)
 {
@@ -29,24 +81,6 @@ int ft_print_string_array(char **array)
         count += ft_printf("\"%s\"", array[i]);
         if (array[i + 1])
             count += ft_printf(", ");
-    }
-    count += ft_printf("]");
-    
-    return count;
-}
-
-// Helper function to print a token list
-int ft_print_token_list(t_token *head)
-{
-    t_token *current = head;
-    int count = 0;
-    
-    count += ft_printf("[");
-    while (current) {
-        count += ft_printf("\"%s\"", current->value);
-        if (current->next)
-            count += ft_printf(", ");
-        current = current->next;
     }
     count += ft_printf("]");
     
@@ -94,6 +128,12 @@ int ft_print_syntax_tree(t_tree *tree, int depth)
             break;
         case NODE_PAREN:
             count += ft_printf("PAREN");
+            if (tree->tokens) {
+                count += ft_printf("\n");
+                count += ft_print_tree_indent(depth + 1);
+                count += ft_printf("Content: ");
+                count += ft_print_token_list(tree->tokens);
+            }
             break;
         default:
             count += ft_printf("UNKNOWN");
@@ -115,35 +155,4 @@ int ft_print_syntax_tree(t_tree *tree, int depth)
     }
     
     return count;
-}
-
-// Print a token's type as a string
-const char *get_token_type_string(t_token_type type)
-{
-    static const char *token_names[] = {
-        "REDIR_IN", "REDIR_OUT", "APPEND", "HEREDOC", 
-        "AND", "OR", "PIPE", "OPEN_PAREN", "CLOSE_PAREN", "WORD", "EOF"
-    };
-    
-    if (type >= 0 && type <= TOKEN_EOF)
-        return token_names[type];
-    return "UNKNOWN";
-}
-
-// Print detailed token information
-void print_token_list(t_token *head)
-{
-    t_token *current = head;
-    int i = 0;
-    
-    if (!head) {
-        ft_printf("(empty token list)\n");
-        return;
-    }
-    
-    while (current) {
-        ft_printf("[%d] Type: %-15s Value: \"%s\"\n", 
-               i++, get_token_type_string(current->type), current->value);
-        current = current->next;
-    }
 }

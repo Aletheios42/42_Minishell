@@ -86,7 +86,7 @@ t_tree *parse_and_or(t_token *tokens)
         return NULL;
     
     // Recursively parse left and right sides
-    tree->left = parse_and_or(tokens_left);
+    tree->left = parse_pipe(tokens_left);
     tree->right = parse_and_or(tokens_right);
     
     return tree;
@@ -97,6 +97,10 @@ t_tree *parser(char *input)
 {
     t_token *tokens;
     tokens = lexer(input);
+    
+    ft_printf("Tokens: ");
+    ft_print_token_list(tokens);
+    ft_printf("\n"); // Add this newline
     
     if (!tokens)
         return NULL;

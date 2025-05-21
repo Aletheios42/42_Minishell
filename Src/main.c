@@ -13,7 +13,7 @@ int main(int ac, char **av, char **env) {
   (void)env;
   char *input;
 
-   t_tree* data_tree;
+  t_tree* data_tree;
 
 
 
@@ -23,7 +23,7 @@ int main(int ac, char **av, char **env) {
 
 
     data_tree = parser(input);
-    ft_print_syntax_tree(data_tree, 3);
+    // ft_print_syntax_tree(data_tree, 3);
     (void)data_tree;
   }
   return 0;
