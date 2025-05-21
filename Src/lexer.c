@@ -1,5 +1,7 @@
 #include "../libft/libft.h"
 #include "../Inc/minishell.h"
+#include <readline/readline.h>
+#include <readline/history.h>
 
 char *identify_delimiter(char *str, char **delims)
 {
@@ -92,6 +94,26 @@ char *skip_spaces(char *str)
     return str;
 }
 
+char *concatenate_input(char *original, char *continuation)
+{
+    char *new_input;
+    char *with_newline;
+    
+    if (!original)
+        return ft_strdup(continuation);
+    
+    with_newline = ft_strjoin(original, "\n");
+    if (!with_newline)
+        return NULL;
+    
+    new_input = ft_strjoin(with_newline, continuation);
+    free(with_newline);
+    free(original);
+    free(continuation);
+    
+    return new_input;
+}
+
 t_token_type get_quote_type(char quote_char)
 {
     if (quote_char == '\'')
@@ -99,16 +121,60 @@ t_token_type get_quote_type(char quote_char)
     return TOKEN_WORD;
 }
 
+char *handle_multiline_quotes(char *input, char quote_char, char **closing_quote)
+{
+    char *continuation;
+    char *new_input;
+    char *current_input;
+    
+    *closing_quote = ft_strchr(input + 1, quote_char);
+    current_input = ft_strdup(input);
+    
+    while (!*closing_quote)
+    {
+        continuation = readline("> ");
+        if (!continuation)
+        {
+            ft_printf("syntax error: unterminated quoted string\n");
+            free(current_input);
+            return NULL;
+        }
+        
+        new_input = concatenate_input(current_input, continuation);
+        if (!new_input)
+        {
+            free(current_input);
+            return NULL;
+        }
+        
+        current_input = new_input;
+        *closing_quote = ft_strchr(current_input + 1, quote_char);
+    }
+    
+    return current_input;
+}
+
 char *process_quoted_text(t_token **head, t_token **current, 
-                        char *input, t_token_type *next_type)
+                        char *input, t_token_type *next_type, char **full_input)
 {
     char *closing_quote;
     char *content;
     t_token_type type;
+    char *updated_input;
+    size_t offset;
     
-    closing_quote = ft_strchr(input + 1, *input);
-    if (!closing_quote)
-        return input + ft_strlen(input);
+    offset = input - *full_input;
+    updated_input = handle_multiline_quotes(input, *input, &closing_quote);
+    if (!updated_input)
+        return NULL;
+    
+    if (updated_input != input)
+    {
+        free(*full_input);
+        *full_input = updated_input;
+        input = *full_input + offset;
+        closing_quote = ft_strchr(input + 1, *input);
+    }
     
     content = ft_substr(input + 1, 0, closing_quote - (input + 1));
     type = get_quote_type(*input);
@@ -118,34 +184,88 @@ char *process_quoted_text(t_token **head, t_token **current,
     return closing_quote + 1;
 }
 
-char *find_closing_paren(char *input)
+char *find_closing_paren_multiline(char *input, char **updated_input)
 {
     int level;
     char *pos;
+    char *continuation;
+    char *new_input;
+    char *current_input;
     
     level = 1;
     pos = input + 1;
-    while (*pos && level > 0)
+    current_input = ft_strdup(input);
+    *updated_input = current_input;
+    
+    while (level > 0)
     {
-        if (*pos == '(')
-            level++;
-        else if (*pos == ')')
-            level--;
+        while (*pos && level > 0)
+        {
+            if (*pos == '(')
+                level++;
+            else if (*pos == ')')
+                level--;
+            if (level > 0)
+                pos++;
+        }
+        
         if (level > 0)
-            pos++;
+        {
+            continuation = readline("> ");
+            if (!continuation)
+            {
+                ft_printf("syntax error: unexpected end of file\n");
+                free(current_input);
+                return NULL;
+            }
+            
+            new_input = concatenate_input(current_input, continuation);
+            if (!new_input)
+            {
+                free(current_input);
+                return NULL;
+            }
+            
+            pos = new_input + (pos - current_input);
+            current_input = new_input;
+            *updated_input = current_input;
+        }
     }
+    
     return pos;
 }
 
 char *process_parentheses(t_token **head, t_token **current, 
-                       char *input, t_token_type *next_type)
+                       char *input, t_token_type *next_type, char **full_input)
 {
     char *closing_paren;
     char *content;
+    char *updated_input;
+    size_t offset;
     
-    closing_paren = find_closing_paren(input);
-    if (!closing_paren || *closing_paren != ')')
-        return input + ft_strlen(input);
+    offset = input - *full_input;
+    closing_paren = find_closing_paren_multiline(input, &updated_input);
+    if (!closing_paren)
+        return NULL;
+    
+    if (updated_input != input)
+    {
+        free(*full_input);
+        *full_input = updated_input;
+        input = *full_input + offset;
+        // Recalculate closing_paren position
+        int level = 1;
+        closing_paren = input + 1;
+        while (*closing_paren && level > 0)
+        {
+            if (*closing_paren == '(')
+                level++;
+            else if (*closing_paren == ')')
+                level--;
+            if (level > 0)
+                closing_paren++;
+        }
+    }
     
     content = ft_substr(input + 1, 0, closing_paren - (input + 1));
     add_token(head, current, content, TOKEN_PAREN);
@@ -155,16 +275,23 @@ char *process_parentheses(t_token **head, t_token **current,
 }
 
 void process_word(t_token **head, t_token **current, 
-               char *start, char *end, t_token_type type)
+               char *start, char *end, t_token_type *next_type)
 {
     char *word;
+    t_token_type current_type;
     
     if (end <= start)
         return;
     
     word = ft_substr(start, 0, end - start);
+    current_type = *next_type;
+    
     if (word && *word)
-        add_token(head, current, word, type);
+    {
+        add_token(head, current, word, current_type);
+        if (current_type != TOKEN_WORD && current_type != TOKEN_LITERAL_WORD)
+            *next_type = TOKEN_WORD;
+    }
     else if (word)
         free(word);
 }
@@ -197,11 +324,10 @@ void process_delimiter(t_token **head, t_token **current,
         {
             op_type = get_operator_type(op_token);
             add_token(head, current, op_token, op_type);
-            *next_type = TOKEN_WORD; // Reset after creating operator token
+            *next_type = TOKEN_WORD;
         }
     }
 }
-
 
 char **get_delimiters(void)
 {
@@ -210,19 +336,27 @@ char **get_delimiters(void)
     return delims;
 }
 
-void handle_special_char(t_token **head, t_token **current, 
-                       char **input, char **word_start, t_token_type *next_type)
+int handle_special_char(t_token **head, t_token **current, 
+                       char **input, char **word_start, t_token_type *next_type, char **full_input)
 {
+    char *new_pos;
+    
     if (**input == '"' || **input == '\'')
     {
-        process_word(head, current, *word_start, *input, *next_type);
-        *input = process_quoted_text(head, current, *input, next_type);
+        process_word(head, current, *word_start, *input, next_type);
+        new_pos = process_quoted_text(head, current, *input, next_type, full_input);
+        if (!new_pos)
+            return 0; // Error occurred
+        *input = new_pos;
         *word_start = *input;
     }
     else if (**input == '(')
     {
-        process_word(head, current, *word_start, *input, *next_type);
-        *input = process_parentheses(head, current, *input, next_type);
+        process_word(head, current, *word_start, *input, next_type);
+        new_pos = process_parentheses(head, current, *input, next_type, full_input);
+        if (!new_pos)
+            return 0; // Error occurred
+        *input = new_pos;
         *word_start = *input;
     }
     else if (**input == ')')
@@ -230,6 +364,27 @@ void handle_special_char(t_token **head, t_token **current,
         (*input)++;
         *word_start = *input;
     }
+    
+    return 1; // Success
+}
+
+void process_remaining(t_token **head, t_token **current, 
+                     char *input, t_token_type *next_type)
+{
+    char *word;
+    t_token_type current_type;
+    
+    word = ft_strdup(input);
+    current_type = *next_type;
+    
+    if (word && *word)
+    {
+        add_token(head, current, word, current_type);
+        if (current_type != TOKEN_WORD && current_type != TOKEN_LITERAL_WORD)
+            *next_type = TOKEN_WORD;
+    }
+    else if (word)
+        free(word);
 }
 
 t_token *lexer(char *input)
@@ -240,6 +395,7 @@ t_token *lexer(char *input)
     char *word_start;
     char *tok;
     char *delimiter;
+    char *full_input;
     
     if (!input)
         return NULL;
@@ -247,6 +403,8 @@ t_token *lexer(char *input)
     head = NULL;
     current = NULL;
     next_type = TOKEN_WORD;
+    full_input = ft_strdup(input);
+    input = full_input;
     input = skip_spaces(input);
     word_start = input;
     
@@ -254,18 +412,23 @@ t_token *lexer(char *input)
     {
         if (*input == '"' || *input == '\'' || *input == '(' || *input == ')')
         {
-            handle_special_char(&head, &current, &input, &word_start, &next_type);
+            if (!handle_special_char(&head, &current, &input, &word_start, &next_type, &full_input))
+            {
+                // Error occurred, cleanup and return NULL
+                free(full_input);
+                return NULL;
+            }
             continue;
         }
         
         tok = ft_strarraystr(input, get_delimiters());
         if (!tok)
         {
-            add_token(&head, &current, ft_strdup(word_start), next_type);
+            process_remaining(&head, &current, word_start, &next_type);
             break;
         }
         
-        process_word(&head, &current, word_start, tok, next_type);
+        process_word(&head, &current, word_start, tok, &next_type);
         delimiter = identify_delimiter(tok, get_delimiters());
         process_delimiter(&head, &current, delimiter, &next_type);
         
@@ -274,5 +437,6 @@ t_token *lexer(char *input)
         word_start = input;
     }
     
+    free(full_input);
     return head;
 }

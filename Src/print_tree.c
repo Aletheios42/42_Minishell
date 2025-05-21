@@ -1,72 +1,6 @@
 #include "../Inc/minishell.h"
 #include "../libft/libft.h"
 
-// Print a token's type as a string
-const char *get_token_type_string(t_token_type type)
-{
-    static const char *token_names[] = {
-        "REDIR_IN", "REDIR_OUT", "APPEND", "HEREDOC", 
-        "AND", "OR", "PIPE", "PAREN", 
-        "WORD", "LITERAL_WORD", "EOF"
-    };
-    
-    if (type >= 0 && type <= TOKEN_EOF)
-        return token_names[type];
-    return "UNKNOWN";
-}
-
-// Helper function to print a token list with types
-int ft_print_token_list(t_token *head)
-{
-    t_token *current = head;
-    int count = 0;
-    
-    count += ft_printf("[");
-    while (current) {
-        const char *type_str = get_token_type_string(current->type);
-        count += ft_printf("{\"%s\":%s}", current->value, type_str);
-        if (current->next)
-            count += ft_printf(", ");
-        current = current->next;
-    }
-    count += ft_printf("]");
-    
-    return count;
-}
-
-// Print detailed token information
-void print_token_list(t_token *head)
-{
-    t_token *current = head;
-    int i = 0;
-    
-    if (!head) {
-        ft_printf("(empty token list)\n");
-        return;
-    }
-    
-    ft_printf("Token List:\n");
-    while (current) {
-        ft_printf("[%d] Type: %-15s Value: \"%s\"\n", 
-               i++, get_token_type_string(current->type), current->value);
-        current = current->next;
-    }
-}
-
-// Helper function to indent based on depth
-int ft_print_tree_indent(int depth)
-{
-    int count = 0;
-    int i = 0;
-    
-    while (i < depth)
-    {
-        count += ft_printf("  ");
-        i++;
-    }
-    return (count);
-}
-
 // Helper function to print string arrays nicely
 int ft_print_string_array(char **array)
 {
@@ -87,24 +21,50 @@ int ft_print_string_array(char **array)
     return count;
 }
 
-// Print the AST for debugging
-int ft_print_syntax_tree(t_tree *tree, int depth)
+// Print the node's hierarchical ID
+int print_node_id(char *prefix)
+{
+    return ft_printf("[%s] ", prefix);
+}
+
+// Print connection lines for the tree
+void print_tree_lines(int depth, int is_last)
+{
+    int i;
+    
+    for (i = 0; i < depth - 1; i++)
+        ft_printf("│   ");
+    
+    if (depth > 0)
+    {
+        if (is_last)
+            ft_printf("└── ");
+        else
+            ft_printf("├── ");
+    }
+}
+
+// Recursive tree printing function
+int ft_print_tree_node(t_tree *tree, int depth, int is_last, char *prefix)
 {
     int count = 0;
+    char left_prefix[32];
+    char right_prefix[32];
     
     if (!tree)
-        return ft_printf("(null)");
+        return 0;
     
-    count += ft_print_tree_indent(depth);
+    // Print tree connection lines
+    print_tree_lines(depth, is_last);
     
-    // Print node type
+    // Print node ID and type
+    count += print_node_id(prefix);
+    
+    // Print node content based on type
     switch (tree->type) {
         case NODE_COMMAND:
             count += ft_printf("COMMAND: ");
             if (tree->tokens) {
-                // Print tokens in this command node
-                count += ft_printf("\n");
-                count += ft_print_tree_indent(depth + 1);
                 count += ft_printf("Tokens: ");
                 count += ft_print_token_list(tree->tokens);
             } else {
@@ -128,12 +88,8 @@ int ft_print_syntax_tree(t_tree *tree, int depth)
             break;
         case NODE_PAREN:
             count += ft_printf("PAREN");
-            if (tree->tokens) {
-                count += ft_printf("\n");
-                count += ft_print_tree_indent(depth + 1);
-                count += ft_printf("Content: ");
-                count += ft_print_token_list(tree->tokens);
-            }
+            if (tree->tokens)
+                count += ft_printf(" (%s)", tree->tokens->value);
             break;
         default:
             count += ft_printf("UNKNOWN");
@@ -141,18 +97,22 @@ int ft_print_syntax_tree(t_tree *tree, int depth)
     
     count += ft_printf("\n");
     
-    // Print children recursively
-    if (tree->left) {
-        count += ft_print_tree_indent(depth);
-        count += ft_printf("LEFT:\n");
-        count += ft_print_syntax_tree(tree->left, depth + 1);
-    }
+    // Create child prefixes
+    snprintf(left_prefix, sizeof(left_prefix), "%s.1", prefix);
+    snprintf(right_prefix, sizeof(right_prefix), "%s.2", prefix);
     
-    if (tree->right) {
-        count += ft_print_tree_indent(depth);
-        count += ft_printf("RIGHT:\n");
-        count += ft_print_syntax_tree(tree->right, depth + 1);
-    }
+    // Print children
+    if (tree->left)
+        count += ft_print_tree_node(tree->left, depth + 1, (tree->right == NULL), left_prefix);
+    if (tree->right)
+        count += ft_print_tree_node(tree->right, depth + 1, 1, right_prefix);
     
     return count;
+}
+
+// Main tree printing function - fixed to use the unused parameter
+int ft_print_syntax_tree(t_tree *tree, int depth)
+{
+    (void)depth; // Mark parameter as intentionally unused
+    return ft_print_tree_node(tree, 0, 1, "1");
 }

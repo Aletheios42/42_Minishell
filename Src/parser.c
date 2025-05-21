@@ -18,6 +18,8 @@ t_tree* create_tree_node(t_token *token)
         node->type = NODE_AND;
     else if (token->type == TOKEN_OR)
         node->type = NODE_OR;
+    else if (token->type == TOKEN_PAREN)
+        node->type = NODE_PAREN;
     else
         node->type = NODE_COMMAND; // Default for words and other tokens
     
@@ -26,6 +28,79 @@ t_tree* create_tree_node(t_token *token)
     node->right = NULL;
     
     return node;
+}
+
+// Check if a token is a redirection
+int is_redirection_token(t_token *token)
+{
+    if (!token)
+        return 0;
+    return (token->type == TOKEN_REDIR_IN ||
+            token->type == TOKEN_REDIR_OUT ||
+            token->type == TOKEN_APPEND ||
+            token->type == TOKEN_HEREDOC);
+}
+
+// Find redirections after a parenthesized expression
+t_token *find_redirections_after_paren(t_token *tokens)
+{
+    t_token *current;
+    t_token *redirections;
+    
+    if (!tokens || tokens->type != TOKEN_PAREN)
+        return NULL;
+    
+    // Look for redirections in the next tokens
+    current = tokens->next;
+    redirections = NULL;
+    
+    while (current && is_redirection_token(current))
+    {
+        // Found a redirection, add it to our list
+        if (!redirections)
+            redirections = current;
+        current = current->next;
+    }
+    
+    return redirections;
+}
+
+// Handle a command or parenthesized expression with redirections
+t_tree* parse_command(t_token *token)
+{
+    t_tree *node;
+    t_token *content_tokens;
+    t_token *redirections;
+    
+    if (!token)
+        return NULL;
+    
+    // Handle parenthesized expressions
+    if (token->type == TOKEN_PAREN)
+    {
+        // Create a node for the parenthesized expression
+        node = create_tree_node(token);
+        if (!node)
+            return NULL;
+        
+        // Parse the content inside parentheses (left child)
+        content_tokens = lexer(token->value);
+        if (content_tokens)
+            node->left = parse_and_or(content_tokens);
+        
+        // Check for redirections after the parentheses (right child)
+        redirections = find_redirections_after_paren(token);
+        if (redirections)
+        {
+            // Create a command node for the redirections
+            node->right = create_tree_node(redirections);
+        }
+        
+        return node;
+    }
+    
+    // Regular command token
+    return create_tree_node(token);
 }
 
 // Parse pipeline operators
@@ -43,7 +118,7 @@ t_tree* parse_pipe(t_token *tokens)
     // Find first pipe operator
     op_token = search_first_occurrence_token_type(tokens, delims, 1);
     if (!op_token)
-        return create_tree_node(tokens); // No pipe, parse as command
+        return parse_command(tokens); // No pipe, parse as command
     
     // Split list at pipe operator
     tokens_right = split_token_list(op_token, &tokens_left);
@@ -54,7 +129,7 @@ t_tree* parse_pipe(t_token *tokens)
         return NULL;
     
     // Recursively parse left and right sides
-    tree->left = create_tree_node(tokens_left);
+    tree->left = parse_command(tokens_left);
     tree->right = parse_pipe(tokens_right);
     
     return tree;
@@ -86,7 +161,7 @@ t_tree *parse_and_or(t_token *tokens)
         return NULL;
     
     // Recursively parse left and right sides
-    tree->left = parse_pipe(tokens_left);
+    tree->left = parse_and_or(tokens_left);
     tree->right = parse_and_or(tokens_right);
     
     return tree;
@@ -100,7 +175,7 @@ t_tree *parser(char *input)
     
     ft_printf("Tokens: ");
     ft_print_token_list(tokens);
-    ft_printf("\n"); // Add this newline
+    ft_printf("\n");
     
     if (!tokens)
         return NULL;
