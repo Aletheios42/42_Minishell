@@ -1,4 +1,4 @@
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 #include <stdlib.h>
 #include "../libft/libft.h"
 
@@ -44,7 +44,6 @@ t_token *search_first_occurrence_token_type(t_token *tokens, t_token_type types[
 }
 
 
-// Free a syntax tree
 void free_syntax_tree(t_tree *tree)
 {
     if (!tree)
@@ -53,6 +52,9 @@ void free_syntax_tree(t_tree *tree)
     free_syntax_tree(tree->left);
     free_syntax_tree(tree->right);
     
-    // Note: tokens are freed elsewhere
+    // Liberar tokens asociados al nodo
+    if (tree->tokens)
+        free_token_list(tree->tokens);
+    
     free(tree);
 }

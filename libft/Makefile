@@ -43,6 +43,7 @@ SRC_FILES =	ft_isalpha.c		\
 		ft_strchr.c		\
 		ft_strrchr.c		\
 		ft_strncmp.c		\
+		ft_strcmp.c		\
 		ft_memchr.c		\
 		ft_memcmp.c		\
 		ft_strtok.c		\

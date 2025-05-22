@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 
 int	is_valid_key(const char *arg)
 {
@@ -82,7 +82,7 @@ void	env_add(const char *value, t_env *env)
 int	print_error(int error, const char *arg)
 {
 	ft_putstr_fd("minishell: export: '", 2);
-	ft_putstr_fd(arg, 2);
+	ft_putstr_fd((char*)arg, 2);
 	ft_putstr_fd("': ", 2);
 	if (error == -3)
 		ft_putendl_fd("invalid assigment", 2);

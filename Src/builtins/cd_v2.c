@@ -10,29 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 
-char	*get_env_value(t_env *env, const char *key)
-{
-	int	key_len;
-
-	if (!env || !key)
-		return (NULL);
-	key_len = ft_strlen(key);
-	while (env)
-	{
-		if (ft_strncmp(env->value, key, key_len) == 0 && env->value[key_len] == '=')
-			return (env->value + key_len + 1);
-		env = env->next;
-	}
-	return (NULL);
-}
 
 void	env_update(const char *key, const char *value, t_env *env)
 {
 	char	*new_var;
 	char	curr_name[BUFF_SIZE];
-	char	env_name[BUFF_SIZE];
 
 	while (env)
 	{

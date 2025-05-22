@@ -6,11 +6,11 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 20:33:47 by elorente          #+#    #+#             */
-/*   Updated: 2025/05/15 20:33:47 by elorente         ###   ########.fr       */
+/*   Updated: 2025/05/23 15:30:00 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 
 void	remove_env_var(t_env *env[], const char *key)
 {
@@ -40,13 +40,13 @@ void	remove_env_var(t_env *env[], const char *key)
 	}
 }
 
-int	ft_unset(char *args[], t_env *env[])
+int	ft_unset(char *args[], t_env *env[], t_local_vars **locals)
 {
 	int	i;
 
 	i = 1;
 	if (!args[i])
-		return (0); //Success//
+		return (0);
 	while (args[i])
 	{
 		if (!is_valid_key(args[i]))
@@ -56,7 +56,10 @@ int	ft_unset(char *args[], t_env *env[])
 			ft_putendl_fd("': not a valid identifier", 2);
 		}
 		else
+		{
 			remove_env_var(env, args[i]);
+			local_var_unset(locals, args[i]);
+		}
 		i++;
 	}
 	return (0);

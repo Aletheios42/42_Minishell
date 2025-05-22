@@ -1,6 +1,6 @@
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 #include <stdlib.h>
-#include "../libft/libft.h"
+#include "../../libft/libft.h"
 
 // Create a tree node for a token, determining the node type from token type
 t_tree* create_tree_node(t_token *token)
@@ -168,17 +168,7 @@ t_tree *parse_and_or(t_token *tokens)
 }
 
 // Top-level parser function
-t_tree *parser(char *input)
+t_tree *parser(t_token *tokens)
 {
-    t_token *tokens;
-    tokens = lexer(input);
-    
-    ft_printf("Tokens: ");
-    ft_print_token_list(tokens);
-    ft_printf("\n");
-    
-    if (!tokens)
-        return NULL;
-    
     return parse_and_or(tokens);
 }

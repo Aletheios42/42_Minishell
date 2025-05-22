@@ -11,12 +11,25 @@ INCLUDES_DIR = ./Inc/
 
 ## Files
 SRC_FILES = main.c		\
-			lexer.c	\
-			parser.c	\
-			parser_utils.c	\
-			executor.c	\
-			print_tokens.c \
-			print_tree.c
+			lexer/lexer.c	\
+			lexer/lexer_utils.c	\
+			parser/parser.c	\
+			parser/parser_utils.c	\
+			execution/executor.c	\
+			execution/expander.c	\
+			execution/enviroment.c	\
+			execution/local_vars.c	\
+			builtins/echo.c		\
+			builtins/cd.c		\
+			builtins/cd_v2.c	\
+			builtins/pwd.c		\
+			builtins/export_v1.c	\
+			builtins/export_v2.c	\
+			builtins/unset.c	\
+			builtins/env.c		\
+			builtins/exit.c		\
+			debug/print_tokens.c \
+			debug/print_tree.c
 
 SRC = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ_FILES = $(SRC_FILES:.c=.o)
@@ -34,6 +47,11 @@ all: $(OBJ_DIR) $(LIBFT) $(BIN)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)/lexer
+	mkdir -p $(OBJ_DIR)/parser
+	mkdir -p $(OBJ_DIR)/execution
+	mkdir -p $(OBJ_DIR)/builtins
+	mkdir -p $(OBJ_DIR)/debug
 
 $(BIN): $(OBJ) $(LIBFT)
 	$(CC) $(CFLAGS) $(OBJ) $(LIBS) -o $(BIN)
@@ -51,6 +69,7 @@ clean:
 fclean: clean
 	rm -f $(BIN)
 	-$(MAKE) -C $(LIBFT_DIR) fclean || true
+
 re: fclean all
 
 .PHONY: all clean fclean re

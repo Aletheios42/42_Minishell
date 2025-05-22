@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 
 int	update_oldpwd(t_env *env)
 {
@@ -66,7 +66,7 @@ int	ft_cd(char *args[], t_env *env[])
 			ft_putendl_fd("minishell: cd: OLDPWD not set", 2);
 			return (1);
 		}
-		ft_putendln_fd(path, 1);
+		ft_putendl_fd(path, 1);
 		return (change_to_path(path, *env));
 	}
 	else

@@ -10,18 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 
 int	ft_echo(char *args[])
 {
 	int	i;
-	int	newline;
+	int	add_newline;
 
 	i = 1;
-	newline = 1;
+	add_newline = 1;
 	if (args[i] && ft_strcmp(args[i], "-n") == 0)
 	{
-		newline = 0;
+		add_newline = 0;
 		i++;
 	}
 	while (args[i])
@@ -31,7 +31,7 @@ int	ft_echo(char *args[])
 			ft_printf(" ");
 		i++;
 	}
-	if (newline)
+	if (add_newline)
 		ft_printf("\n");
 	return (0);
 }
