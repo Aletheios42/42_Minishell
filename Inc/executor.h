@@ -30,7 +30,7 @@ int count_command_tokens(t_token *tokens);
 char **tokens_to_args_array(t_token *tokens);
 
 // ========== REDIRECTION HANDLING ==========
-int setup_redirections(t_token *tokens);
+int setup_redirections(t_token *tokens, int *saved_stdin, int *saved_stdout);
 int handle_input_redirection(t_token *redir_token);
 int handle_output_redirection(t_token *redir_token);
 

@@ -1,4 +1,5 @@
 #include "../Inc/minishell.h"
+#include "../Inc/signals.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <readline/readline.h>
@@ -39,6 +40,7 @@ int execute_input(char *input, t_env **env, int last_exit_status)
     if (!syntax_tree)
     {
         // Parser handles its own error messages
+        free_token_list(tokens);  // Free tokens if parser fails
         return 2;
     }
     
@@ -47,6 +49,7 @@ int execute_input(char *input, t_env **env, int last_exit_status)
     
     // Cleanup
     free_syntax_tree(syntax_tree);
+    // Don't free tokens here - syntax_tree owns them
     
     return exit_status;
 }
@@ -71,6 +74,10 @@ int main(int ac, char **av, char **envp)
     // Determine execution mode
     is_command_mode = (ac >= 3 && ft_strcmp(av[1], "-c") == 0);
     exit_status = 0;
+    
+    // Setup signal handling for interactive mode
+    if (!is_command_mode)
+        setup_signals();
     
     // Main execution loop
     while (1)

@@ -1,6 +1,5 @@
 #include "../../Inc/minishell.h"
 #include "../../libft/libft.h"
-#include <signal.h>
 
 // ========== COMMAND TYPE DETECTION ==========
 
@@ -13,19 +12,38 @@ typedef enum e_command_type {
 
 t_command_type classify_command(t_token *tokens, t_env *env)
 {
+    t_token *current;
+    t_token *prev;
     char *first_word;
     
     if (!tokens)
         return CMD_INVALID;
     
-    // Skip non-word tokens (redirections, etc.)
-    while (tokens && tokens->type != TOKEN_WORD && tokens->type != TOKEN_LITERAL_WORD)
-        tokens = tokens->next;
+    current = tokens;
+    prev = NULL;
+    first_word = NULL;
     
-    if (!tokens)
+    // Find first WORD that's not a redirection target
+    while (current)
+    {
+        if (current->type == TOKEN_WORD || current->type == TOKEN_LITERAL_WORD)
+        {
+            // Skip if previous token was a redirection
+            if (!prev || (prev->type != TOKEN_REDIR_IN && 
+                         prev->type != TOKEN_REDIR_OUT && 
+                         prev->type != TOKEN_APPEND && 
+                         prev->type != TOKEN_HEREDOC))
+            {
+                first_word = current->value;
+                break;
+            }
+        }
+        prev = current;
+        current = current->next;
+    }
+    
+    if (!first_word)
         return CMD_INVALID;
-    
-    first_word = tokens->value;
     
     // Check if it's an assignment
     if (is_assignment(first_word))
@@ -42,8 +60,12 @@ t_command_type classify_command(t_token *tokens, t_env *env)
         return CMD_BUILTIN;
     
     // Check if it's an external command
-    if (find_command_in_path(first_word, env))
+    char *cmd_path = find_command_in_path(first_word, env);
+    if (cmd_path)
+    {
+        free(cmd_path);  // ← FIX: liberar el path encontrado
         return CMD_EXTERNAL;
+    }
     
     return CMD_INVALID;
 }
@@ -94,8 +116,32 @@ char **tokens_to_args_array(t_token *tokens)
     char **args;
     int count;
     int i;
+    t_token *current;
+    t_token *prev;
     
     count = count_word_tokens(tokens);
+    if (count == 0)
+        return NULL;
+    
+    // Count actual args (excluding redirection targets)
+    current = tokens;
+    prev = NULL;
+    count = 0;
+    while (current)
+    {
+        if (current->type == TOKEN_WORD || current->type == TOKEN_LITERAL_WORD)
+        {
+            // Skip if previous token was a redirection
+            if (!prev || (prev->type != TOKEN_REDIR_IN && 
+                         prev->type != TOKEN_REDIR_OUT && 
+                         prev->type != TOKEN_APPEND && 
+                         prev->type != TOKEN_HEREDOC))
+                count++;
+        }
+        prev = current;
+        current = current->next;
+    }
+    
     if (count == 0)
         return NULL;
     
@@ -104,19 +150,29 @@ char **tokens_to_args_array(t_token *tokens)
         return NULL;
     
     i = 0;
-    while (tokens && i < count)
+    current = tokens;
+    prev = NULL;
+    while (current && i < count)
     {
-        if (tokens->type == TOKEN_WORD || tokens->type == TOKEN_LITERAL_WORD)
+        if (current->type == TOKEN_WORD || current->type == TOKEN_LITERAL_WORD)
         {
-            args[i] = ft_strdup(tokens->value);
-            if (!args[i])
+            // Skip if previous token was a redirection
+            if (!prev || (prev->type != TOKEN_REDIR_IN && 
+                         prev->type != TOKEN_REDIR_OUT && 
+                         prev->type != TOKEN_APPEND && 
+                         prev->type != TOKEN_HEREDOC))
             {
-                ft_free_matrix(args);
-                return NULL;
+                args[i] = ft_strdup(current->value);
+                if (!args[i])
+                {
+                    ft_free_matrix(args);
+                    return NULL;
+                }
+                i++;
             }
-            i++;
         }
-        tokens = tokens->next;
+        prev = current;
+        current = current->next;
     }
     
     args[i] = NULL;
@@ -202,7 +258,9 @@ int execute_external_command(char **args, t_env *env)
     pid = fork();
     if (pid == 0)
     {
-        // Child process
+        // Child process - restore default signal handling
+        setup_child_signals();
+        
         execve(cmd_path, args, envp);
         perror("execve");
         exit(127);
@@ -227,6 +285,64 @@ int execute_external_command(char **args, t_env *env)
 
 // ========== REDIRECTION HANDLING ==========
 
+int handle_heredoc(t_token *redir_token)
+{
+    char *delimiter;
+    char *line;
+    int temp_fd;
+    char temp_filename[] = "/tmp/.minishell_heredoc_XXXXXX";
+    
+    if (!redir_token || !redir_token->next || !redir_token->next->value)
+        return -1;
+    
+    delimiter = redir_token->next->value;
+    
+    // Create unique temporary file
+    temp_fd = mkstemp(temp_filename);
+    if (temp_fd == -1)
+    {
+        perror("mkstemp");
+        return -1;
+    }
+    
+    // Read lines until delimiter is found
+    while (1)
+    {
+        ft_putstr_fd("heredoc> ", STDOUT_FILENO);
+        line = get_next_line(STDIN_FILENO);
+        
+        if (!line)  // EOF (Ctrl+D)
+            break;
+        
+        // Check if line matches delimiter (with newline handling)
+        if (ft_strncmp(delimiter, line, ft_strlen(delimiter)) == 0 && 
+            (line[ft_strlen(delimiter)] == '\n' || line[ft_strlen(delimiter)] == '\0'))
+        {
+            free(line);
+            break;
+        }
+        
+        // Write line to temp file
+        write(temp_fd, line, ft_strlen(line));
+        free(line);
+    }
+    
+    // Close write fd and reopen for reading
+    close(temp_fd);
+    temp_fd = open(temp_filename, O_RDONLY);
+    if (temp_fd == -1)
+    {
+        perror("open");
+        unlink(temp_filename);  // Clean up temp file
+        return -1;
+    }
+    
+    // Clean up temp file (will be deleted when fd is closed)
+    unlink(temp_filename);
+    
+    return temp_fd;
+}
+
 int handle_input_redirection(t_token *redir_token)
 {
     int fd;
@@ -236,9 +352,18 @@ int handle_input_redirection(t_token *redir_token)
     
     if (redir_token->type == TOKEN_HEREDOC)
     {
-        // Handle heredoc (simplified implementation)
-        ft_printf("heredoc not fully implemented\n");
-        return -1;
+        fd = handle_heredoc(redir_token);
+        if (fd == -1)
+            return -1;
+        
+        if (dup2(fd, STDIN_FILENO) == -1)
+        {
+            perror("dup2");
+            close(fd);
+            return -1;
+        }
+        
+        close(fd);
     }
     else if (redir_token->type == TOKEN_REDIR_IN)
     {
@@ -295,9 +420,19 @@ int handle_output_redirection(t_token *redir_token)
     return 0;
 }
 
-int setup_redirections(t_token *tokens)
+int setup_redirections(t_token *tokens, int *saved_stdin, int *saved_stdout)
 {
     t_token *current;
+    
+    // Save original file descriptors FIRST
+    *saved_stdin = dup(STDIN_FILENO);
+    *saved_stdout = dup(STDOUT_FILENO);
+    
+    if (*saved_stdin == -1 || *saved_stdout == -1)
+    {
+        perror("dup");
+        return -1;
+    }
     
     current = tokens;
     while (current)
@@ -316,6 +451,21 @@ int setup_redirections(t_token *tokens)
     }
     
     return 0;
+}
+
+void restore_redirections(int saved_stdin, int saved_stdout)
+{
+    // Restore original file descriptors
+    if (saved_stdin != -1)
+    {
+        dup2(saved_stdin, STDIN_FILENO);
+        close(saved_stdin);
+    }
+    if (saved_stdout != -1)
+    {
+        dup2(saved_stdout, STDOUT_FILENO);
+        close(saved_stdout);
+    }
 }
 
 // ========== ASSIGNMENT EXECUTION ==========
@@ -361,6 +511,8 @@ int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
     char **args;
     int result;
     int assignment_count;
+    int saved_stdin;
+    int saved_stdout;
     
     if (!tokens)
         return 0;
@@ -383,8 +535,8 @@ int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
         return 0;
     }
     
-    // 5. Setup redirections
-    if (setup_redirections(expanded_tokens) == -1)
+    // 5. Setup redirections (saves original stdin/stdout)
+    if (setup_redirections(expanded_tokens, &saved_stdin, &saved_stdout) == -1)
     {
         free_token_list(expanded_tokens);
         return 1;
@@ -394,6 +546,7 @@ int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
     args = tokens_to_args_array(expanded_tokens);
     if (!args)
     {
+        restore_redirections(saved_stdin, saved_stdout);
         free_token_list(expanded_tokens);
         return (assignment_count > 0) ? 0 : 1;
     }
@@ -409,7 +562,10 @@ int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
         result = 127;
     }
     
-    // 8. Cleanup
+    // 8. Restore redirections BEFORE cleanup
+    restore_redirections(saved_stdin, saved_stdout);
+    
+    // 9. Cleanup
     ft_free_matrix(args);
     free_token_list(expanded_tokens);
     

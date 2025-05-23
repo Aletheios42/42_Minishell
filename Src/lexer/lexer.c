@@ -318,16 +318,27 @@ int add_current_token(t_string_builder *sb, t_token **head, t_token **tail,
     t_token *new_token;
     
     if (!sb || sb->len == 0)
+    {
+        // Still need to clean up empty string builder
+        if (sb && sb->str)
+        {
+            free(sb->str);
+            free(sb);
+        }
         return 1;
+    }
+    
     token_value = finalize_string_builder(sb);
     if (!token_value)
         return 0;
+    
     new_token = create_token(token_value, token_type);
     if (!new_token)
     {
         free(token_value);
         return 0;
     }
+    
     add_token_to_list(head, tail, new_token);
     return 1;
 }

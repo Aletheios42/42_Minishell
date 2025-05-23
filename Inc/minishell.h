@@ -10,6 +10,7 @@
 #include "parser.h"
 #include "executor.h"
 #include "builtins.h"
+#include "signals.h"
 
 #ifndef BUFF_SIZE
 #define BUFF_SIZE 1024

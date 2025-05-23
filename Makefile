@@ -11,6 +11,7 @@ INCLUDES_DIR = ./Inc/
 
 ## Files
 SRC_FILES = main.c		\
+			signals/signals.c	\
 			lexer/lexer.c	\
 			parser/parser.c	\
 			execution/executor.c	\
@@ -44,6 +45,7 @@ all: $(OBJ_DIR) $(LIBFT) $(BIN)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)/signals
 	mkdir -p $(OBJ_DIR)/lexer
 	mkdir -p $(OBJ_DIR)/parser
 	mkdir -p $(OBJ_DIR)/execution
