@@ -13,7 +13,7 @@ t_tree* create_command_node(t_token *token_list);
 void free_syntax_tree(t_tree *tree);
 
 // Token utilities
-t_token* find_token_type(t_token *tokens, t_token_type types[], int type_count);
+t_token *find_token_type(t_token *tokens, t_token_type type);
 t_token* split_token_list_at(t_token *split_point, t_token **left_tokens);
 t_token* clone_token_list(t_token *original);
 

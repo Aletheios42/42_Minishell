@@ -3,17 +3,18 @@
 
 // Token types enum
 typedef enum e_token_type {
-    TOKEN_REDIR_IN,    // '<'
-    TOKEN_REDIR_OUT,   // '>'
-    TOKEN_APPEND,      // '>>'
-    TOKEN_HEREDOC,     // '<<'
-    TOKEN_AND,         // '&&'
-    TOKEN_OR,          // '||'
-    TOKEN_PIPE,        // '|'
-    TOKEN_PAREN,       // '(' content ')'
-    TOKEN_WORD,        // Regular words and double-quoted content
+    TOKEN_REDIR_IN,     // '<'
+    TOKEN_REDIR_OUT,    // '>'
+    TOKEN_APPEND,       // '>>'
+    TOKEN_HEREDOC,      // '<<'
+    TOKEN_AND,          // '&&'
+    TOKEN_OR,           // '||'
+    TOKEN_PIPE,         // '|'
+    TOKEN_PAREN_OPEN,   // '('
+    TOKEN_PAREN_CLOSE,  // ')'
+    TOKEN_WORD,         // Regular words and double-quoted content
     TOKEN_LITERAL_WORD, // Single-quoted content (literal, no expansion)
-    TOKEN_EOF          // End of input
+    TOKEN_EOF           // End of input
 } t_token_type;
 
 // Token structure

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Inc/minishell.h"
+#include "../../Inc/minishell.h"
 
 static int	is_numeric(const char *str)
 {
@@ -40,7 +40,7 @@ int	ft_exit(char *args[])
 			ft_putstr_fd("minishell: exit: ", 2);
 			ft_putstr_fd(args[1], 2);
 			ft_putendl_fd(": numeric argument required", 2);
-			exit(255);
+			return (255);
 		}
 		if (args[2])
 		{
@@ -48,7 +48,7 @@ int	ft_exit(char *args[])
 			return (1);
 		}
 		exit_code = ft_atoi(args[1]);
-		exit(exit_code);
+		return (exit_code);
 	}
-	exit(0);
+	return (0);
 }

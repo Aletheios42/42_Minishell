@@ -192,6 +192,43 @@ int is_assignment(const char *str)
     return result;
 }
 
+// ========== LEGACY FUNCTIONS FOR CD_V2 COMPATIBILITY ==========
+
+char *get_env_name(char *dest, const char *src)
+{
+    int i = 0;
+    
+    while (src[i] && src[i] != '=' && i < BUFF_SIZE - 1)
+    {
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
+    return dest;
+}
+
+void env_add(const char *value, t_env *env)
+{
+    t_env *new_node;
+    
+    if (!value || !env)
+        return;
+    
+    // Find last node
+    while (env && env->next)
+        env = env->next;
+    
+    new_node = malloc(sizeof(t_env));
+    if (!new_node)
+        return;
+    
+    new_node->key = NULL;
+    new_node->value = ft_strdup(value);
+    new_node->next = NULL;
+    
+    env->next = new_node;
+}
+
 // ========== ENVIRONMENT INITIALIZATION ==========
 
 t_env *create_env_node(const char *key, const char *value)

@@ -30,9 +30,11 @@ int count_command_tokens(t_token *tokens);
 char **tokens_to_args_array(t_token *tokens);
 
 // ========== REDIRECTION HANDLING ==========
-int setup_redirections(t_token *tokens, int *saved_stdin, int *saved_stdout);
-int handle_input_redirection(t_token *redir_token);
+int setup_redirections(t_token *tokens, int *saved_stdin, int *saved_stdout, t_env *env, int exit_status);
+int handle_input_redirection(t_token *redir_token, t_env *env, int exit_status);
 int handle_output_redirection(t_token *redir_token);
+int handle_heredoc(t_token *redir_token, t_env *env, int exit_status);
+void restore_redirections(int saved_stdin, int saved_stdout);
 
 // ========== ENVIRONMENT FUNCTIONS ==========
 char *get_env_value(t_env *env, const char *key);

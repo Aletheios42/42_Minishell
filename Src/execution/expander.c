@@ -264,6 +264,15 @@ t_token *expand_and_split_token_copy(t_token *original, t_env *env, int exit_sta
         return copy;
     }
     
+    // Don't split assignment tokens
+    if (ft_strchr(original->value, '='))
+    {
+        // This is an assignment, don't split even if it contains spaces
+        char *expanded_value = expand_string(original->value, env, exit_status);
+        t_token *new_token = create_token(expanded_value, original->type);
+        return new_token;
+    }
+    
     // Expand the token value
     expanded_value = expand_string(original->value, env, exit_status);
     if (!expanded_value)

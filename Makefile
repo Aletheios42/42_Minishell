@@ -19,10 +19,8 @@ SRC_FILES = main.c		\
 			execution/enviroment.c	\
 			builtins/echo.c		\
 			builtins/cd.c		\
-			builtins/cd_v2.c	\
 			builtins/pwd.c		\
 			builtins/export_v1.c	\
-			builtins/export_v2.c	\
 			builtins/unset.c	\
 			builtins/env.c		\
 			builtins/exit.c		\

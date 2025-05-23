@@ -7,7 +7,7 @@
 
 int is_ifs_char(char c)
 {
-    return (c == ' ' || c == '\t');
+    return (c == ' ' || c == '\t' || c == '\n');
 }
 
 int is_logical_operator(char *str)
@@ -26,23 +26,15 @@ int is_redirection_operator(char *str)
             ft_strncmp(str, ">", 1) == 0);
 }
 
+int is_parenthesis_operator(char *str)
+{
+    return (*str == '(' || *str == ')');
+}
+
 int is_quote_char(char c)
 {
     return (c == '"' || c == '\'');
 }
-
-int is_modifier_char(char c)
-{
-    return (c == '$' || c == '~' || c == '*' || c == '(' || c == ')');
-}
-
-int is_separator(char *str)
-{
-    return (is_ifs_char(*str) || is_logical_operator(str) || 
-            is_redirection_operator(str));
-}
-
-// ========== OPERATOR PROCESSING ==========
 
 char *get_operator_at_position(char *str)
 {
@@ -54,6 +46,8 @@ char *get_operator_at_position(char *str)
     if (ft_strncmp(str, ";", 1) == 0) return ";";
     if (ft_strncmp(str, "<", 1) == 0) return "<";
     if (ft_strncmp(str, ">", 1) == 0) return ">";
+    if (*str == '(') return "(";
+    if (*str == ')') return ")";
     return NULL;
 }
 
@@ -66,6 +60,8 @@ t_token_type get_operator_token_type(char *op)
     if (ft_strcmp(op, ">>") == 0) return TOKEN_APPEND;
     if (ft_strcmp(op, "<") == 0) return TOKEN_REDIR_IN;
     if (ft_strcmp(op, ">") == 0) return TOKEN_REDIR_OUT;
+    if (ft_strcmp(op, "(") == 0) return TOKEN_PAREN_OPEN;
+    if (ft_strcmp(op, ")") == 0) return TOKEN_PAREN_CLOSE;
     return TOKEN_WORD;
 }
 
@@ -311,18 +307,18 @@ char *handle_multiline_input(char *input)
 
 // ========== MAIN TOKENIZER ==========
 
-int add_current_token(t_string_builder *sb, t_token **head, t_token **tail, 
-                     t_token_type token_type)
+int add_current_token(t_string_builder *sb, t_token **head, 
+                     t_token **tail, t_token_type token_type)
 {
     char *token_value;
     t_token *new_token;
     
     if (!sb || sb->len == 0)
     {
-        // Still need to clean up empty string builder
-        if (sb && sb->str)
+        if (sb)
         {
-            free(sb->str);
+            if (sb->str)
+                free(sb->str);
             free(sb);
         }
         return 1;
@@ -331,7 +327,7 @@ int add_current_token(t_string_builder *sb, t_token **head, t_token **tail,
     token_value = finalize_string_builder(sb);
     if (!token_value)
         return 0;
-    
+     
     new_token = create_token(token_value, token_type);
     if (!new_token)
     {
@@ -375,38 +371,63 @@ t_token *tokenize_input(char *input)
         return NULL;
     init_quote_context(&quote_ctx);
     token_type = TOKEN_WORD;
-    
+
+
     input = skip_whitespace(input);
     while (*input)
     {
+        // Process quotes (but don't add them to the token)
         if (process_quote_char(&quote_ctx, *input))
         {
+
             if (!quote_ctx.in_quotes)
                 token_type = quote_ctx.quote_type;
             input++;
             continue;
         }
         
+        // Only process separators if NOT in quotes
         if (!quote_ctx.in_quotes)
         {
+            // Handle whitespace separators
             if (is_ifs_char(*input))
             {
                 if (!add_current_token(current_token, &head, &tail, token_type))
+                {
+                    free_token_list(head);
                     return NULL;
+                }
                 current_token = create_string_builder();
+                if (!current_token)
+                {
+                    free_token_list(head);
+                    return NULL;
+                }
                 token_type = TOKEN_WORD;
                 input = skip_whitespace(input);
                 continue;
             }
             
+            // Handle operator separators
             operator = get_operator_at_position(input);
             if (operator)
             {
                 if (!add_current_token(current_token, &head, &tail, token_type))
+                {
+                    free_token_list(head);
                     return NULL;
+                }
                 if (!add_operator_token(operator, &head, &tail))
+                {
+                    free_token_list(head);
                     return NULL;
+                }
                 current_token = create_string_builder();
+                if (!current_token)
+                {
+                    free_token_list(head);
+                    return NULL;
+                }
                 token_type = TOKEN_WORD;
                 input += ft_strlen(operator);
                 input = skip_whitespace(input);
@@ -414,13 +435,27 @@ t_token *tokenize_input(char *input)
             }
         }
         
+        // Add character to current token
         if (!append_char_to_builder(current_token, *input))
+        {
+            if (current_token)
+            {
+                if (current_token->str)
+                    free(current_token->str);
+                free(current_token);
+            }
+            free_token_list(head);
             return NULL;
+        }
         input++;
     }
     
+    // Add final token
     if (!add_current_token(current_token, &head, &tail, token_type))
+    {
+        free_token_list(head);
         return NULL;
+    }
     
     return head;
 }

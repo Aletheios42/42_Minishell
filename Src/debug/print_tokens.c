@@ -6,7 +6,7 @@ const char *get_token_type_string(t_token_type type)
 {
     static const char *token_names[] = {
         "REDIR_IN", "REDIR_OUT", "APPEND", "HEREDOC", 
-        "AND", "OR", "PIPE", "PAREN", 
+        "AND", "OR", "PIPE", "PAREN_OPEN", "PAREN_CLOSE",
         "WORD", "LITERAL_WORD", "EOF"
     };
     

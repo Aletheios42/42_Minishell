@@ -1,4 +1,5 @@
 #include "../../Inc/minishell.h"
+#include "../../Inc/signals.h"
 #include "../../libft/libft.h"
 
 // ========== COMMAND TYPE DETECTION ==========
@@ -15,6 +16,7 @@ t_command_type classify_command(t_token *tokens, t_env *env)
     t_token *current;
     t_token *prev;
     char *first_word;
+    char *cmd_path;
     
     if (!tokens)
         return CMD_INVALID;
@@ -23,12 +25,10 @@ t_command_type classify_command(t_token *tokens, t_env *env)
     prev = NULL;
     first_word = NULL;
     
-    // Find first WORD that's not a redirection target
     while (current)
     {
         if (current->type == TOKEN_WORD || current->type == TOKEN_LITERAL_WORD)
         {
-            // Skip if previous token was a redirection
             if (!prev || (prev->type != TOKEN_REDIR_IN && 
                          prev->type != TOKEN_REDIR_OUT && 
                          prev->type != TOKEN_APPEND && 
@@ -45,11 +45,9 @@ t_command_type classify_command(t_token *tokens, t_env *env)
     if (!first_word)
         return CMD_INVALID;
     
-    // Check if it's an assignment
     if (is_assignment(first_word))
         return CMD_ASSIGNMENT;
     
-    // Check if it's a builtin
     if (ft_strcmp(first_word, "echo") == 0 ||
         ft_strcmp(first_word, "cd") == 0 ||
         ft_strcmp(first_word, "pwd") == 0 ||
@@ -59,11 +57,10 @@ t_command_type classify_command(t_token *tokens, t_env *env)
         ft_strcmp(first_word, "exit") == 0)
         return CMD_BUILTIN;
     
-    // Check if it's an external command
-    char *cmd_path = find_command_in_path(first_word, env);
+    cmd_path = find_command_in_path(first_word, env);
     if (cmd_path)
     {
-        free(cmd_path);  // ← FIX: liberar el path encontrado
+        free(cmd_path);
         return CMD_EXTERNAL;
     }
     
@@ -74,6 +71,8 @@ t_command_type classify_command(t_token *tokens, t_env *env)
 
 int execute_builtin_command(char **args, t_env **env)
 {
+    int result;
+    
     if (!args || !args[0])
         return 1;
     
@@ -90,7 +89,17 @@ int execute_builtin_command(char **args, t_env **env)
     if (ft_strcmp(args[0], "env") == 0)
         return ft_env(*env);
     if (ft_strcmp(args[0], "exit") == 0)
-        return ft_exit(args);
+    {
+        result = ft_exit(args);
+        if (result == 0)
+            return 1000;
+        else if (result == 1)
+            return 1001;
+        else if (result == 255)
+            return 1255;
+        else
+            return 1000 + (result % 256);
+    }
     
     return 1;
 }
@@ -99,9 +108,8 @@ int execute_builtin_command(char **args, t_env **env)
 
 int count_word_tokens(t_token *tokens)
 {
-    int count;
+    int count = 0;
     
-    count = 0;
     while (tokens)
     {
         if (tokens->type == TOKEN_WORD || tokens->type == TOKEN_LITERAL_WORD)
@@ -123,7 +131,6 @@ char **tokens_to_args_array(t_token *tokens)
     if (count == 0)
         return NULL;
     
-    // Count actual args (excluding redirection targets)
     current = tokens;
     prev = NULL;
     count = 0;
@@ -131,7 +138,6 @@ char **tokens_to_args_array(t_token *tokens)
     {
         if (current->type == TOKEN_WORD || current->type == TOKEN_LITERAL_WORD)
         {
-            // Skip if previous token was a redirection
             if (!prev || (prev->type != TOKEN_REDIR_IN && 
                          prev->type != TOKEN_REDIR_OUT && 
                          prev->type != TOKEN_APPEND && 
@@ -156,7 +162,6 @@ char **tokens_to_args_array(t_token *tokens)
     {
         if (current->type == TOKEN_WORD || current->type == TOKEN_LITERAL_WORD)
         {
-            // Skip if previous token was a redirection
             if (!prev || (prev->type != TOKEN_REDIR_IN && 
                          prev->type != TOKEN_REDIR_OUT && 
                          prev->type != TOKEN_APPEND && 
@@ -192,7 +197,6 @@ char *find_command_in_path(const char *cmd, t_env *env)
     if (!cmd)
         return NULL;
     
-    // If command contains '/', use it as-is
     if (ft_strchr(cmd, '/'))
     {
         if (access(cmd, X_OK) == 0)
@@ -258,24 +262,26 @@ int execute_external_command(char **args, t_env *env)
     pid = fork();
     if (pid == 0)
     {
-        // Child process - restore default signal handling
         setup_child_signals();
-        
         execve(cmd_path, args, envp);
         perror("execve");
         exit(127);
     }
     else if (pid > 0)
     {
-        // Parent process
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
+        
         waitpid(pid, &status, 0);
+        
+        setup_signals();
+        
         free(cmd_path);
         ft_free_matrix(envp);
         return WEXITSTATUS(status);
     }
     else
     {
-        // Fork failed
         perror("fork");
         free(cmd_path);
         ft_free_matrix(envp);
@@ -285,10 +291,11 @@ int execute_external_command(char **args, t_env *env)
 
 // ========== REDIRECTION HANDLING ==========
 
-int handle_heredoc(t_token *redir_token)
+int handle_heredoc(t_token *redir_token, t_env *env, int exit_status)
 {
     char *delimiter;
     char *line;
+    char *expanded_line;
     int temp_fd;
     char temp_filename[] = "/tmp/.minishell_heredoc_XXXXXX";
     
@@ -297,7 +304,6 @@ int handle_heredoc(t_token *redir_token)
     
     delimiter = redir_token->next->value;
     
-    // Create unique temporary file
     temp_fd = mkstemp(temp_filename);
     if (temp_fd == -1)
     {
@@ -305,45 +311,43 @@ int handle_heredoc(t_token *redir_token)
         return -1;
     }
     
-    // Read lines until delimiter is found
     while (1)
     {
         ft_putstr_fd("heredoc> ", STDOUT_FILENO);
         line = get_next_line(STDIN_FILENO);
         
-        if (!line)  // EOF (Ctrl+D)
+        if (!line)
             break;
         
-        // Check if line matches delimiter (with newline handling)
         if (ft_strncmp(delimiter, line, ft_strlen(delimiter)) == 0 && 
-            (line[ft_strlen(delimiter)] == '\n' || line[ft_strlen(delimiter)] == '\0'))
+            (line[ft_strlen(delimiter)] == '\n' || 
+             line[ft_strlen(delimiter)] == '\0'))
         {
             free(line);
             break;
         }
         
-        // Write line to temp file
-        write(temp_fd, line, ft_strlen(line));
+        expanded_line = expand_string(line, env, exit_status);
+        write(temp_fd, expanded_line, ft_strlen(expanded_line));
+        
         free(line);
+        free(expanded_line);
     }
     
-    // Close write fd and reopen for reading
     close(temp_fd);
     temp_fd = open(temp_filename, O_RDONLY);
     if (temp_fd == -1)
     {
         perror("open");
-        unlink(temp_filename);  // Clean up temp file
+        unlink(temp_filename);
         return -1;
     }
     
-    // Clean up temp file (will be deleted when fd is closed)
     unlink(temp_filename);
-    
     return temp_fd;
 }
 
-int handle_input_redirection(t_token *redir_token)
+int handle_input_redirection(t_token *redir_token, t_env *env, int exit_status)
 {
     int fd;
     
@@ -352,7 +356,7 @@ int handle_input_redirection(t_token *redir_token)
     
     if (redir_token->type == TOKEN_HEREDOC)
     {
-        fd = handle_heredoc(redir_token);
+        fd = handle_heredoc(redir_token, env, exit_status);
         if (fd == -1)
             return -1;
         
@@ -420,11 +424,11 @@ int handle_output_redirection(t_token *redir_token)
     return 0;
 }
 
-int setup_redirections(t_token *tokens, int *saved_stdin, int *saved_stdout)
+int setup_redirections(t_token *tokens, int *saved_stdin, 
+                      int *saved_stdout, t_env *env, int exit_status)
 {
     t_token *current;
     
-    // Save original file descriptors FIRST
     *saved_stdin = dup(STDIN_FILENO);
     *saved_stdout = dup(STDOUT_FILENO);
     
@@ -439,10 +443,11 @@ int setup_redirections(t_token *tokens, int *saved_stdin, int *saved_stdout)
     {
         if (current->type == TOKEN_REDIR_IN || current->type == TOKEN_HEREDOC)
         {
-            if (handle_input_redirection(current) == -1)
+            if (handle_input_redirection(current, env, exit_status) == -1)
                 return -1;
         }
-        else if (current->type == TOKEN_REDIR_OUT || current->type == TOKEN_APPEND)
+        else if (current->type == TOKEN_REDIR_OUT || 
+                 current->type == TOKEN_APPEND)
         {
             if (handle_output_redirection(current) == -1)
                 return -1;
@@ -455,7 +460,6 @@ int setup_redirections(t_token *tokens, int *saved_stdin, int *saved_stdout)
 
 void restore_redirections(int saved_stdin, int saved_stdout)
 {
-    // Restore original file descriptors
     if (saved_stdin != -1)
     {
         dup2(saved_stdin, STDIN_FILENO);
@@ -474,6 +478,9 @@ int execute_assignments(t_token *tokens, t_env **env)
 {
     t_token *current;
     int assignment_count;
+    char *key;
+    char *value;
+    char *expanded_value;
     
     assignment_count = 0;
     current = tokens;
@@ -482,10 +489,6 @@ int execute_assignments(t_token *tokens, t_env **env)
     {
         if (current->type == TOKEN_WORD && is_assignment(current->value))
         {
-            char *key;
-            char *value;
-            char *expanded_value;
-            
             if (parse_assignment(current->value, &key, &value))
             {
                 expanded_value = expand_string(value, *env, 0);
@@ -517,32 +520,27 @@ int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
     if (!tokens)
         return 0;
     
-    // 1. Handle assignments first (before expansion)
     assignment_count = execute_assignments(tokens, env);
     
-    // 2. Expand variables and split tokens (creates new token list)
     expanded_tokens = expand_token_list_copy(tokens, *env, exit_status);
     if (!expanded_tokens)
         return (assignment_count > 0) ? 0 : 1;
     
-    // 3. Classify the command type AFTER expansion
     cmd_type = classify_command(expanded_tokens, *env);
     
-    // 4. If only assignments, return success
     if (cmd_type == CMD_ASSIGNMENT)
     {
         free_token_list(expanded_tokens);
         return 0;
     }
     
-    // 5. Setup redirections (saves original stdin/stdout)
-    if (setup_redirections(expanded_tokens, &saved_stdin, &saved_stdout) == -1)
+    if (setup_redirections(expanded_tokens, &saved_stdin, 
+                          &saved_stdout, *env, exit_status) == -1)
     {
         free_token_list(expanded_tokens);
         return 1;
     }
     
-    // 6. Convert to args array
     args = tokens_to_args_array(expanded_tokens);
     if (!args)
     {
@@ -551,7 +549,6 @@ int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
         return (assignment_count > 0) ? 0 : 1;
     }
     
-    // 7. Execute based on command type
     if (cmd_type == CMD_BUILTIN)
         result = execute_builtin_command(args, env);
     else if (cmd_type == CMD_EXTERNAL)
@@ -562,10 +559,8 @@ int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
         result = 127;
     }
     
-    // 8. Restore redirections BEFORE cleanup
     restore_redirections(saved_stdin, saved_stdout);
     
-    // 9. Cleanup
     ft_free_matrix(args);
     free_token_list(expanded_tokens);
     
@@ -586,7 +581,6 @@ int execute_pipeline(t_tree *tree, t_env **env, int exit_status)
     if (!tree || !tree->left || !tree->right)
         return 1;
     
-    // Save original stdin/stdout
     saved_stdin = dup(STDIN_FILENO);
     saved_stdout = dup(STDOUT_FILENO);
     
@@ -601,7 +595,6 @@ int execute_pipeline(t_tree *tree, t_env **env, int exit_status)
     left_pid = fork();
     if (left_pid == 0)
     {
-        // Left child: output to pipe
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
@@ -620,7 +613,6 @@ int execute_pipeline(t_tree *tree, t_env **env, int exit_status)
     right_pid = fork();
     if (right_pid == 0)
     {
-        // Right child: input from pipe
         close(pipefd[1]);
         dup2(pipefd[0], STDIN_FILENO);
         close(pipefd[0]);
@@ -638,14 +630,12 @@ int execute_pipeline(t_tree *tree, t_env **env, int exit_status)
         return 1;
     }
     
-    // Parent: close pipe and wait for children
     close(pipefd[0]);
     close(pipefd[1]);
     
     waitpid(left_pid, NULL, 0);
     waitpid(right_pid, &status, 0);
     
-    // Restore original stdin/stdout
     dup2(saved_stdin, STDIN_FILENO);
     dup2(saved_stdout, STDOUT_FILENO);
     close(saved_stdin);
@@ -665,7 +655,6 @@ int execute_logical_and(t_tree *tree, t_env **env, int exit_status)
     
     left_result = execute_tree(tree->left, env, exit_status);
     
-    // Only execute right side if left succeeded
     if (left_result == 0 && tree->right)
         return execute_tree(tree->right, env, left_result);
     
@@ -681,7 +670,6 @@ int execute_logical_or(t_tree *tree, t_env **env, int exit_status)
     
     left_result = execute_tree(tree->left, env, exit_status);
     
-    // Only execute right side if left failed
     if (left_result != 0 && tree->right)
         return execute_tree(tree->right, env, left_result);
     
@@ -692,11 +680,30 @@ int execute_logical_or(t_tree *tree, t_env **env, int exit_status)
 
 int execute_parentheses(t_tree *tree, t_env **env, int exit_status)
 {
-    if (!tree || !tree->left)
+    int saved_stdin;
+    int saved_stdout;
+    int result;
+    
+    if (!tree || !tree->right)
         return 1;
     
-    // Execute the content inside parentheses
-    return execute_tree(tree->left, env, exit_status);
+    if (tree->tokens)
+    {
+        if (setup_redirections(tree->tokens, &saved_stdin, 
+                              &saved_stdout, *env, exit_status) == -1)
+            return 1;
+    }
+    else
+    {
+        saved_stdin = dup(STDIN_FILENO);
+        saved_stdout = dup(STDOUT_FILENO);
+    }
+    
+    result = execute_tree(tree->right, env, exit_status);
+    
+    restore_redirections(saved_stdin, saved_stdout);
+    
+    return result;
 }
 
 // ========== MAIN EXECUTION FUNCTION ==========

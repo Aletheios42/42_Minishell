@@ -4,102 +4,79 @@
 
 // ========== TOKEN LIST UTILITIES ==========
 
-t_token *find_token_type(t_token *tokens, t_token_type types[], int type_count)
+t_token *find_token_type(t_token *tokens, t_token_type type)
 {
-    int i;
-    
     while (tokens)
     {
-        i = 0;
-        while (i < type_count)
-        {
-            if (tokens->type == types[i])
-                return tokens;
-            i++;
-        }
+        if (tokens->type == type)
+            return tokens;
         tokens = tokens->next;
     }
     return NULL;
 }
 
-t_token *split_token_list_at(t_token *split_point, t_token **left_tokens)
+t_token *find_logical_operator(t_token *tokens)
 {
-    t_token *right_tokens;
-    t_token *head;
+    int paren_level = 0;
     
-    if (!split_point)
+    while (tokens)
     {
-        *left_tokens = NULL;
-        return NULL;
+        if (tokens->type == TOKEN_PAREN_OPEN)
+            paren_level++;
+        else if (tokens->type == TOKEN_PAREN_CLOSE)
+            paren_level--;
+        else if (paren_level == 0 && 
+                (tokens->type == TOKEN_AND || tokens->type == TOKEN_OR))
+            return tokens;
+        tokens = tokens->next;
     }
-    
-    // Get right side (after split point)
-    right_tokens = split_point->next;
-    if (right_tokens)
-        right_tokens->prev = NULL;
-    
-    // Disconnect split point
-    split_point->next = NULL;
-    
-    // Get left side (before split point)
-    if (split_point->prev)
-    {
-        split_point->prev->next = NULL;
-        head = split_point;
-        while (head->prev)
-            head = head->prev;
-        *left_tokens = head;
-    }
-    else
-    {
-        *left_tokens = NULL;
-    }
-    split_point->prev = NULL;
-    
-    return right_tokens;
+    return NULL;
 }
 
-t_token *clone_token_list(t_token *original)
+t_token *find_pipe_operator(t_token *tokens)
 {
-    t_token *head = NULL;
-    t_token *tail = NULL;
-    t_token *new_token;
-    t_token *current;
+    int paren_level = 0;
     
-    current = original;
-    while (current)
+    while (tokens)
     {
-        new_token = malloc(sizeof(t_token));
-        if (!new_token)
-        {
-            free_token_list(head);
-            return NULL;
-        }
-        new_token->value = ft_strdup(current->value);
-        if (!new_token->value)
-        {
-            free(new_token);
-            free_token_list(head);
-            return NULL;
-        }
-        new_token->type = current->type;
-        new_token->next = NULL;
-        new_token->prev = tail;
-        
-        if (!head)
-            head = new_token;
-        else
-            tail->next = new_token;
-        tail = new_token;
-        
-        current = current->next;
+        if (tokens->type == TOKEN_PAREN_OPEN)
+            paren_level++;
+        else if (tokens->type == TOKEN_PAREN_CLOSE)
+            paren_level--;
+        else if (paren_level == 0 && tokens->type == TOKEN_PIPE)
+            return tokens;
+        tokens = tokens->next;
     }
-    return head;
+    return NULL;
+}
+
+t_token *cut_token_list_at(t_token **head, t_token *cut_point)
+{
+    t_token *right_part;
+    
+    if (!cut_point)
+        return NULL;
+    
+    right_part = cut_point->next;
+    
+    // Disconnect the lists
+    cut_point->next = NULL;
+    if (right_part)
+        right_part->prev = NULL;
+    
+    // Update head if necessary
+    if (cut_point->prev)
+        cut_point->prev->next = NULL;
+    else
+        *head = NULL;
+    
+    cut_point->prev = NULL;
+    return right_part;
 }
 
 // ========== TREE NODE MANAGEMENT ==========
 
-t_tree *create_tree_node_with_tokens(t_node_type type, t_token *tokens)
+t_tree *create_tree_node(t_node_type type, t_token *tokens)
 {
     t_tree *node;
     
@@ -111,56 +88,7 @@ t_tree *create_tree_node_with_tokens(t_node_type type, t_token *tokens)
     node->tokens = tokens;
     node->left = NULL;
     node->right = NULL;
-    
     return node;
-}
-
-t_tree *create_operator_node(t_token *op_token)
-{
-    t_node_type node_type;
-    
-    if (!op_token)
-        return NULL;
-    
-    switch (op_token->type)
-    {
-        case TOKEN_PIPE:
-            node_type = NODE_PIPE;
-            break;
-        case TOKEN_AND:
-            node_type = NODE_AND;
-            break;
-        case TOKEN_OR:
-            node_type = NODE_OR;
-            break;
-        default:
-            node_type = NODE_COMMAND;
-    }
-    
-    return create_tree_node_with_tokens(node_type, op_token);
-}
-
-t_tree *create_command_node(t_token *token_list)
-{
-    if (!token_list)
-        return NULL;
-    
-    // Handle parentheses specially
-    if (token_list->type == TOKEN_PAREN && !token_list->next)
-    {
-        t_tree *paren_node;
-        t_token *inner_tokens;
-        
-        // Parse content inside parentheses
-        inner_tokens = lexer(token_list->value);
-        paren_node = create_tree_node_with_tokens(NODE_PAREN, token_list);
-        if (paren_node && inner_tokens)
-            paren_node->left = parse_expression(inner_tokens);
-        
-        return paren_node;
-    }
-    
-    return create_tree_node_with_tokens(NODE_COMMAND, token_list);
 }
 
 void free_syntax_tree(t_tree *tree)
@@ -177,67 +105,176 @@ void free_syntax_tree(t_tree *tree)
     free(tree);
 }
 
+// ========== PARENTHESES PARSING ==========
+
+t_token *find_matching_close_paren(t_token *open_paren)
+{
+    t_token *current;
+    int paren_level = 1;
+    
+    if (!open_paren)
+        return NULL;
+    
+    current = open_paren->next;
+    while (current && paren_level > 0)
+    {
+        if (current->type == TOKEN_PAREN_OPEN)
+            paren_level++;
+        else if (current->type == TOKEN_PAREN_CLOSE)
+        {
+            paren_level--;
+            if (paren_level == 0)
+                return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+t_token *extract_and_cut_inner_tokens(t_token *open_paren, t_token *close_paren)
+{
+    t_token *inner_start;
+    t_token *inner_end;
+    
+    if (!open_paren || !close_paren)
+        return NULL;
+    
+    inner_start = open_paren->next;
+    if (!inner_start || inner_start == close_paren)
+        return NULL;
+    
+    inner_end = close_paren->prev;
+    if (!inner_end)
+        return NULL;
+    
+    // Cut inner tokens from the list
+    open_paren->next = close_paren;
+    close_paren->prev = open_paren;
+    
+    // Make inner tokens a separate list
+    inner_start->prev = NULL;
+    inner_end->next = NULL;
+    
+    return inner_start;
+}
+
+t_token *extract_and_cut_external_redirections(t_token *close_paren)
+{
+    t_token *external_start;
+    
+    if (!close_paren || !close_paren->next)
+        return NULL;
+    
+    external_start = close_paren->next;
+    
+    // Cut external tokens
+    close_paren->next = NULL;
+    external_start->prev = NULL;
+    
+    return external_start;
+}
+
+t_tree *parse_parentheses_group(t_token **tokens)
+{
+    t_token *open_paren;
+    t_token *close_paren;
+    t_token *inner_tokens;
+    t_token *external_tokens;
+    t_tree *paren_node;
+    
+    open_paren = find_token_type(*tokens, TOKEN_PAREN_OPEN);
+    if (!open_paren)
+        return NULL;
+    
+    close_paren = find_matching_close_paren(open_paren);
+    if (!close_paren)
+        return NULL;
+    
+    // Extract tokens (no cloning, just cutting)
+    inner_tokens = extract_and_cut_inner_tokens(open_paren, close_paren);
+    external_tokens = extract_and_cut_external_redirections(close_paren);
+    
+    // Remove parentheses tokens from original list
+    if (open_paren->prev)
+        open_paren->prev->next = close_paren->next;
+    else
+        *tokens = close_paren->next;
+    
+    if (close_paren->next)
+        close_paren->next->prev = open_paren->prev;
+    
+    // Free parentheses tokens
+    free(open_paren->value);
+    free(open_paren);
+    free(close_paren->value);
+    free(close_paren);
+    
+    paren_node = create_tree_node(NODE_PAREN, external_tokens);
+    if (!paren_node)
+    {
+        free_token_list(inner_tokens);
+        free_token_list(external_tokens);
+        return NULL;
+    }
+    
+    paren_node->right = parse_expression(inner_tokens);
+    return paren_node;
+}
+
 // ========== PARSING FUNCTIONS ==========
 
-t_tree *parse_command_sequence(t_token *tokens)
+t_tree *parse_command(t_token *tokens)
 {
     if (!tokens)
         return NULL;
     
-    return create_command_node(tokens);
+    if (find_token_type(tokens, TOKEN_PAREN_OPEN))
+        return parse_parentheses_group(&tokens);
+    
+    return create_tree_node(NODE_COMMAND, tokens);
 }
 
 t_tree *parse_pipeline(t_token *tokens)
 {
-    t_token_type pipe_types[] = {TOKEN_PIPE};
     t_token *pipe_op;
-    t_token *left_tokens;
     t_token *right_tokens;
     t_tree *pipe_node;
     
-    if (!tokens)
-        return NULL;
-    
-    pipe_op = find_token_type(tokens, pipe_types, 1);
+    pipe_op = find_pipe_operator(tokens);
     if (!pipe_op)
-        return parse_command_sequence(tokens);
+        return parse_command(tokens);
     
-    right_tokens = split_token_list_at(pipe_op, &left_tokens);
+    right_tokens = cut_token_list_at(&tokens, pipe_op);
     
-    pipe_node = create_operator_node(pipe_op);
+    pipe_node = create_tree_node(NODE_PIPE, pipe_op);
     if (!pipe_node)
         return NULL;
     
-    pipe_node->left = parse_command_sequence(left_tokens);
+    pipe_node->left = parse_command(tokens);
     pipe_node->right = parse_pipeline(right_tokens);
-    
     return pipe_node;
 }
 
 t_tree *parse_logical_ops(t_token *tokens)
 {
-    t_token_type logical_types[] = {TOKEN_AND, TOKEN_OR};
     t_token *logical_op;
-    t_token *left_tokens;
     t_token *right_tokens;
     t_tree *logical_node;
+    t_node_type node_type;
     
-    if (!tokens)
-        return NULL;
-    
-    logical_op = find_token_type(tokens, logical_types, 2);
+    logical_op = find_logical_operator(tokens);
     if (!logical_op)
         return parse_pipeline(tokens);
     
-    right_tokens = split_token_list_at(logical_op, &left_tokens);
+    right_tokens = cut_token_list_at(&tokens, logical_op);
+    node_type = (logical_op->type == TOKEN_AND) ? NODE_AND : NODE_OR;
     
-    logical_node = create_operator_node(logical_op);
+    logical_node = create_tree_node(node_type, logical_op);
     if (!logical_node)
         return NULL;
     
-    logical_node->left = parse_logical_ops(left_tokens);
+    logical_node->left = parse_logical_ops(tokens);
     logical_node->right = parse_logical_ops(right_tokens);
-    
     return logical_node;
 }
 
@@ -248,116 +285,83 @@ t_tree *parse_expression(t_token *tokens)
 
 // ========== SYNTAX VALIDATION ==========
 
-int validate_token_sequence(t_token *tokens)
+int validate_parentheses(t_token *tokens)
 {
-    t_token *current;
-    t_token *prev;
+    int paren_count = 0;
     
-    if (!tokens)
-        return 1;
-    
-    current = tokens;
-    prev = NULL;
-    
-    while (current)
+    while (tokens)
     {
-        // Check for consecutive operators
-        if (prev && 
-            (prev->type == TOKEN_PIPE || prev->type == TOKEN_AND || prev->type == TOKEN_OR) &&
-            (current->type == TOKEN_PIPE || current->type == TOKEN_AND || current->type == TOKEN_OR))
+        if (tokens->type == TOKEN_PAREN_OPEN)
+            paren_count++;
+        else if (tokens->type == TOKEN_PAREN_CLOSE)
+            paren_count--;
+        
+        if (paren_count < 0)
         {
-            ft_printf("syntax error near unexpected token `%s'\n", current->value);
+            ft_printf("syntax error: unexpected ')'\n");
             return 0;
         }
-        
-        // Check for operators at start
-        if (!prev && 
-            (current->type == TOKEN_PIPE || current->type == TOKEN_AND || current->type == TOKEN_OR))
-        {
-            ft_printf("syntax error near unexpected token `%s'\n", current->value);
-            return 0;
-        }
-        
-        prev = current;
-        current = current->next;
-    }
-    
-    // Check for operators at end
-    if (prev && 
-        (prev->type == TOKEN_PIPE || prev->type == TOKEN_AND || prev->type == TOKEN_OR))
-    {
-        ft_printf("syntax error near unexpected token `newline'\n");
-        return 0;
-    }
-    
-    return 1;
-}
-
-int validate_parentheses_balance(t_token *tokens)
-{
-    int paren_count;
-    t_token *current;
-    
-    paren_count = 0;
-    current = tokens;
-    
-    while (current)
-    {
-        if (current->type == TOKEN_PAREN)
-        {
-            // Count opening and closing parens in the content
-            char *content = current->value;
-            while (*content)
-            {
-                if (*content == '(') paren_count++;
-                else if (*content == ')') paren_count--;
-                content++;
-            }
-        }
-        current = current->next;
+        tokens = tokens->next;
     }
     
     if (paren_count != 0)
     {
-        ft_printf("syntax error: unmatched parentheses\n");
+        ft_printf("syntax error: unmatched '('\n");
         return 0;
     }
+    return 1;
+}
+
+int validate_operators(t_token *tokens)
+{
+    t_token *prev = NULL;
     
+    while (tokens)
+    {
+        if (prev && 
+            (prev->type == TOKEN_PIPE || prev->type == TOKEN_AND || 
+             prev->type == TOKEN_OR) &&
+            (tokens->type == TOKEN_PIPE || tokens->type == TOKEN_AND || 
+             tokens->type == TOKEN_OR))
+        {
+            ft_printf("syntax error near unexpected token `%s'\n", 
+                     tokens->value);
+            return 0;
+        }
+        prev = tokens;
+        tokens = tokens->next;
+    }
     return 1;
 }
 
 int validate_redirections(t_token *tokens)
 {
-    t_token *current;
-    
-    current = tokens;
-    while (current)
+    while (tokens)
     {
-        if (current->type == TOKEN_REDIR_IN || current->type == TOKEN_REDIR_OUT ||
-            current->type == TOKEN_APPEND || current->type == TOKEN_HEREDOC)
+        if (tokens->type == TOKEN_REDIR_IN || tokens->type == TOKEN_REDIR_OUT ||
+            tokens->type == TOKEN_APPEND || tokens->type == TOKEN_HEREDOC)
         {
-            if (!current->next || 
-                (current->next->type != TOKEN_WORD && current->next->type != TOKEN_LITERAL_WORD))
+            if (!tokens->next || 
+                (tokens->next->type != TOKEN_WORD && 
+                 tokens->next->type != TOKEN_LITERAL_WORD))
             {
                 ft_printf("syntax error near unexpected token `newline'\n");
                 return 0;
             }
         }
-        current = current->next;
+        tokens = tokens->next;
     }
-    
     return 1;
 }
 
 int validate_syntax(t_token *tokens)
 {
-    if (!validate_token_sequence(tokens))
+    if (!validate_parentheses(tokens))
         return 0;
-    if (!validate_parentheses_balance(tokens))
+    if (!validate_operators(tokens))
         return 0;
     if (!validate_redirections(tokens))
         return 0;
-    
     return 1;
 }
 
@@ -365,21 +369,11 @@ int validate_syntax(t_token *tokens)
 
 t_tree *parser(t_token *tokens)
 {
-    t_token *token_copy;
-    t_tree *syntax_tree;
-    
     if (!tokens)
         return NULL;
     
     if (!validate_syntax(tokens))
         return NULL;
     
-    // Clone tokens to preserve original list for caller
-    token_copy = clone_token_list(tokens);
-    if (!token_copy)
-        return NULL;
-    
-    syntax_tree = parse_expression(token_copy);
-    
-    return syntax_tree;
+    return parse_expression(tokens);
 }

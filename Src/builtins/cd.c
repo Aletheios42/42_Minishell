@@ -12,63 +12,84 @@
 
 #include "../../Inc/minishell.h"
 
-int	update_oldpwd(t_env *env)
+int	update_env_dirs(t_env *env, const char *old_path)
 {
-	char	cwd[PATH_MAX];
+   char	new_pwd[PATH_MAX];
 
-	if (!getcwd(cwd, sizeof(cwd)))
-		return (1);
-	env_update("OLDPWD", cwd, env);
-	return (0);
-}
-
-int	update_pwd(t_env *env)
-{
-	char	cwd[PATH_MAX];
-
-	if (!getcwd(cwd, sizeof(cwd)))
-		return (1);
-	env_update("PWD", cwd, env);
-	return (0);
+   env_set_value(&env, "OLDPWD", old_path);
+   if (!getcwd(new_pwd, sizeof(new_pwd)))
+   	return (1);
+   env_set_value(&env, "PWD", new_pwd);
+   return (0);
 }
 
 int	change_to_path(const char *path, t_env *env)
 {
-	if (update_oldpwd(env) == 1)
-		return (1);
-	if (chdir(path) != 0)
-	{
-		perror("cd");
-		return (1);
-	}
-	return (update_pwd(env));
+   char	old_pwd[PATH_MAX];
+
+   if (!getcwd(old_pwd, sizeof(old_pwd)))
+   	return (1);
+   if (chdir(path) != 0)
+   {
+   	perror("cd");
+   	return (1);
+   }
+   return (update_env_dirs(env, old_pwd));
 }
 
 int	ft_cd(char *args[], t_env *env[])
 {
-	char	*path;
+   char	*path;
 
-	if (!args[1])
+   if (!args[1])
+   {
+   	path = get_env_value(*env, "HOME");
+   	if (!path)
+   	{
+   		ft_putendl_fd("minishell: cd: Home not set", 2);
+   		return (1);
+   	}
+   	return (change_to_path(path, *env));
+   }
+   else if (ft_strcmp(args[1], "-") == 0)
+   {
+   	path = get_env_value(*env, "OLDPWD");
+   	if (!path)
+   	{
+   		ft_putendl_fd("minishell: cd: OLDPWD not set", 2);
+   		return (1);
+   	}
+   	ft_putendl_fd(path, 1);
+   	return (change_to_path(path, *env));
+   }
+   return (change_to_path(args[1], *env));
+}
+
+void	env_update(const char *key, const char *value, t_env *env)
+{
+	t_env	*new_node;
+
+	while (env)
 	{
-		path = get_env_value(*env, "HOME");
-		if (!path)
+		if (env->key && ft_strcmp(env->key, key) == 0)
 		{
-			ft_putendl_fd("minishell: cd: Home not set", 2);
-			return (1);
+			free(env->value);
+			if (value)
+				env->value = ft_strdup(value);
+			else
+				env->value = NULL;
+			return;
 		}
-		return (change_to_path(path, *env));
+		if (!env->next)
+			break;
+		env = env->next;
 	}
-	else if (ft_strcmp(args[1], "-") == 0)
-	{
-		path = get_env_value(*env, "OLDPWD");
-		if (!path)
-		{
-			ft_putendl_fd("minishell: cd: OLDPWD not set", 2);
-			return (1);
-		}
-		ft_putendl_fd(path, 1);
-		return (change_to_path(path, *env));
-	}
+	new_node = malloc(sizeof(t_env));
+	new_node->key = ft_strdup(key);
+	if (value)
+		new_node->value = ft_strdup(value);
 	else
-		return (change_to_path(args[1], *env));
+		new_node->value = NULL;
+	new_node->next = NULL;
+	env->next = new_node;
 }
