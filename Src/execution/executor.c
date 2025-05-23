@@ -1,536 +1,568 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   executor.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/23 15:00:00 by alepinto          #+#    #+#             */
-/*   Updated: 2025/05/23 15:00:00 by alepinto         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../Inc/minishell.h"
 #include "../../libft/libft.h"
+#include <signal.h>
 
-static int	is_builtin(char *cmd)
+// ========== COMMAND TYPE DETECTION ==========
+
+typedef enum e_command_type {
+    CMD_ASSIGNMENT,
+    CMD_BUILTIN,
+    CMD_EXTERNAL,
+    CMD_INVALID
+} t_command_type;
+
+t_command_type classify_command(t_token *tokens, t_env *env)
 {
-	if (!cmd)
-		return (0);
-	return (ft_strcmp(cmd, "echo") == 0 || ft_strcmp(cmd, "cd") == 0 ||
-			ft_strcmp(cmd, "pwd") == 0 || ft_strcmp(cmd, "export") == 0 ||
-			ft_strcmp(cmd, "unset") == 0 || ft_strcmp(cmd, "env") == 0 ||
-			ft_strcmp(cmd, "exit") == 0);
-}
-
-static int	execute_builtin(char **args, t_env **env, t_local_vars **locals)
-{
-	if (ft_strcmp(args[0], "echo") == 0)
-		return (ft_echo(args));
-	if (ft_strcmp(args[0], "cd") == 0)
-		return (ft_cd(args, env));
-	if (ft_strcmp(args[0], "pwd") == 0)
-		return (ft_pwd());
-	if (ft_strcmp(args[0], "export") == 0)
-		return (ft_export(args, *env, *env));
-	if (ft_strcmp(args[0], "unset") == 0)
-		return (ft_unset(args, env, locals));
-	if (ft_strcmp(args[0], "env") == 0)
-		return (ft_env(*env));
-	if (ft_strcmp(args[0], "exit") == 0)
-		return (ft_exit(args));
-	return (1);
-}
-
-static int	is_assignment(char *str)
-{
-	int	i;
-
-	i = 0;
-	if (!str || (!ft_isalpha(str[0]) && str[0] != '_'))
-		return (0);
-	while (str[i] && str[i] != '=')
-	{
-		if (!ft_isalnum(str[i]) && str[i] != '_')
-			return (0);
-		i++;
-	}
-	return (str[i] == '=');
-}
-
-static int	process_assignment(char *assignment, t_local_vars **locals)
-{
-	char	*equal_pos;
-	char	*key;
-	char	*value;
-
-	equal_pos = ft_strchr(assignment, '=');
-	if (!equal_pos)
-		return (1);
-	key = ft_substr(assignment, 0, equal_pos - assignment);
-	if (!key)
-		return (1);
-	value = ft_strdup(equal_pos + 1);
-	if (!value)
-	{
-		free(key);
-		return (1);
-	}
-	local_var_set(locals, key, value);
-	free(key);
-	free(value);
-	return (0);
-}
-
-static int	count_tokens(t_token *tokens)
-{
-	int		count;
-	t_token	*temp;
-
-	temp = tokens;
-	count = 0;
-	while (temp)
-	{
-		count++;
-		temp = temp->next;
-	}
-	return (count);
-}
-
-static char	**tokens_to_args(t_token *tokens)
-{
-	char	**args;
-	int		count;
-	int		i;
-
-	count = count_tokens(tokens);
-	args = malloc(sizeof(char *) * (count + 1));
-	if (!args)
-		return (NULL);
-	i = 0;
-	while (tokens)
-	{
-		args[i] = ft_strdup(tokens->value);
-		if (!args[i])
-		{
-			ft_free_matrix(args);
-			return (NULL);
-		}
-		tokens = tokens->next;
-		i++;
-	}
-	args[i] = NULL;
-	return (args);
-}
-
-static int	count_env(t_env *env)
-{
-	int		count;
-	t_env	*temp;
-
-	temp = env;
-	count = 0;
-	while (temp)
-	{
-		count++;
-		temp = temp->next;
-	}
-	return (count);
-}
-
-static char	**env_to_array(t_env *env)
-{
-	char	**envp;
-	int		count;
-	int		i;
-
-	count = count_env(env);
-	envp = malloc(sizeof(char *) * (count + 1));
-	if (!envp)
-		return (NULL);
-	i = 0;
-	while (env)
-	{
-		envp[i] = ft_strdup(env->value);
-		if (!envp[i])
-		{
-			ft_free_matrix(envp);
-			return (NULL);
-		}
-		env = env->next;
-		i++;
-	}
-	envp[i] = NULL;
-	return (envp);
-}
-
-static int	handle_heredoc_loop(int temp_fd, char *delimiter)
-{
-	char	*line;
-
-	while (1)
-	{
-		ft_putstr_fd("heredoc> ", STDOUT_FILENO);
-		line = get_next_line(STDIN_FILENO);
-		if (!line)
-			break ;
-		if (ft_strncmp(delimiter, line, ft_strlen(delimiter)) == 0 &&
-			line[ft_strlen(delimiter)] == '\n')
-		{
-			free(line);
-			break ;
-		}
-		write(temp_fd, line, ft_strlen(line));
-		free(line);
-	}
-	return (0);
-}
-
-static int	handle_heredoc(t_token *token)
-{
-	char	*delimiter;
-	int		temp_fd;
-
-	if (!token || !token->next || !token->next->value)
-		return (-1);
-	delimiter = token->next->value;
-	temp_fd = open("/tmp/.minishell_heredoc", O_CREAT | O_RDWR | O_TRUNC, 0644);
-	if (temp_fd == -1)
-		return (-1);
-	handle_heredoc_loop(temp_fd, delimiter);
-	close(temp_fd);
-	return (open("/tmp/.minishell_heredoc", O_RDONLY));
-}
-
-static char	*build_full_path(char *dir, char *cmd)
-{
-	char	*temp;
-	char	*full_path;
-
-	temp = ft_strjoin(dir, "/");
-	full_path = ft_strjoin(temp, cmd);
-	free(temp);
-	return (full_path);
-}
-
-static char	*search_in_paths(char **paths, char *cmd)
-{
-	char	*full_path;
-	int		i;
-
-	i = 0;
-	while (paths[i])
-	{
-		full_path = build_full_path(paths[i], cmd);
-		if (access(full_path, X_OK) == 0)
-		{
-			ft_free_matrix(paths);
-			return (full_path);
-		}
-		free(full_path);
-		i++;
-	}
-	ft_free_matrix(paths);
-	return (NULL);
-}
-
-static char	*find_command_path(char *cmd, t_env *env)
-{
-	char	*path_env;
-	char	**paths;
-
-	if (ft_strchr(cmd, '/'))
-		return (ft_strdup(cmd));
-	path_env = get_env_value(env, "PATH");
-	if (!path_env)
-		return (NULL);
-	paths = ft_split(path_env, ':');
-	if (!paths)
-		return (NULL);
-	return (search_in_paths(paths, cmd));
-}
-
-static int	fork_and_exec(char *cmd_path, char **args, char **envp)
-{
-	pid_t	pid;
-	int		status;
-
-	pid = fork();
-	if (pid == 0)
-	{
-		execve(cmd_path, args, envp);
-		perror("execve");
-		exit(127);
-	}
-	else if (pid > 0)
-	{
-		waitpid(pid, &status, 0);
-		return (WEXITSTATUS(status));
-	}
-	return (1);
-}
-
-static int	execute_external_command(char **args, t_env *env)
-{
-	char	**envp;
-	char	*cmd_path;
-	int		status;
-
-	cmd_path = find_command_path(args[0], env);
-	if (!cmd_path)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(args[0], 2);
-		ft_putendl_fd(": command not found", 2);
-		return (127);
-	}
-	envp = env_to_array(env);
-	if (!envp)
-	{
-		free(cmd_path);
-		return (1);
-	}
-	status = fork_and_exec(cmd_path, args, envp);
-	free(cmd_path);
-	ft_free_matrix(envp);
-	return (status);
-}
-
-static void	handle_heredocs(t_token *tokens)
-{
-	t_token	*current;
-	int		heredoc_fd;
-
-	current = tokens;
-	while (current)
-	{
-		if (current->type == TOKEN_HEREDOC)
-		{
-			heredoc_fd = handle_heredoc(current);
-			if (heredoc_fd != -1)
-			{
-				dup2(heredoc_fd, STDIN_FILENO);
-				close(heredoc_fd);
-			}
-		}
-		current = current->next;
-	}
-}
-
-static void	expand_tokens_safe(t_token *tokens, t_env *env, 
-								t_local_vars **locals, int exit_status)
-{
-	if (locals)
-		expand_token_list(tokens, env, *locals, exit_status);
-	else
-		expand_token_list(tokens, env, NULL, exit_status);
-}
-
-// ========== 1. NUEVAS FUNCIONES AUXILIARES ==========
-// Agregar a Src/execution/executor.c
-
-static char	*join_tokens_to_string(t_token *tokens)
-{
-	char	*result;
-	char	*temp;
-	t_token	*current;
-
-	if (!tokens)
-		return (ft_strdup(""));
-	result = ft_strdup("");
-	current = tokens;
-	while (current)
-	{
-		temp = ft_strjoin(result, current->value);
-		free(result);
-		result = temp;
-		if (current->next)
-		{
-			temp = ft_strjoin(result, " ");
-			free(result);
-			result = temp;
-		}
-		current = current->next;
-	}
-	return (result);
-}
-
-static t_token	*retokenize_string(char *str)
-{
-	char	**words;
-	t_token	*head;
-	t_token	*current;
-	t_token	*new_token;
-	int		i;
-
-	if (!str || !*str)
-		return (NULL);
-	words = ft_split(str, ' ');
-	if (!words)
-		return (NULL);
-	head = NULL;
-	current = NULL;
-	i = 0;
-	while (words[i])
-	{
-		new_token = create_token(ft_strdup(words[i]), TOKEN_WORD);
-		if (!new_token)
-		{
-			ft_free_matrix(words);
-			free_token_list(head);
-			return (NULL);
-		}
-		if (!head)
-			head = current = new_token;
-		else
-		{
-			current->next = new_token;
-			new_token->prev = current;
-			current = new_token;
-		}
-		i++;
-	}
-	ft_free_matrix(words);
-	return (head);
-}
-
-static int	tokens_need_retokenization(t_token *tokens)
-{
-	t_token	*current;
-
-	current = tokens;
-	while (current)
-	{
-		if (ft_strchr(current->value, ' ') || ft_strchr(current->value, '\t'))
-			return (1);
-		current = current->next;
-	}
-	return (0);
-}
-
-// ========== 2. FUNCIÓN EXECUTE_COMMAND MODIFICADA ==========
-// Reemplazar la función execute_command existente
-
-static int	execute_command(t_token *tokens, t_env **env, 
-							t_local_vars **locals, int exit_status)
-{
-	char	**args;
-	int		status;
-	char	*expanded_string;
-	t_token	*retokenized;
-
-	if (!tokens)
-		return (0);
-	handle_heredocs(tokens);
-	printf("DEBUG: Original tokens: ");
-	ft_print_token_list(tokens);
-	printf("\n");
-	
-	// 1. Expandir variables en tokens originales
-	expand_tokens_safe(tokens, *env, locals, exit_status);
-	printf("DEBUG: After expansion: ");
-	ft_print_token_list(tokens);
-	printf("\n");
-	
-	// 2. Re-tokenizar si hay espacios en valores expandidos
-	if (tokens_need_retokenization(tokens))
-	{
-		printf("DEBUG: Re-tokenization needed\n");
-		expanded_string = join_tokens_to_string(tokens);
-		printf("DEBUG: Joined string: '%s'\n", expanded_string);
-		retokenized = retokenize_string(expanded_string);
-		free(expanded_string);
-		
-		if (retokenized)
-		{
-			printf("DEBUG: After retokenization: ");
-			ft_print_token_list(retokenized);
-			printf("\n");
-			// Usar tokens re-tokenizados
-			free_token_list(tokens);
-			tokens = retokenized;
-		}
-	}
-	
-	// 3. Procesar asignaciones
-	if (is_assignment(tokens->value))
-		return (process_assignment(tokens->value, locals));
-	
-	// 4. Ejecutar comando
-	args = tokens_to_args(tokens);
-	if (!args || !args[0])
-		return (1);
-	if (is_builtin(args[0]))
-		status = execute_builtin(args, env, locals);
-	else
-		status = execute_external_command(args, *env);
-	ft_free_matrix(args);
-	return (status);
-}
-
-static int	execute_pipe(t_tree *tree, t_env **env, 
-						t_local_vars **locals, int exit_status)
-{
-	int		pipefd[2];
-	pid_t	pid1;
-	pid_t	pid2;
-	int		status;
-
-	if (pipe(pipefd) == -1)
-		return (1);
-	pid1 = fork();
-	if (pid1 == 0)
-	{
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-		exit(execute_tree(tree->left, env, locals, exit_status));
-	}
-	pid2 = fork();
-	if (pid2 == 0)
-	{
-		close(pipefd[1]);
-		dup2(pipefd[0], STDIN_FILENO);
-		close(pipefd[0]);
-		exit(execute_tree(tree->right, env, locals, exit_status));
-	}
-	close(pipefd[0]);
-	close(pipefd[1]);
-	waitpid(pid1, NULL, 0);
-	waitpid(pid2, &status, 0);
-	return (WEXITSTATUS(status));
-}
-
-int execute_tree(t_tree *tree, t_env **env, t_local_vars **locals, int exit_status)
-{
-    int left_status;
-
-    if (!tree)
-        return (0);
+    char *first_word;
     
-    printf("DEBUG execute_tree: type=%d, locals=%p\n", tree->type, locals ? *locals : NULL);
+    if (!tokens)
+        return CMD_INVALID;
+    
+    // Skip non-word tokens (redirections, etc.)
+    while (tokens && tokens->type != TOKEN_WORD && tokens->type != TOKEN_LITERAL_WORD)
+        tokens = tokens->next;
+    
+    if (!tokens)
+        return CMD_INVALID;
+    
+    first_word = tokens->value;
+    
+    // Check if it's an assignment
+    if (is_assignment(first_word))
+        return CMD_ASSIGNMENT;
+    
+    // Check if it's a builtin
+    if (ft_strcmp(first_word, "echo") == 0 ||
+        ft_strcmp(first_word, "cd") == 0 ||
+        ft_strcmp(first_word, "pwd") == 0 ||
+        ft_strcmp(first_word, "export") == 0 ||
+        ft_strcmp(first_word, "unset") == 0 ||
+        ft_strcmp(first_word, "env") == 0 ||
+        ft_strcmp(first_word, "exit") == 0)
+        return CMD_BUILTIN;
+    
+    // Check if it's an external command
+    if (find_command_in_path(first_word, env))
+        return CMD_EXTERNAL;
+    
+    return CMD_INVALID;
+}
+
+// ========== BUILTIN EXECUTION ==========
+
+int execute_builtin_command(char **args, t_env **env)
+{
+    if (!args || !args[0])
+        return 1;
+    
+    if (ft_strcmp(args[0], "echo") == 0)
+        return ft_echo(args);
+    if (ft_strcmp(args[0], "cd") == 0)
+        return ft_cd(args, env);
+    if (ft_strcmp(args[0], "pwd") == 0)
+        return ft_pwd();
+    if (ft_strcmp(args[0], "export") == 0)
+        return ft_export(args, *env, *env);
+    if (ft_strcmp(args[0], "unset") == 0)
+        return ft_unset(args, env);
+    if (ft_strcmp(args[0], "env") == 0)
+        return ft_env(*env);
+    if (ft_strcmp(args[0], "exit") == 0)
+        return ft_exit(args);
+    
+    return 1;
+}
+
+// ========== TOKEN TO ARGS CONVERSION ==========
+
+int count_word_tokens(t_token *tokens)
+{
+    int count;
+    
+    count = 0;
+    while (tokens)
+    {
+        if (tokens->type == TOKEN_WORD || tokens->type == TOKEN_LITERAL_WORD)
+            count++;
+        tokens = tokens->next;
+    }
+    return count;
+}
+
+char **tokens_to_args_array(t_token *tokens)
+{
+    char **args;
+    int count;
+    int i;
+    
+    count = count_word_tokens(tokens);
+    if (count == 0)
+        return NULL;
+    
+    args = malloc(sizeof(char *) * (count + 1));
+    if (!args)
+        return NULL;
+    
+    i = 0;
+    while (tokens && i < count)
+    {
+        if (tokens->type == TOKEN_WORD || tokens->type == TOKEN_LITERAL_WORD)
+        {
+            args[i] = ft_strdup(tokens->value);
+            if (!args[i])
+            {
+                ft_free_matrix(args);
+                return NULL;
+            }
+            i++;
+        }
+        tokens = tokens->next;
+    }
+    
+    args[i] = NULL;
+    return args;
+}
+
+// ========== EXTERNAL COMMAND EXECUTION ==========
+
+char *find_command_in_path(const char *cmd, t_env *env)
+{
+    char *path_env;
+    char **path_dirs;
+    char *full_path;
+    char *temp;
+    int i;
+    
+    if (!cmd)
+        return NULL;
+    
+    // If command contains '/', use it as-is
+    if (ft_strchr(cmd, '/'))
+    {
+        if (access(cmd, X_OK) == 0)
+            return ft_strdup(cmd);
+        return NULL;
+    }
+    
+    path_env = get_env_value(env, "PATH");
+    if (!path_env)
+        return NULL;
+    
+    path_dirs = ft_split(path_env, ':');
+    if (!path_dirs)
+        return NULL;
+    
+    i = 0;
+    while (path_dirs[i])
+    {
+        temp = ft_strjoin(path_dirs[i], "/");
+        if (temp)
+        {
+            full_path = ft_strjoin(temp, cmd);
+            free(temp);
+            
+            if (full_path && access(full_path, X_OK) == 0)
+            {
+                ft_free_matrix(path_dirs);
+                return full_path;
+            }
+            free(full_path);
+        }
+        i++;
+    }
+    
+    ft_free_matrix(path_dirs);
+    return NULL;
+}
+
+int execute_external_command(char **args, t_env *env)
+{
+    char *cmd_path;
+    char **envp;
+    pid_t pid;
+    int status;
+    
+    if (!args || !args[0])
+        return 1;
+    
+    cmd_path = find_command_in_path(args[0], env);
+    if (!cmd_path)
+    {
+        ft_printf("minishell: %s: command not found\n", args[0]);
+        return 127;
+    }
+    
+    envp = env_to_array(env);
+    if (!envp)
+    {
+        free(cmd_path);
+        return 1;
+    }
+    
+    pid = fork();
+    if (pid == 0)
+    {
+        // Child process
+        execve(cmd_path, args, envp);
+        perror("execve");
+        exit(127);
+    }
+    else if (pid > 0)
+    {
+        // Parent process
+        waitpid(pid, &status, 0);
+        free(cmd_path);
+        ft_free_matrix(envp);
+        return WEXITSTATUS(status);
+    }
+    else
+    {
+        // Fork failed
+        perror("fork");
+        free(cmd_path);
+        ft_free_matrix(envp);
+        return 1;
+    }
+}
+
+// ========== REDIRECTION HANDLING ==========
+
+int handle_input_redirection(t_token *redir_token)
+{
+    int fd;
+    
+    if (!redir_token || !redir_token->next)
+        return -1;
+    
+    if (redir_token->type == TOKEN_HEREDOC)
+    {
+        // Handle heredoc (simplified implementation)
+        ft_printf("heredoc not fully implemented\n");
+        return -1;
+    }
+    else if (redir_token->type == TOKEN_REDIR_IN)
+    {
+        fd = open(redir_token->next->value, O_RDONLY);
+        if (fd == -1)
+        {
+            perror(redir_token->next->value);
+            return -1;
+        }
+        
+        if (dup2(fd, STDIN_FILENO) == -1)
+        {
+            perror("dup2");
+            close(fd);
+            return -1;
+        }
+        
+        close(fd);
+    }
+    
+    return 0;
+}
+
+int handle_output_redirection(t_token *redir_token)
+{
+    int fd;
+    int flags;
+    
+    if (!redir_token || !redir_token->next)
+        return -1;
+    
+    if (redir_token->type == TOKEN_APPEND)
+        flags = O_WRONLY | O_CREAT | O_APPEND;
+    else if (redir_token->type == TOKEN_REDIR_OUT)
+        flags = O_WRONLY | O_CREAT | O_TRUNC;
+    else
+        return -1;
+    
+    fd = open(redir_token->next->value, flags, 0644);
+    if (fd == -1)
+    {
+        perror(redir_token->next->value);
+        return -1;
+    }
+    
+    if (dup2(fd, STDOUT_FILENO) == -1)
+    {
+        perror("dup2");
+        close(fd);
+        return -1;
+    }
+    
+    close(fd);
+    return 0;
+}
+
+int setup_redirections(t_token *tokens)
+{
+    t_token *current;
+    
+    current = tokens;
+    while (current)
+    {
+        if (current->type == TOKEN_REDIR_IN || current->type == TOKEN_HEREDOC)
+        {
+            if (handle_input_redirection(current) == -1)
+                return -1;
+        }
+        else if (current->type == TOKEN_REDIR_OUT || current->type == TOKEN_APPEND)
+        {
+            if (handle_output_redirection(current) == -1)
+                return -1;
+        }
+        current = current->next;
+    }
+    
+    return 0;
+}
+
+// ========== ASSIGNMENT EXECUTION ==========
+
+int execute_assignments(t_token *tokens, t_env **env)
+{
+    t_token *current;
+    int assignment_count;
+    
+    assignment_count = 0;
+    current = tokens;
+    
+    while (current)
+    {
+        if (current->type == TOKEN_WORD && is_assignment(current->value))
+        {
+            char *key;
+            char *value;
+            char *expanded_value;
+            
+            if (parse_assignment(current->value, &key, &value))
+            {
+                expanded_value = expand_string(value, *env, 0);
+                env_set_value(env, key, expanded_value);
+                free(key);
+                free(value);
+                free(expanded_value);
+                assignment_count++;
+            }
+        }
+        current = current->next;
+    }
+    
+    return assignment_count;
+}
+
+// ========== COMMAND EXECUTION ==========
+
+int execute_simple_command(t_token *tokens, t_env **env, int exit_status)
+{
+    t_command_type cmd_type;
+    t_token *expanded_tokens;
+    char **args;
+    int result;
+    int assignment_count;
+    
+    if (!tokens)
+        return 0;
+    
+    // 1. Handle assignments first (before expansion)
+    assignment_count = execute_assignments(tokens, env);
+    
+    // 2. Expand variables and split tokens (creates new token list)
+    expanded_tokens = expand_token_list_copy(tokens, *env, exit_status);
+    if (!expanded_tokens)
+        return (assignment_count > 0) ? 0 : 1;
+    
+    // 3. Classify the command type AFTER expansion
+    cmd_type = classify_command(expanded_tokens, *env);
+    
+    // 4. If only assignments, return success
+    if (cmd_type == CMD_ASSIGNMENT)
+    {
+        free_token_list(expanded_tokens);
+        return 0;
+    }
+    
+    // 5. Setup redirections
+    if (setup_redirections(expanded_tokens) == -1)
+    {
+        free_token_list(expanded_tokens);
+        return 1;
+    }
+    
+    // 6. Convert to args array
+    args = tokens_to_args_array(expanded_tokens);
+    if (!args)
+    {
+        free_token_list(expanded_tokens);
+        return (assignment_count > 0) ? 0 : 1;
+    }
+    
+    // 7. Execute based on command type
+    if (cmd_type == CMD_BUILTIN)
+        result = execute_builtin_command(args, env);
+    else if (cmd_type == CMD_EXTERNAL)
+        result = execute_external_command(args, *env);
+    else
+    {
+        ft_printf("minishell: %s: command not found\n", args[0]);
+        result = 127;
+    }
+    
+    // 8. Cleanup
+    ft_free_matrix(args);
+    free_token_list(expanded_tokens);
+    
+    return result;
+}
+
+// ========== PIPELINE EXECUTION ==========
+
+int execute_pipeline(t_tree *tree, t_env **env, int exit_status)
+{
+    int pipefd[2];
+    pid_t left_pid;
+    pid_t right_pid;
+    int status;
+    int saved_stdin;
+    int saved_stdout;
+    
+    if (!tree || !tree->left || !tree->right)
+        return 1;
+    
+    // Save original stdin/stdout
+    saved_stdin = dup(STDIN_FILENO);
+    saved_stdout = dup(STDOUT_FILENO);
+    
+    if (pipe(pipefd) == -1)
+    {
+        perror("pipe");
+        close(saved_stdin);
+        close(saved_stdout);
+        return 1;
+    }
+    
+    left_pid = fork();
+    if (left_pid == 0)
+    {
+        // Left child: output to pipe
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+        exit(execute_tree(tree->left, env, exit_status));
+    }
+    else if (left_pid == -1)
+    {
+        perror("fork");
+        close(pipefd[0]);
+        close(pipefd[1]);
+        close(saved_stdin);
+        close(saved_stdout);
+        return 1;
+    }
+    
+    right_pid = fork();
+    if (right_pid == 0)
+    {
+        // Right child: input from pipe
+        close(pipefd[1]);
+        dup2(pipefd[0], STDIN_FILENO);
+        close(pipefd[0]);
+        exit(execute_tree(tree->right, env, exit_status));
+    }
+    else if (right_pid == -1)
+    {
+        perror("fork");
+        close(pipefd[0]);
+        close(pipefd[1]);
+        kill(left_pid, SIGTERM);
+        waitpid(left_pid, NULL, 0);
+        close(saved_stdin);
+        close(saved_stdout);
+        return 1;
+    }
+    
+    // Parent: close pipe and wait for children
+    close(pipefd[0]);
+    close(pipefd[1]);
+    
+    waitpid(left_pid, NULL, 0);
+    waitpid(right_pid, &status, 0);
+    
+    // Restore original stdin/stdout
+    dup2(saved_stdin, STDIN_FILENO);
+    dup2(saved_stdout, STDOUT_FILENO);
+    close(saved_stdin);
+    close(saved_stdout);
+    
+    return WEXITSTATUS(status);
+}
+
+// ========== LOGICAL OPERATIONS ==========
+
+int execute_logical_and(t_tree *tree, t_env **env, int exit_status)
+{
+    int left_result;
+    
+    if (!tree || !tree->left)
+        return 1;
+    
+    left_result = execute_tree(tree->left, env, exit_status);
+    
+    // Only execute right side if left succeeded
+    if (left_result == 0 && tree->right)
+        return execute_tree(tree->right, env, left_result);
+    
+    return left_result;
+}
+
+int execute_logical_or(t_tree *tree, t_env **env, int exit_status)
+{
+    int left_result;
+    
+    if (!tree || !tree->left)
+        return 1;
+    
+    left_result = execute_tree(tree->left, env, exit_status);
+    
+    // Only execute right side if left failed
+    if (left_result != 0 && tree->right)
+        return execute_tree(tree->right, env, left_result);
+    
+    return left_result;
+}
+
+// ========== PARENTHESES EXECUTION ==========
+
+int execute_parentheses(t_tree *tree, t_env **env, int exit_status)
+{
+    if (!tree || !tree->left)
+        return 1;
+    
+    // Execute the content inside parentheses
+    return execute_tree(tree->left, env, exit_status);
+}
+
+// ========== MAIN EXECUTION FUNCTION ==========
+
+int execute_tree(t_tree *tree, t_env **env, int exit_status)
+{
+    if (!tree || !env)
+        return 1;
     
     if (tree->type == NODE_COMMAND)
-        return (execute_command(tree->tokens, env, locals, exit_status));
-    if (tree->type == NODE_PIPE)
-        return (execute_pipe(tree, env, locals, exit_status));
-    if (tree->type == NODE_AND)
+        return execute_simple_command(tree->tokens, env, exit_status);
+    else if (tree->type == NODE_PIPE)
+        return execute_pipeline(tree, env, exit_status);
+    else if (tree->type == NODE_AND)
+        return execute_logical_and(tree, env, exit_status);
+    else if (tree->type == NODE_OR)
+        return execute_logical_or(tree, env, exit_status);
+    else if (tree->type == NODE_PAREN)
+        return execute_parentheses(tree, env, exit_status);
+    else
     {
-        printf("DEBUG: AND - executing left node\n");
-        left_status = execute_tree(tree->left, env, locals, exit_status);
-        printf("DEBUG: AND - left done, locals=%p, executing right\n", locals ? *locals : NULL);
-        if (left_status == 0)
-            return (execute_tree(tree->right, env, locals, left_status));
-        return (left_status);
+        ft_printf("Unknown node type: %d\n", tree->type);
+        return 1;
     }
-    // ... resto igual
-	if (tree->type == NODE_OR)
-	{
-		// Mismo principio para OR
-		left_status = execute_tree(tree->left, env, locals, exit_status);
-		if (left_status != 0)
-			return (execute_tree(tree->right, env, locals, left_status));
-		return (left_status);
-	}
-	return (1);
 }

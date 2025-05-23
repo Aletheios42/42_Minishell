@@ -3,119 +3,135 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-// ========== DELIMITER FUNCTIONS ==========
+// ========== METACHARACTER CLASSIFICATION ==========
 
-char *identify_delimiter(char *str, char **delims)
+int is_ifs_char(char c)
 {
-    int i;
-    size_t len;
-    char *match;
-    
-    i = 0;
-    len = 0;
-    match = NULL;
-    while (delims[i])
+    return (c == ' ' || c == '\t');
+}
+
+int is_logical_operator(char *str)
+{
+    return (ft_strncmp(str, "&&", 2) == 0 || 
+            ft_strncmp(str, "||", 2) == 0 || 
+            ft_strncmp(str, "|", 1) == 0 ||
+            ft_strncmp(str, ";", 1) == 0);
+}
+
+int is_redirection_operator(char *str)
+{
+    return (ft_strncmp(str, "<<", 2) == 0 ||
+            ft_strncmp(str, ">>", 2) == 0 ||
+            ft_strncmp(str, "<", 1) == 0 ||
+            ft_strncmp(str, ">", 1) == 0);
+}
+
+int is_quote_char(char c)
+{
+    return (c == '"' || c == '\'');
+}
+
+int is_modifier_char(char c)
+{
+    return (c == '$' || c == '~' || c == '*' || c == '(' || c == ')');
+}
+
+int is_separator(char *str)
+{
+    return (is_ifs_char(*str) || is_logical_operator(str) || 
+            is_redirection_operator(str));
+}
+
+// ========== OPERATOR PROCESSING ==========
+
+char *get_operator_at_position(char *str)
+{
+    if (ft_strncmp(str, "&&", 2) == 0) return "&&";
+    if (ft_strncmp(str, "||", 2) == 0) return "||";
+    if (ft_strncmp(str, "<<", 2) == 0) return "<<";
+    if (ft_strncmp(str, ">>", 2) == 0) return ">>";
+    if (ft_strncmp(str, "|", 1) == 0) return "|";
+    if (ft_strncmp(str, ";", 1) == 0) return ";";
+    if (ft_strncmp(str, "<", 1) == 0) return "<";
+    if (ft_strncmp(str, ">", 1) == 0) return ">";
+    return NULL;
+}
+
+t_token_type get_operator_token_type(char *op)
+{
+    if (ft_strcmp(op, "&&") == 0) return TOKEN_AND;
+    if (ft_strcmp(op, "||") == 0) return TOKEN_OR;
+    if (ft_strcmp(op, "|") == 0) return TOKEN_PIPE;
+    if (ft_strcmp(op, "<<") == 0) return TOKEN_HEREDOC;
+    if (ft_strcmp(op, ">>") == 0) return TOKEN_APPEND;
+    if (ft_strcmp(op, "<") == 0) return TOKEN_REDIR_IN;
+    if (ft_strcmp(op, ">") == 0) return TOKEN_REDIR_OUT;
+    return TOKEN_WORD;
+}
+
+// ========== QUOTE PROCESSING ==========
+
+typedef struct s_quote_context {
+    char quote_char;
+    int in_quotes;
+    t_token_type quote_type;
+} t_quote_context;
+
+void init_quote_context(t_quote_context *ctx)
+{
+    ctx->quote_char = 0;
+    ctx->in_quotes = 0;
+    ctx->quote_type = TOKEN_WORD;
+}
+
+int process_quote_char(t_quote_context *ctx, char c)
+{
+    if (!ctx->in_quotes && is_quote_char(c))
     {
-        if (ft_strncmp(str, delims[i], ft_strlen(delims[i])) == 0)
-        {
-            if (ft_strlen(delims[i]) > len)
-            {
-                len = ft_strlen(delims[i]);
-                match = delims[i];
-            }
-        }
-        i++;
+        ctx->in_quotes = 1;
+        ctx->quote_char = c;
+        ctx->quote_type = (c == '\'') ? TOKEN_LITERAL_WORD : TOKEN_WORD;
+        return 1;
     }
-    return match;
+    else if (ctx->in_quotes && c == ctx->quote_char)
+    {
+        ctx->in_quotes = 0;
+        ctx->quote_char = 0;
+        return 1;
+    }
+    return 0;
 }
 
-char **get_delimiters(void)
-{
-    static char *delims[] = {"<<", ">>", "&&", "||", " ", "\t", 
-                          "<", ">", "(", ")", "\"", "'", "|", ";", "&", NULL};
-    return delims;
-}
-
-// ========== TOKEN TYPE FUNCTIONS ==========
-
-t_token_type get_redirection_type(char *value)
-{
-    if (!value)
-        return TOKEN_WORD;
-    if (ft_strncmp(value, "<<", 3) == 0)
-        return TOKEN_HEREDOC;
-    else if (ft_strncmp(value, ">>", 3) == 0)
-        return TOKEN_APPEND;
-    else if (ft_strncmp(value, "<", 2) == 0)
-        return TOKEN_REDIR_IN;
-    else if (ft_strncmp(value, ">", 2) == 0)
-        return TOKEN_REDIR_OUT;
-    return TOKEN_WORD;
-}
-
-t_token_type get_operator_type(char *op)
-{
-    if (ft_strncmp(op, "&&", 2) == 0)
-        return TOKEN_AND;
-    else if (ft_strncmp(op, "||", 2) == 0)
-        return TOKEN_OR;
-    else if (ft_strncmp(op, "|", 1) == 0)
-        return TOKEN_PIPE;
-    return TOKEN_WORD;
-}
-
-t_token_type get_quote_type(char quote_char)
-{
-    if (quote_char == '\'')
-        return TOKEN_LITERAL_WORD;
-    return TOKEN_WORD;
-}
-
-int is_redirection(char *value)
-{
-    return (ft_strncmp(value, "<", 1) == 0 || 
-            ft_strncmp(value, ">", 1) == 0);
-}
-
-// ========== TOKEN CREATION AND MANAGEMENT ==========
+// ========== TOKEN MANAGEMENT ==========
 
 t_token *create_token(char *value, t_token_type type)
 {
-    t_token *node;
+    t_token *token;
     
     if (!value)
         return NULL;
-    node = (t_token *)malloc(sizeof(t_token));
-    if (!node)
+    token = malloc(sizeof(t_token));
+    if (!token)
         return NULL;
-    node->value = value;
-    node->type = type;
-    node->next = NULL;
-    node->prev = NULL;
-    return node;
+    token->value = value;
+    token->type = type;
+    token->next = NULL;
+    token->prev = NULL;
+    return token;
 }
 
-void add_token(t_token **head, t_token **current, char *value, t_token_type type)
+void add_token_to_list(t_token **head, t_token **tail, t_token *new_token)
 {
-    t_token *new_token;
-
-    if (!value || !*value)
-    {
-        free(value);
-        return;
-    }
-    new_token = create_token(value, type);
     if (!new_token)
         return;
     if (!*head)
     {
-        *head = new_token;
-        *current = new_token;
+        *head = *tail = new_token;
         return;
     }
-    (*current)->next = new_token;
-    new_token->prev = *current;
-    *current = new_token;
+    (*tail)->next = new_token;
+    new_token->prev = *tail;
+    *tail = new_token;
 }
 
 void free_token_list(t_token *head)
@@ -131,346 +147,293 @@ void free_token_list(t_token *head)
     }
 }
 
-// ========== UTILITY FUNCTIONS ==========
+// ========== STRING BUILDER ==========
 
-char *skip_spaces(char *str)
+typedef struct s_string_builder {
+    char *str;
+    size_t len;
+    size_t capacity;
+} t_string_builder;
+
+t_string_builder *create_string_builder(void)
 {
-    while (str && *str && (*str == ' ' || *str == '\t'))
-        str++;
-    return str;
+    t_string_builder *sb;
+    
+    sb = malloc(sizeof(t_string_builder));
+    if (!sb)
+        return NULL;
+    sb->capacity = 64;
+    sb->str = malloc(sb->capacity);
+    if (!sb->str)
+    {
+        free(sb);
+        return NULL;
+    }
+    sb->len = 0;
+    sb->str[0] = '\0';
+    return sb;
 }
 
-char *concatenate_input(char *original, char *continuation)
+int append_char_to_builder(t_string_builder *sb, char c)
 {
-    char *new_input;
-    char *with_newline;
+    char *new_str;
     
-    if (!original)
-        return ft_strdup(continuation);
-    with_newline = ft_strjoin(original, "\n");
-    if (!with_newline)
+    if (sb->len + 1 >= sb->capacity)
+    {
+        sb->capacity *= 2;
+        new_str = ft_realloc(sb->str, sizeof(char), sb->capacity);
+        if (!new_str)
+            return 0;
+        sb->str = new_str;
+    }
+    sb->str[sb->len++] = c;
+    sb->str[sb->len] = '\0';
+    return 1;
+}
+
+char *finalize_string_builder(t_string_builder *sb)
+{
+    char *result;
+    
+    if (!sb)
         return NULL;
-    new_input = ft_strjoin(with_newline, continuation);
-    free(with_newline);
-    free(continuation);
-    return new_input;
+    if (sb->len == 0)
+    {
+        free(sb->str);
+        free(sb);
+        return ft_strdup("");
+    }
+    result = ft_strdup(sb->str);
+    free(sb->str);
+    free(sb);
+    return result;
 }
 
 // ========== INPUT VALIDATION ==========
 
-int check_unclosed_quotes(char *str, char *quote_pos)
+char *skip_whitespace(char *str)
 {
-    (void)str;
-    char quote_char;
-    char *end;
-    
-    quote_char = *quote_pos;
-    end = quote_pos + 1;
-    while (*end)
-    {
-        if (*end == quote_char)
-            return 0;
-        end++;
-    }
-    return 1;
+    while (str && *str && is_ifs_char(*str))
+        str++;
+    return str;
 }
 
-int check_unclosed_parens(char *str)
+int check_unclosed_quotes(char *input)
 {
-    int level;
+    t_quote_context ctx;
     
-    level = 0;
-    while (*str)
+    init_quote_context(&ctx);
+    while (*input)
     {
-        if (*str == '(')
-            level++;
-        else if (*str == ')')
-            level--;
-        str++;
+        process_quote_char(&ctx, *input);
+        input++;
+    }
+    return ctx.in_quotes;
+}
+
+int check_unclosed_parens(char *input)
+{
+    int level = 0;
+    t_quote_context ctx;
+    
+    init_quote_context(&ctx);
+    while (*input)
+    {
+        process_quote_char(&ctx, *input);
+        if (!ctx.in_quotes)
+        {
+            if (*input == '(') level++;
+            else if (*input == ')') level--;
+        }
+        input++;
     }
     return level;
 }
 
-char *find_first_quote(char *str)
+int check_syntax_errors(char *input)
 {
-    while (*str)
-    {
-        if (*str == '"' || *str == '\'')
-            return str;
-        str++;
-    }
-    return NULL;
-}
-
-char *handle_unclosed_quotes(char *input)
-{
-    char *continuation;
-    char *new_input;
+    char *pos = input;
     
-    continuation = readline("> ");
-    if (!continuation)
-    {
-        ft_printf("syntax error: unterminated quoted string\n");
-        return NULL;
-    }
-    new_input = concatenate_input(input, continuation);
-    return new_input;
-}
-
-char *handle_unclosed_parens(char *input)
-{
-    char *continuation;
-    char *new_input;
-    
-    continuation = readline("> ");
-    if (!continuation)
-    {
-        ft_printf("syntax error: unexpected end of file\n");
-        return NULL;
-    }
-    new_input = concatenate_input(input, continuation);
-    return new_input;
-}
-
-char *preprocess_input(char *input)
-{
-    char *current_input;
-    char *quote_pos;
-    int paren_level;
-    
-    current_input = ft_strdup(input);
-    if (!current_input)
-        return NULL;
-    while (1)
-    {
-        quote_pos = find_first_quote(current_input);
-        if (quote_pos && check_unclosed_quotes(current_input, quote_pos))
-        {
-            current_input = handle_unclosed_quotes(current_input);
-            if (!current_input)
-                return NULL;
-            continue;
-        }
-        paren_level = check_unclosed_parens(current_input);
-        if (paren_level > 0)
-        {
-            current_input = handle_unclosed_parens(current_input);
-            if (!current_input)
-                return NULL;
-            continue;
-        }
-        break;
-    }
-    return current_input;
-}
-
-// ========== QUOTE PROCESSING ==========
-
-char *find_quote_end(char *start, char quote_char)
-{
-    char *pos;
-    
-    pos = start + 1;
     while (*pos)
     {
-        if (*pos == quote_char)
-            return pos;
-        pos++;
-    }
-    return NULL;
-}
-
-char *process_quoted_text(t_token **head, t_token **current, 
-                        char *input, t_token_type *next_type)
-{
-    char *closing_quote;
-    char *content;
-    t_token_type type;
-    
-    closing_quote = find_quote_end(input, *input);
-    if (!closing_quote)
-        return input + ft_strlen(input);
-    content = ft_substr(input + 1, 0, closing_quote - (input + 1));
-    type = get_quote_type(*input);
-    add_token(head, current, content, type);
-    *next_type = TOKEN_WORD;
-    return closing_quote + 1;
-}
-
-// ========== PARENTHESIS PROCESSING ==========
-
-char *find_closing_paren(char *start)
-{
-    int level;
-    char *pos;
-    
-    level = 1;
-    pos = start + 1;
-    while (*pos)
-    {
-        if (*pos == '(')
-            level++;
-        else if (*pos == ')')
+        if (ft_strncmp(pos, "|||", 3) == 0)
         {
-            level--;
-            if (level == 0)
-                return pos;
+            ft_printf("syntax error near unexpected token `|'\n");
+            return 1;
+        }
+        if (ft_strncmp(pos, "&&&", 3) == 0)
+        {
+            ft_printf("syntax error near unexpected token `&'\n");
+            return 1;
         }
         pos++;
     }
-    return NULL;
+    return 0;
 }
 
-char *process_parentheses(t_token **head, t_token **current, 
-                       char *input, t_token_type *next_type)
+char *handle_multiline_input(char *input)
 {
-    char *closing_paren;
-    char *content;
+    char *line;
+    char *new_input;
+    char *temp;
     
-    closing_paren = find_closing_paren(input);
-    if (!closing_paren)
-        return input + ft_strlen(input);
-    content = ft_substr(input + 1, 0, closing_paren - (input + 1));
-    add_token(head, current, content, TOKEN_PAREN);
-    *next_type = TOKEN_WORD;
-    return closing_paren + 1;
-}
-
-// ========== WORD AND DELIMITER PROCESSING ==========
-
-void process_word(t_token **head, t_token **current, 
-               char *start, char *end, t_token_type *next_type)
-{
-    char *word;
-    t_token_type current_type;
-    
-    if (end <= start)
-        return;
-    word = ft_substr(start, 0, end - start);
-    current_type = *next_type;
-    if (word && *word)
+    if (check_syntax_errors(input))
     {
-        add_token(head, current, word, current_type);
-        if (current_type != TOKEN_WORD && current_type != TOKEN_LITERAL_WORD)
-            *next_type = TOKEN_WORD;
+        free(input);
+        return NULL;
     }
-    else if (word)
-        free(word);
-}
-
-void process_delimiter(t_token **head, t_token **current, 
-                    char *delimiter, t_token_type *next_type)
-{
-    char *op_token;
-    t_token_type op_type;
     
-    if (is_redirection(delimiter))
-        *next_type = get_redirection_type(delimiter);
-    else if (*delimiter != ' ' && *delimiter != '\t' && 
-             *delimiter != '"' && *delimiter != '\'' && 
-             *delimiter != '(' && *delimiter != ')')
+    while (check_unclosed_quotes(input) || check_unclosed_parens(input) > 0)
     {
-        op_token = ft_strdup(delimiter);
-        if (op_token)
+        if (check_unclosed_quotes(input))
+            line = readline("quote> ");
+        else
+            line = readline("paren> ");
+            
+        if (!line)
         {
-            op_type = get_operator_type(op_token);
-            add_token(head, current, op_token, op_type);
-            *next_type = TOKEN_WORD;
+            if (check_unclosed_quotes(input))
+                ft_printf("syntax error: unterminated quoted string\n");
+            else
+                ft_printf("syntax error: unexpected end of file\n");
+            free(input);
+            return NULL;
         }
+        temp = ft_strjoin(input, "\n");
+        free(input);
+        new_input = ft_strjoin(temp, line);
+        free(temp);
+        free(line);
+        input = new_input;
     }
+    return input;
 }
 
-void process_remaining(t_token **head, t_token **current, 
-                     char *input, t_token_type *next_type)
+// ========== MAIN TOKENIZER ==========
+
+int add_current_token(t_string_builder *sb, t_token **head, t_token **tail, 
+                     t_token_type token_type)
 {
-    char *word;
-    t_token_type current_type;
+    char *token_value;
+    t_token *new_token;
     
-    if (!input || !*input)
-        return;
-    word = ft_strdup(input);
-    current_type = *next_type;
-    if (word && *word)
+    if (!sb || sb->len == 0)
+        return 1;
+    token_value = finalize_string_builder(sb);
+    if (!token_value)
+        return 0;
+    new_token = create_token(token_value, token_type);
+    if (!new_token)
     {
-        add_token(head, current, word, current_type);
-        if (current_type != TOKEN_WORD && current_type != TOKEN_LITERAL_WORD)
-            *next_type = TOKEN_WORD;
+        free(token_value);
+        return 0;
     }
-    else if (word)
-        free(word);
-}
-
-// ========== MAIN LEXER FUNCTIONS ==========
-
-void handle_special_char(t_token **head, t_token **current, 
-                       char **input, char **word_start, t_token_type *next_type)
-{
-    if (**input == '"' || **input == '\'')
-    {
-        process_word(head, current, *word_start, *input, next_type);
-        *input = process_quoted_text(head, current, *input, next_type);
-        *word_start = *input;
-    }
-    else if (**input == '(')
-    {
-        process_word(head, current, *word_start, *input, next_type);
-        *input = process_parentheses(head, current, *input, next_type);
-        *word_start = *input;
-    }
-    else if (**input == ')')
-    {
-        (*input)++;
-        *word_start = *input;
-    }
-}
-
-int process_tokens(t_token **head, t_token **current, char *input)
-{
-    t_token_type next_type;
-    char *word_start;
-    char *tok;
-    char *delimiter;
-    
-    next_type = TOKEN_WORD;
-    input = skip_spaces(input);
-    word_start = input;
-    while (*input)
-    {
-        if (*input == '"' || *input == '\'' || *input == '(' || *input == ')')
-        {
-            handle_special_char(head, current, &input, &word_start, &next_type);
-            continue;
-        }
-        tok = ft_strarraystr(input, get_delimiters());
-        if (!tok)
-        {
-            process_remaining(head, current, word_start, &next_type);
-            break;
-        }
-        process_word(head, current, word_start, tok, &next_type);
-        delimiter = identify_delimiter(tok, get_delimiters());
-        process_delimiter(head, current, delimiter, &next_type);
-        input = tok + (delimiter ? ft_strlen(delimiter) : 1);
-        input = skip_spaces(input);
-        word_start = input;
-    }
+    add_token_to_list(head, tail, new_token);
     return 1;
 }
 
+int add_operator_token(char *op, t_token **head, t_token **tail)
+{
+    t_token *new_token;
+    char *op_value;
+    
+    op_value = ft_strdup(op);
+    if (!op_value)
+        return 0;
+    new_token = create_token(op_value, get_operator_token_type(op));
+    if (!new_token)
+    {
+        free(op_value);
+        return 0;
+    }
+    add_token_to_list(head, tail, new_token);
+    return 1;
+}
+
+t_token *tokenize_input(char *input)
+{
+    t_token *head = NULL;
+    t_token *tail = NULL;
+    t_string_builder *current_token;
+    t_quote_context quote_ctx;
+    char *operator;
+    t_token_type token_type;
+    
+    current_token = create_string_builder();
+    if (!current_token)
+        return NULL;
+    init_quote_context(&quote_ctx);
+    token_type = TOKEN_WORD;
+    
+    input = skip_whitespace(input);
+    while (*input)
+    {
+        if (process_quote_char(&quote_ctx, *input))
+        {
+            if (!quote_ctx.in_quotes)
+                token_type = quote_ctx.quote_type;
+            input++;
+            continue;
+        }
+        
+        if (!quote_ctx.in_quotes)
+        {
+            if (is_ifs_char(*input))
+            {
+                if (!add_current_token(current_token, &head, &tail, token_type))
+                    return NULL;
+                current_token = create_string_builder();
+                token_type = TOKEN_WORD;
+                input = skip_whitespace(input);
+                continue;
+            }
+            
+            operator = get_operator_at_position(input);
+            if (operator)
+            {
+                if (!add_current_token(current_token, &head, &tail, token_type))
+                    return NULL;
+                if (!add_operator_token(operator, &head, &tail))
+                    return NULL;
+                current_token = create_string_builder();
+                token_type = TOKEN_WORD;
+                input += ft_strlen(operator);
+                input = skip_whitespace(input);
+                continue;
+            }
+        }
+        
+        if (!append_char_to_builder(current_token, *input))
+            return NULL;
+        input++;
+    }
+    
+    if (!add_current_token(current_token, &head, &tail, token_type))
+        return NULL;
+    
+    return head;
+}
+
+// ========== PUBLIC INTERFACE ==========
+
 t_token *lexer(char *input)
 {
-    t_token *head;
-    t_token *current;
     char *processed_input;
+    t_token *tokens;
     
     if (!input)
         return NULL;
-    processed_input = preprocess_input(input);
+    
+    processed_input = ft_strdup(input);
     if (!processed_input)
         return NULL;
-    head = NULL;
-    current = NULL;
-    process_tokens(&head, &current, processed_input);
+    
+    processed_input = handle_multiline_input(processed_input);
+    if (!processed_input)
+        return NULL;
+    
+    tokens = tokenize_input(processed_input);
     free(processed_input);
-    return head;
+    
+    return tokens;
 }

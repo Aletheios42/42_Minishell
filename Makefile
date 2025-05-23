@@ -12,13 +12,10 @@ INCLUDES_DIR = ./Inc/
 ## Files
 SRC_FILES = main.c		\
 			lexer/lexer.c	\
-			lexer/lexer_utils.c	\
 			parser/parser.c	\
-			parser/parser_utils.c	\
 			execution/executor.c	\
 			execution/expander.c	\
 			execution/enviroment.c	\
-			execution/local_vars.c	\
 			builtins/echo.c		\
 			builtins/cd.c		\
 			builtins/cd_v2.c	\

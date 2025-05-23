@@ -3,88 +3,118 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "../libft/libft.h"
 
-int execute_command_mode(char *command, t_env *env)
+// ========== CLEANUP FUNCTIONS ==========
+
+void cleanup_resources(t_env *env)
+{
+    if (env)
+        free_env_list(env);
+    
+    // Clear readline history
+    rl_clear_history();
+}
+
+// ========== MAIN EXECUTION FLOW ==========
+
+int execute_input(char *input, t_env **env, int last_exit_status)
 {
     t_token *tokens;
-    t_tree *data_tree;
+    t_tree *syntax_tree;
     int exit_status;
-    t_local_vars *local_vars;
     
-    local_vars = NULL;
-    tokens = lexer(command);
-    ft_printf("Tokens: ");
-    ft_print_token_list(tokens);
-    ft_printf("\n");
+    if (!input || !*input)
+        return last_exit_status;
+    
+    // Tokenize input
+    tokens = lexer(input);
     if (!tokens)
     {
-        ft_putendl_fd("Error: bad input", 2);
-        return (1);
+        ft_putendl_fd("minishell: syntax error", 2);
+        return 2;
     }
-    data_tree = parser(tokens);
-    exit_status = 0;
-    if (data_tree)
-        exit_status = execute_tree(data_tree, &env, &local_vars, exit_status);
-    free_syntax_tree(data_tree);
-    free_local_vars(local_vars);
-    return (exit_status);
+    
+    // Parse tokens into syntax tree
+    syntax_tree = parser(tokens);
+    if (!syntax_tree)
+    {
+        // Parser handles its own error messages
+        return 2;
+    }
+    
+    // Execute the syntax tree
+    exit_status = execute_tree(syntax_tree, env, last_exit_status);
+    
+    // Cleanup
+    free_syntax_tree(syntax_tree);
+    
+    return exit_status;
 }
 
-void run_shell_loop(t_env *env)
-{
-    char *input;
-    t_token *tokens;
-    t_tree *data_tree;
-    int last_exit_status;
-    t_local_vars *local_vars;  // ← Variable persistente
-    
-    last_exit_status = 0;
-    local_vars = NULL;         // ← Inicializar una sola vez
-    
-    while (1)
-    {
-        input = readline("minishell$ ");
-        if (!input)
-            break;
-        if (*input)
-            add_history(input);
-        tokens = lexer(input);
-        if (!tokens)
-        {
-            free(input);
-            continue;
-        }
-        data_tree = parser(tokens);
-        if (data_tree)
-            // ← Pasar SIEMPRE las mismas local_vars
-            last_exit_status = execute_tree(data_tree, &env, &local_vars, last_exit_status);
-        free_syntax_tree(data_tree);
-        free(input);
-    }
-    
-    // ← Limpiar al salir del shell
-    free_local_vars(local_vars);
-}
+// ========== MAIN FUNCTION ==========
 
 int main(int ac, char **av, char **envp)
 {
     t_env *env;
+    char *input;
     int exit_status;
+    int is_command_mode;
     
+    // Initialize environment
     env = env_from_array(envp);
     if (!env)
     {
-        ft_putendl_fd("Error: Failed to initialize environment", 2);
-        return (1);
+        ft_putendl_fd("minishell: failed to initialize environment", 2);
+        return 1;
     }
-    if (ac >= 3 && ft_strcmp(av[1], "-c") == 0)
+    
+    // Determine execution mode
+    is_command_mode = (ac >= 3 && ft_strcmp(av[1], "-c") == 0);
+    exit_status = 0;
+    
+    // Main execution loop
+    while (1)
     {
-        exit_status = execute_command_mode(av[2], env);
-        free_env_list(env);
-        return (exit_status);
+        // Get input based on mode
+        if (is_command_mode)
+        {
+            input = ft_strdup(av[2]);
+        }
+        else
+        {
+            input = readline("minishell$ ");
+            if (!input)  // EOF (Ctrl+D)
+            {
+                ft_putendl_fd("exit", 1);
+                break;
+            }
+        }
+        
+        // Skip empty input
+        if (!input || !*input)
+        {
+            free(input);
+            if (is_command_mode)
+                break;
+            continue;
+        }
+        
+        // Add to history in interactive mode
+        if (!is_command_mode)
+            add_history(input);
+        
+        // Execute the input
+        exit_status = execute_input(input, &env, exit_status);
+        
+        // Cleanup input
+        free(input);
+        
+        // Break after one iteration in command mode
+        if (is_command_mode)
+            break;
     }
-    run_shell_loop(env);
-    free_env_list(env);
-    return (0);
+    
+    // Cleanup and exit
+    cleanup_resources(env);
+    return exit_status;
 }

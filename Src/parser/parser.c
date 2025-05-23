@@ -2,173 +2,384 @@
 #include <stdlib.h>
 #include "../../libft/libft.h"
 
-// Create a tree node for a token, determining the node type from token type
-t_tree* create_tree_node(t_token *token)
+// ========== TOKEN LIST UTILITIES ==========
+
+t_token *find_token_type(t_token *tokens, t_token_type types[], int type_count)
 {
-    t_tree *node = (t_tree *)malloc(sizeof(t_tree));
+    int i;
+    
+    while (tokens)
+    {
+        i = 0;
+        while (i < type_count)
+        {
+            if (tokens->type == types[i])
+                return tokens;
+            i++;
+        }
+        tokens = tokens->next;
+    }
+    return NULL;
+}
+
+t_token *split_token_list_at(t_token *split_point, t_token **left_tokens)
+{
+    t_token *right_tokens;
+    t_token *head;
+    
+    if (!split_point)
+    {
+        *left_tokens = NULL;
+        return NULL;
+    }
+    
+    // Get right side (after split point)
+    right_tokens = split_point->next;
+    if (right_tokens)
+        right_tokens->prev = NULL;
+    
+    // Disconnect split point
+    split_point->next = NULL;
+    
+    // Get left side (before split point)
+    if (split_point->prev)
+    {
+        split_point->prev->next = NULL;
+        head = split_point;
+        while (head->prev)
+            head = head->prev;
+        *left_tokens = head;
+    }
+    else
+    {
+        *left_tokens = NULL;
+    }
+    split_point->prev = NULL;
+    
+    return right_tokens;
+}
+
+t_token *clone_token_list(t_token *original)
+{
+    t_token *head = NULL;
+    t_token *tail = NULL;
+    t_token *new_token;
+    t_token *current;
+    
+    current = original;
+    while (current)
+    {
+        new_token = malloc(sizeof(t_token));
+        if (!new_token)
+        {
+            free_token_list(head);
+            return NULL;
+        }
+        new_token->value = ft_strdup(current->value);
+        if (!new_token->value)
+        {
+            free(new_token);
+            free_token_list(head);
+            return NULL;
+        }
+        new_token->type = current->type;
+        new_token->next = NULL;
+        new_token->prev = tail;
+        
+        if (!head)
+            head = new_token;
+        else
+            tail->next = new_token;
+        tail = new_token;
+        
+        current = current->next;
+    }
+    return head;
+}
+
+// ========== TREE NODE MANAGEMENT ==========
+
+t_tree *create_tree_node_with_tokens(t_node_type type, t_token *tokens)
+{
+    t_tree *node;
+    
+    node = malloc(sizeof(t_tree));
     if (!node)
         return NULL;
     
-    // Set node type based on token type
-    if (!token)
-        return NULL;
-    else if (token->type == TOKEN_PIPE)
-        node->type = NODE_PIPE;
-    else if (token->type == TOKEN_AND)
-        node->type = NODE_AND;
-    else if (token->type == TOKEN_OR)
-        node->type = NODE_OR;
-    else if (token->type == TOKEN_PAREN)
-        node->type = NODE_PAREN;
-    else
-        node->type = NODE_COMMAND; // Default for words and other tokens
-    
-    node->tokens = token;
+    node->type = type;
+    node->tokens = tokens;
     node->left = NULL;
     node->right = NULL;
     
     return node;
 }
 
-// Check if a token is a redirection
-int is_redirection_token(t_token *token)
+t_tree *create_operator_node(t_token *op_token)
 {
-    if (!token)
-        return 0;
-    return (token->type == TOKEN_REDIR_IN ||
-            token->type == TOKEN_REDIR_OUT ||
-            token->type == TOKEN_APPEND ||
-            token->type == TOKEN_HEREDOC);
-}
-
-// Find redirections after a parenthesized expression
-t_token *find_redirections_after_paren(t_token *tokens)
-{
-    t_token *current;
-    t_token *redirections;
+    t_node_type node_type;
     
-    if (!tokens || tokens->type != TOKEN_PAREN)
+    if (!op_token)
         return NULL;
     
-    // Look for redirections in the next tokens
-    current = tokens->next;
-    redirections = NULL;
-    
-    while (current && is_redirection_token(current))
+    switch (op_token->type)
     {
-        // Found a redirection, add it to our list
-        if (!redirections)
-            redirections = current;
+        case TOKEN_PIPE:
+            node_type = NODE_PIPE;
+            break;
+        case TOKEN_AND:
+            node_type = NODE_AND;
+            break;
+        case TOKEN_OR:
+            node_type = NODE_OR;
+            break;
+        default:
+            node_type = NODE_COMMAND;
+    }
+    
+    return create_tree_node_with_tokens(node_type, op_token);
+}
+
+t_tree *create_command_node(t_token *token_list)
+{
+    if (!token_list)
+        return NULL;
+    
+    // Handle parentheses specially
+    if (token_list->type == TOKEN_PAREN && !token_list->next)
+    {
+        t_tree *paren_node;
+        t_token *inner_tokens;
+        
+        // Parse content inside parentheses
+        inner_tokens = lexer(token_list->value);
+        paren_node = create_tree_node_with_tokens(NODE_PAREN, token_list);
+        if (paren_node && inner_tokens)
+            paren_node->left = parse_expression(inner_tokens);
+        
+        return paren_node;
+    }
+    
+    return create_tree_node_with_tokens(NODE_COMMAND, token_list);
+}
+
+void free_syntax_tree(t_tree *tree)
+{
+    if (!tree)
+        return;
+    
+    free_syntax_tree(tree->left);
+    free_syntax_tree(tree->right);
+    
+    if (tree->tokens)
+        free_token_list(tree->tokens);
+    
+    free(tree);
+}
+
+// ========== PARSING FUNCTIONS ==========
+
+t_tree *parse_command_sequence(t_token *tokens)
+{
+    if (!tokens)
+        return NULL;
+    
+    return create_command_node(tokens);
+}
+
+t_tree *parse_pipeline(t_token *tokens)
+{
+    t_token_type pipe_types[] = {TOKEN_PIPE};
+    t_token *pipe_op;
+    t_token *left_tokens;
+    t_token *right_tokens;
+    t_tree *pipe_node;
+    
+    if (!tokens)
+        return NULL;
+    
+    pipe_op = find_token_type(tokens, pipe_types, 1);
+    if (!pipe_op)
+        return parse_command_sequence(tokens);
+    
+    right_tokens = split_token_list_at(pipe_op, &left_tokens);
+    
+    pipe_node = create_operator_node(pipe_op);
+    if (!pipe_node)
+        return NULL;
+    
+    pipe_node->left = parse_command_sequence(left_tokens);
+    pipe_node->right = parse_pipeline(right_tokens);
+    
+    return pipe_node;
+}
+
+t_tree *parse_logical_ops(t_token *tokens)
+{
+    t_token_type logical_types[] = {TOKEN_AND, TOKEN_OR};
+    t_token *logical_op;
+    t_token *left_tokens;
+    t_token *right_tokens;
+    t_tree *logical_node;
+    
+    if (!tokens)
+        return NULL;
+    
+    logical_op = find_token_type(tokens, logical_types, 2);
+    if (!logical_op)
+        return parse_pipeline(tokens);
+    
+    right_tokens = split_token_list_at(logical_op, &left_tokens);
+    
+    logical_node = create_operator_node(logical_op);
+    if (!logical_node)
+        return NULL;
+    
+    logical_node->left = parse_logical_ops(left_tokens);
+    logical_node->right = parse_logical_ops(right_tokens);
+    
+    return logical_node;
+}
+
+t_tree *parse_expression(t_token *tokens)
+{
+    return parse_logical_ops(tokens);
+}
+
+// ========== SYNTAX VALIDATION ==========
+
+int validate_token_sequence(t_token *tokens)
+{
+    t_token *current;
+    t_token *prev;
+    
+    if (!tokens)
+        return 1;
+    
+    current = tokens;
+    prev = NULL;
+    
+    while (current)
+    {
+        // Check for consecutive operators
+        if (prev && 
+            (prev->type == TOKEN_PIPE || prev->type == TOKEN_AND || prev->type == TOKEN_OR) &&
+            (current->type == TOKEN_PIPE || current->type == TOKEN_AND || current->type == TOKEN_OR))
+        {
+            ft_printf("syntax error near unexpected token `%s'\n", current->value);
+            return 0;
+        }
+        
+        // Check for operators at start
+        if (!prev && 
+            (current->type == TOKEN_PIPE || current->type == TOKEN_AND || current->type == TOKEN_OR))
+        {
+            ft_printf("syntax error near unexpected token `%s'\n", current->value);
+            return 0;
+        }
+        
+        prev = current;
         current = current->next;
     }
     
-    return redirections;
-}
-
-// Handle a command or parenthesized expression with redirections
-t_tree* parse_command(t_token *token)
-{
-    t_tree *node;
-    t_token *content_tokens;
-    t_token *redirections;
-    
-    if (!token)
-        return NULL;
-    
-    // Handle parenthesized expressions
-    if (token->type == TOKEN_PAREN)
+    // Check for operators at end
+    if (prev && 
+        (prev->type == TOKEN_PIPE || prev->type == TOKEN_AND || prev->type == TOKEN_OR))
     {
-        // Create a node for the parenthesized expression
-        node = create_tree_node(token);
-        if (!node)
-            return NULL;
-        
-        // Parse the content inside parentheses (left child)
-        content_tokens = lexer(token->value);
-        if (content_tokens)
-            node->left = parse_and_or(content_tokens);
-        
-        // Check for redirections after the parentheses (right child)
-        redirections = find_redirections_after_paren(token);
-        if (redirections)
-        {
-            // Create a command node for the redirections
-            node->right = create_tree_node(redirections);
-        }
-        
-        return node;
+        ft_printf("syntax error near unexpected token `newline'\n");
+        return 0;
     }
     
-    // Regular command token
-    return create_tree_node(token);
+    return 1;
 }
 
-// Parse pipeline operators
-t_tree* parse_pipe(t_token *tokens)
+int validate_parentheses_balance(t_token *tokens)
 {
-    t_tree *tree;
-    t_token_type delims[] = {TOKEN_PIPE};
-    t_token *tokens_left = NULL;
-    t_token *op_token = NULL;
-    t_token *tokens_right = NULL;
+    int paren_count;
+    t_token *current;
     
-    if (!tokens)
-        return NULL;
+    paren_count = 0;
+    current = tokens;
     
-    // Find first pipe operator
-    op_token = search_first_occurrence_token_type(tokens, delims, 1);
-    if (!op_token)
-        return parse_command(tokens); // No pipe, parse as command
+    while (current)
+    {
+        if (current->type == TOKEN_PAREN)
+        {
+            // Count opening and closing parens in the content
+            char *content = current->value;
+            while (*content)
+            {
+                if (*content == '(') paren_count++;
+                else if (*content == ')') paren_count--;
+                content++;
+            }
+        }
+        current = current->next;
+    }
     
-    // Split list at pipe operator
-    tokens_right = split_token_list(op_token, &tokens_left);
+    if (paren_count != 0)
+    {
+        ft_printf("syntax error: unmatched parentheses\n");
+        return 0;
+    }
     
-    // Create tree node for pipe operator
-    tree = create_tree_node(op_token);
-    if (!tree)
-        return NULL;
-    
-    // Recursively parse left and right sides
-    tree->left = parse_command(tokens_left);
-    tree->right = parse_pipe(tokens_right);
-    
-    return tree;
+    return 1;
 }
 
-// Parse logical operators (AND, OR)
-t_tree *parse_and_or(t_token *tokens)
+int validate_redirections(t_token *tokens)
 {
-    t_tree *tree;
-    t_token_type delims[] = {TOKEN_AND, TOKEN_OR};
-    t_token *tokens_left = NULL;
-    t_token *op_token = NULL;
-    t_token *tokens_right = NULL;
+    t_token *current;
     
-    if (!tokens)
-        return NULL;
+    current = tokens;
+    while (current)
+    {
+        if (current->type == TOKEN_REDIR_IN || current->type == TOKEN_REDIR_OUT ||
+            current->type == TOKEN_APPEND || current->type == TOKEN_HEREDOC)
+        {
+            if (!current->next || 
+                (current->next->type != TOKEN_WORD && current->next->type != TOKEN_LITERAL_WORD))
+            {
+                ft_printf("syntax error near unexpected token `newline'\n");
+                return 0;
+            }
+        }
+        current = current->next;
+    }
     
-    // Find first AND/OR operator
-    op_token = search_first_occurrence_token_type(tokens, delims, 2);
-    if (!op_token)
-        return parse_pipe(tokens); // No AND/OR, parse as pipeline
-    
-    // Split list at AND/OR operator
-    tokens_right = split_token_list(op_token, &tokens_left);
-    
-    // Create tree node for logical operator
-    tree = create_tree_node(op_token);
-    if (!tree)
-        return NULL;
-    
-    // Recursively parse left and right sides
-    tree->left = parse_and_or(tokens_left);
-    tree->right = parse_and_or(tokens_right);
-    
-    return tree;
+    return 1;
 }
 
-// Top-level parser function
+int validate_syntax(t_token *tokens)
+{
+    if (!validate_token_sequence(tokens))
+        return 0;
+    if (!validate_parentheses_balance(tokens))
+        return 0;
+    if (!validate_redirections(tokens))
+        return 0;
+    
+    return 1;
+}
+
+// ========== PUBLIC INTERFACE ==========
+
 t_tree *parser(t_token *tokens)
 {
-    return parse_and_or(tokens);
+    t_token *token_copy;
+    t_tree *syntax_tree;
+    
+    if (!tokens)
+        return NULL;
+    
+    if (!validate_syntax(tokens))
+        return NULL;
+    
+    // Clone tokens to preserve original list for caller
+    token_copy = clone_token_list(tokens);
+    if (!token_copy)
+        return NULL;
+    
+    syntax_tree = parse_expression(token_copy);
+    
+    return syntax_tree;
 }
