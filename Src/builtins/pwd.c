@@ -12,10 +12,10 @@
 
 #include "../Inc/minishell.h"
 
-
-int	ft_pwd(void)
+int	ft_pwd(t_env *env)
 {
 	char	cwd[PATH_MAX];
+	char	*pwd_env;
 
 	if (getcwd(cwd, PATH_MAX) != NULL)
 	{
@@ -24,6 +24,12 @@ int	ft_pwd(void)
 	}
 	else
 	{
+		pwd_env = get_env_value(env, "PWD");
+		if (pwd_env)
+		{
+			ft_printf("%s\n", pwd_env);
+			return (0);
+		}
 		perror("pwd");
 		return (1);
 	}

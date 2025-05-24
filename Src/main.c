@@ -11,28 +11,15 @@ void cleanup_resources(t_env *env)
 {
     if (env)
         free_env_list(env);
-    
     rl_clear_history();
 }
 
-// ========== MAIN EXECUTION FLOW ==========
+// ========== INPUT PROCESSING ==========
 
-int execute_input(char *input, t_env **env, int last_exit_status, 
-                 int *should_exit)
+int process_tokens_and_tree(t_token *tokens, t_env **env, int exit_status)
 {
-    t_token *tokens;
     t_tree *syntax_tree;
-    int exit_status;
-    
-    if (!input || !*input)
-        return last_exit_status;
-    
-    tokens = lexer(input);
-    if (!tokens)
-    {
-        ft_putendl_fd("minishell: syntax error", 2);
-        return 2;
-    }
+    int result;
     
     syntax_tree = parser(tokens);
     if (!syntax_tree)
@@ -40,24 +27,84 @@ int execute_input(char *input, t_env **env, int last_exit_status,
         free_token_list(tokens);
         return 2;
     }
+    result = execute_tree(syntax_tree, env, exit_status);
+    free_syntax_tree(syntax_tree);
+    return result;
+}
+
+int execute_input(char *input, t_env **env, int exit_status, int *should_exit)
+{
+    t_token *tokens;
+    int result;
     
-    exit_status = execute_tree(syntax_tree, env, last_exit_status);
-    
-    if (exit_status >= 1000)
+    if (!input || !*input)
+        return exit_status;
+    tokens = lexer(input);
+    if (!tokens)
+    {
+        ft_putendl_fd("minishell: syntax error", 2);
+        return 2;
+    }
+    result = process_tokens_and_tree(tokens, env, exit_status);
+    if (result >= 1000)
     {
         *should_exit = 1;
-        if (exit_status == 1000)
-            exit_status = 0;
-        else if (exit_status == 1001)
-            exit_status = 1;
-        else if (exit_status == 1255)
-            exit_status = 255;
-        else
-            exit_status = (exit_status - 1000) % 256;
+        if (result == 1000)
+            return 0;
+        if (result == 1001)
+            return 1;
+        if (result == 1255)
+            return 255;
+        return (result - 1000) % 256;
     }
+    return result;
+}
+
+// ========== INPUT HANDLING ==========
+
+char *get_input_line(int is_command_mode, char **av)
+{
+    if (is_command_mode)
+        return ft_strdup(av[2]);
+    return readline("minishell$ ");
+}
+
+int should_continue_loop(char *input, int is_command_mode)
+{
+    if (!input)
+        return 0;
+    if (!*input)
+        return !is_command_mode;
+    return 1;
+}
+
+// ========== MAIN LOOP ==========
+
+int run_shell_loop(t_env **env, int is_command_mode, char **av)
+{
+    char *input;
+    int exit_status;
+    int should_exit;
     
-    free_syntax_tree(syntax_tree);
-    
+    exit_status = 0;
+    should_exit = 0;
+    while (!should_exit)
+    {
+        input = get_input_line(is_command_mode, av);
+        if (!should_continue_loop(input, is_command_mode))
+        {
+            if (!input)
+                ft_putendl_fd("exit", 1);
+            free(input);
+            break;
+        }
+        if (!is_command_mode)
+            add_history(input);
+        exit_status = execute_input(input, env, exit_status, &should_exit);
+        free(input);
+        if (is_command_mode)
+            break;
+    }
     return exit_status;
 }
 
@@ -66,10 +113,8 @@ int execute_input(char *input, t_env **env, int last_exit_status,
 int main(int ac, char **av, char **envp)
 {
     t_env *env;
-    char *input;
-    int exit_status;
     int is_command_mode;
-    int should_exit;
+    int exit_status;
     
     env = env_from_array(envp);
     if (!env)
@@ -77,49 +122,10 @@ int main(int ac, char **av, char **envp)
         ft_putendl_fd("minishell: failed to initialize environment", 2);
         return 1;
     }
-    
     is_command_mode = (ac >= 3 && ft_strcmp(av[1], "-c") == 0);
-    exit_status = 0;
-    should_exit = 0;
-    
     if (!is_command_mode)
         setup_signals();
-    
-    while (!should_exit)
-    {
-        if (is_command_mode)
-        {
-            input = ft_strdup(av[2]);
-        }
-        else
-        {
-            input = readline("minishell$ ");
-            if (!input)
-            {
-                ft_putendl_fd("exit", 1);
-                break;
-            }
-        }
-        
-        if (!input || !*input)
-        {
-            free(input);
-            if (is_command_mode)
-                break;
-            continue;
-        }
-        
-        if (!is_command_mode)
-            add_history(input);
-        
-        exit_status = execute_input(input, &env, exit_status, &should_exit);
-        
-        free(input);
-        
-        if (is_command_mode)
-            break;
-    }
-    
+    exit_status = run_shell_loop(&env, is_command_mode, av);
     cleanup_resources(env);
     return exit_status;
 }
