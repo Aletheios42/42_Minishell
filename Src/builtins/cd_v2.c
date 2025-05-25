@@ -12,7 +12,6 @@
 
 #include "../../Inc/minishell.h"
 
-
 void	env_update(const char *key, const char *value, t_env *env)
 {
 	char	*new_var;
@@ -39,6 +38,7 @@ void	env_update(const char *key, const char *value, t_env *env)
 char	*ft_strjoin_free(char *s1, const char *s2)
 {
 	char	*res;
+
 	res = ft_strjoin(s1, s2);
 	free(s1);
 	return (res);

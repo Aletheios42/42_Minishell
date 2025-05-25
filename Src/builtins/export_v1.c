@@ -38,41 +38,25 @@ int	process_export_argument(char *arg, t_env **env, t_env **secret)
 	char	*key;
 	char	*value;
 
-	printf("DEBUG EXPORT: arg='%s'\n", arg);  // DEBUG
-	
-	if (arg[0] == '=')
-	{
-		ft_printf("minishell: export: '%s': not a valid identifier\n", arg);
-		return (1);
-	}
+	if (!arg || arg[0] == '=')
+		return (ft_printf("minishell: '%s': not a valid identifier\n", arg), 1);
 	if (is_assignment(arg))
 	{
-		if (parse_assignment(arg, &key, &value))
-		{
-			printf("DEBUG PARSE: key='%s', value='%s'\n", key, value);  // DEBUG
-			env_set_value(env, key, value);
-			env_set_value(secret, key, value);
-			free(key);
-			free(value);
-			return (0);
-		}
-		else
-		{
-			ft_printf("minishell: export: '%s': not a valid identifier\n", arg);
-			return (1);
-		}
+		if (!parse_assignment(arg, &key, &value))
+			return (ft_printf("minishell '%s' not valid identifier\n", arg), 1);
+		env_set_value(env, key, value);
+		env_set_value(secret, key, value);
+		free(key);
+		free(value);
+		return (0);
 	}
-	else if (is_valid_identifier(arg))
+	if (is_valid_identifier(arg))
 	{
 		env_set_value(env, arg, NULL);
 		env_set_value(secret, arg, NULL);
 		return (0);
 	}
-	else
-	{
-		ft_printf("minishell: export: '%s': not a valid identifier\n", arg);
-		return (1);
-	}
+	return (ft_printf("minishell: '%s': not a valid identifier\n", arg), 1);
 }
 
 int	ft_export(char *args[], t_env *env, t_env *secret)

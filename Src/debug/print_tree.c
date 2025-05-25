@@ -1,118 +1,99 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print_tree.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/25 13:58:43 by elorente          #+#    #+#             */
+/*   Updated: 2025/05/25 13:58:43 by elorente         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../Inc/minishell.h"
 #include "../libft/libft.h"
 
 // Helper function to print string arrays nicely
-int ft_print_string_array(char **array)
+int	ft_print_string_array(char **array)
 {
-    int count = 0;
-    
-    if (!array)
-        return ft_printf("(null)");
-    
-    count += ft_printf("[");
-    for (int i = 0; array[i]; i++)
-    {
-        count += ft_printf("\"%s\"", array[i]);
-        if (array[i + 1])
-            count += ft_printf(", ");
-    }
-    count += ft_printf("]");
-    
-    return count;
+	int	count;
+	int	i;
+
+	count = 0;
+	i = 0;
+	if (!array)
+		return (ft_printf("(null)"));
+	count += ft_printf("[");
+	while (array[i])
+	{
+		count += ft_printf("\"%s\"", array[i]);
+		if (array[i + 1])
+			count += ft_printf(", ");
+		i++;
+	}
+	count += ft_printf("]");
+	return (count);
 }
 
 // Print the node's hierarchical ID
-int print_node_id(char *prefix)
+int	print_node_id(char *prefix)
 {
-    return ft_printf("[%s] ", prefix);
+	return (ft_printf("[%s] ", prefix));
 }
 
 // Print connection lines for the tree
-void print_tree_lines(int depth, int is_last)
+void	print_tree_lines(int depth, int is_last)
 {
-    int i;
-    
-    for (i = 0; i < depth - 1; i++)
-        ft_printf("│   ");
-    
-    if (depth > 0)
-    {
-        if (is_last)
-            ft_printf("└── ");
-        else
-            ft_printf("├── ");
-    }
+	int	i;
+
+	i = 0;
+	while (i < depth - 1)
+	{
+		ft_printf("│   ");
+		i++;
+	}
+	if (depth > 0)
+	{
+		if (is_last)
+			ft_printf("└── ");
+		else
+			ft_printf("├── ");
+	}
 }
 
 // Recursive tree printing function
-int ft_print_tree_node(t_tree *tree, int depth, int is_last, char *prefix)
+int	ft_print_tree_node(t_tree *tree, int depth, int is_last, char *prefix)
 {
-    int count = 0;
-    char left_prefix[32];
-    char right_prefix[32];
-    
-    if (!tree)
-        return 0;
-    
-    // Print tree connection lines
-    print_tree_lines(depth, is_last);
-    
-    // Print node ID and type
-    count += print_node_id(prefix);
-    
-    // Print node content based on type
-    switch (tree->type) {
-        case NODE_COMMAND:
-            count += ft_printf("COMMAND: ");
-            if (tree->tokens) {
-                count += ft_printf("Tokens: ");
-                count += ft_print_token_list(tree->tokens);
-            } else {
-                count += ft_printf("(empty)");
-            }
-            break;
-        case NODE_PIPE:
-            count += ft_printf("PIPE");
-            if (tree->tokens)
-                count += ft_printf(" (%s)", tree->tokens->value);
-            break;
-        case NODE_AND:
-            count += ft_printf("AND");
-            if (tree->tokens)
-                count += ft_printf(" (%s)", tree->tokens->value);
-            break;
-        case NODE_OR:
-            count += ft_printf("OR");
-            if (tree->tokens)
-                count += ft_printf(" (%s)", tree->tokens->value);
-            break;
-        case NODE_PAREN:
-            count += ft_printf("PAREN");
-            if (tree->tokens)
-                count += ft_printf(" (%s)", tree->tokens->value);
-            break;
-        default:
-            count += ft_printf("UNKNOWN");
-    }
-    
-    count += ft_printf("\n");
-    
-    // Create child prefixes
-    snprintf(left_prefix, sizeof(left_prefix), "%s.1", prefix);
-    snprintf(right_prefix, sizeof(right_prefix), "%s.2", prefix);
-    
-    // Print children
-    if (tree->left)
-        count += ft_print_tree_node(tree->left, depth + 1, (tree->right == NULL), left_prefix);
-    if (tree->right)
-        count += ft_print_tree_node(tree->right, depth + 1, 1, right_prefix);
-    
-    return count;
+	int		count;
+	char	left_prefix[32];
+	char	right_prefix[32];
+
+	count = 0;
+	if (!tree)
+		return (0);
+	print_tree_lines(depth, is_last);
+	count += print_node_id(prefix);
+	count += print_tree_type_info(tree);
+	count += ft_printf("\n");
+	ft_strlcpy(left_prefix, prefix, sizeof(left_prefix));
+	ft_strlcat(left_prefix, ".1", sizeof(left_prefix));
+	ft_strlcpy(right_prefix, prefix, sizeof(right_prefix));
+	ft_strlcat(right_prefix, ".2", sizeof(right_prefix));
+	if (tree->left)
+		count += ft_print_tree_node(
+				tree->left,
+				depth + 1,
+				(tree->right == NULL),
+				left_prefix
+				);
+	if (tree->right)
+		count += ft_print_tree_node(tree->right, depth + 1, 1, right_prefix);
+	return (count);
 }
 
 // Main tree printing function - fixed to use the unused parameter
-int ft_print_syntax_tree(t_tree *tree, int depth)
+int	ft_print_syntax_tree(t_tree *tree, int depth)
 {
-    (void)depth; // Mark parameter as intentionally unused
-    return ft_print_tree_node(tree, 0, 1, "1");
+	(void)depth;
+	return (ft_print_tree_node(tree, 0, 1, "1"));
 }

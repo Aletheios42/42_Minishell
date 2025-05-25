@@ -30,9 +30,15 @@ int validate_parentheses_balance(t_token *tokens);
 int validate_redirections(t_token *tokens);
 
 // Debug functions
-int ft_print_syntax_tree(t_tree *tree, int depth);
-int ft_print_token_list(t_token *head);
-const char *get_token_type_string(t_token_type type);
-void print_token_list(t_token *head);
+int				ft_print_syntax_tree(t_tree *tree, int depth);
+int				print_node_id(char *prefix);
+int				ft_print_token_list(t_token *head);
+int				ft_print_string_array(char **array);
+int				ft_print_tree_node(t_tree *tree, int depth, int is_last, char *prefix);
+const char		*get_token_type_string(t_token_type type);
+void			print_token_list(t_token *head);
+void			print_tree_lines(int depth, int is_last);
+int				p_operator(char	*label, t_token *token);
+int				print_tree_type_info(t_tree *tree);
 
 #endif

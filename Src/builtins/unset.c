@@ -19,10 +19,8 @@ int	ft_unset(char *args[], t_env **env)
 
 	i = 1;
 	status = 0;
-	
 	if (!args[i])
 		return (0);
-	
 	while (args[i])
 	{
 		if (!is_valid_identifier(args[i]))

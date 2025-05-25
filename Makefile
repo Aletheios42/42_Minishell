@@ -25,7 +25,8 @@ SRC_FILES = main.c		\
 			builtins/env.c		\
 			builtins/exit.c		\
 			debug/print_tokens.c \
-			debug/print_tree.c
+			debug/print_tree.c \
+			debug/print_tree_v2.c
 
 SRC = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ_FILES = $(SRC_FILES:.c=.o)
