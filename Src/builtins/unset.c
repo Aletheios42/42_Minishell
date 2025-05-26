@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Inc/minishell.h"
+#include "../Inc/minishell.h"
 
 int	ft_unset(char *args[], t_env **env)
 {

@@ -34,6 +34,14 @@ typedef enum {
 	NODE_PAREN     // For parenthesized groups
 }	t_node_type;
 
+typedef enum	e_command_type
+{
+	CMD_ASSIGNMENT,
+	CMD_BUILTIN,
+	CMD_EXTERNAL,
+	CMD_INVALID
+}	t_command_type;
+
 // Abstract syntax tree node
 typedef struct s_tree {
 	t_node_type type;         // Type of node

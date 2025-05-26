@@ -5,13 +5,13 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/25 20:51:55 by elorente          #+#    #+#             */
-/*   Updated: 2025/05/25 20:51:55 by elorente         ###   ########.fr       */
+/*   Created: 2025/05/25 20:51:55 by alepinto          #+#    #+#             */
+/*   Updated: 2025/05/25 20:51:55 by alepinto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Inc/minishell.h"
-#include "../../libft/libft.h"
+#include "../Inc/minishell.h"
+#include "../libft/libft.h"
 
 // ========== ENVIRONMENT VALUE ACCESS ==========
 

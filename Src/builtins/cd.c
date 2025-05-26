@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Inc/minishell.h"
+#include "../Inc/minishell.h"
 
 int	update_env_dirs(t_env **env, const char *old_path)
 {

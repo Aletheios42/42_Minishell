@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Inc/minishell.h"
+#include "../Inc/minishell.h"
 
 void	env_update(const char *key, const char *value, t_env *env)
 {

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Inc/minishell.h"
+#include "../Inc/minishell.h"
 
 static int	is_numeric(const char *str)
 {
