@@ -75,4 +75,6 @@ t_token *expand_token(t_token *token, t_env *env, int exit_status);
 t_token *create_token(char *value, t_token_type type);
 void free_token_list(t_token *head);
 
+int		ft_mkstemp(char *buffer, size_t size);
+
 #endif
