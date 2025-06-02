@@ -454,7 +454,7 @@ t_token *tokenize_input(char *input)
     if (!add_current_token(current_token, &head, &tail, token_type))
     {
         free_token_list(head);
-        return NULL;
+        return (NULL);
     }
     
     return head;
