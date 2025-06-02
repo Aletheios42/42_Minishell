@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   structs.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/02 20:23:06 by alepinto          #+#    #+#             */
+/*   Updated: 2025/06/02 20:23:06 by alepinto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef STRUCS_H
 #define STRUCS_H
 
@@ -50,7 +62,6 @@ typedef struct s_tree {
 	struct s_tree* right;     // Right child
 }	t_tree;
 
-
 typedef struct s_env // estructura para el env
 {
 	char			*key;
@@ -60,8 +71,9 @@ typedef struct s_env // estructura para el env
 
 typedef struct s_local_vars
 {
-	char				*key;
-	char				*value;
-	struct s_local_vars	*next;
+	char					*key;
+	char					*value;
+	struct s_local_vars		*next;
 }		t_local_vars;
+
 #endif

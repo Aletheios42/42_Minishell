@@ -62,7 +62,7 @@ void	print_tree_lines(int depth, int is_last)
 }
 
 // Recursive tree printing function
-int	ft_print_tree_node(t_tree *tree, int depth, int is_last, char *prefix)
+int	ft_print_tree_node(t_tree *tree, int dth, int lst, char *pre)
 {
 	int		count;
 	char	left_prefix[32];
@@ -71,23 +71,23 @@ int	ft_print_tree_node(t_tree *tree, int depth, int is_last, char *prefix)
 	count = 0;
 	if (!tree)
 		return (0);
-	print_tree_lines(depth, is_last);
-	count += print_node_id(prefix);
+	print_tree_lines(dth, lst);
+	count += print_node_id(pre);
 	count += print_tree_type_info(tree);
 	count += ft_printf("\n");
-	ft_strlcpy(left_prefix, prefix, sizeof(left_prefix));
+	ft_strlcpy(left_prefix, pre, sizeof(left_prefix));
 	ft_strlcat(left_prefix, ".1", sizeof(left_prefix));
-	ft_strlcpy(right_prefix, prefix, sizeof(right_prefix));
+	ft_strlcpy(right_prefix, pre, sizeof(right_prefix));
 	ft_strlcat(right_prefix, ".2", sizeof(right_prefix));
 	if (tree->left)
 		count += ft_print_tree_node(
 				tree->left,
-				depth + 1,
+				dth + 1,
 				(tree->right == NULL),
 				left_prefix
 				);
 	if (tree->right)
-		count += ft_print_tree_node(tree->right, depth + 1, 1, right_prefix);
+		count += ft_print_tree_node(tree->right, dth + 1, 1, right_prefix);
 	return (count);
 }
 

@@ -70,7 +70,7 @@ t_tree	*parse_pipeline(t_token *tokens)
 	return (pipe_node);
 }
 
-t_tree	parse_logical_ops(t_token *tokens)
+t_tree	*parse_logical_ops(t_token *tokens)
 {
 	t_token			*logical_op;
 	t_token			*right_tokens;

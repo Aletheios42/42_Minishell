@@ -51,21 +51,21 @@ t_token	*find_matching_close_paren(t_token *open_paren)
 	return (NULL);
 }
 
-t_token	*extract_and_cut_inner_tokens(t_token *open_paren, t_token *close_paren)
+t_token	*extract_and_cut_inner_tokens(t_token *open, t_token *close)
 {
 	t_token	*inner_start;
 	t_token	*inner_end;
 
-	if (!open_paren || !close_paren)
+	if (!open || !close)
 		return (NULL);
-	inner_start = open_paren->next;
-	if (!inner_start || inner_start == close_paren)
+	inner_start = open->next;
+	if (!inner_start || inner_start == close)
 		return (NULL);
-	inner_end = close_paren->prev;
+	inner_end = close->prev;
 	if (!inner_end)
 		return (NULL);
-	open_paren->next = close_paren;
-	close_paren->prev = open_paren;
+	open->next = close;
+	close->prev = open;
 	inner_start->prev = NULL;
 	inner_end->next = NULL;
 	return (inner_start);

@@ -14,11 +14,15 @@ SRC_FILES = main.c		\
 			signals/signals.c	\
 			lexer/lexer.c	\
 			parser/parser.c	\
+			parser/parser_v2.c	\
+			parser/parser_v3.c	\
+			parser/parser_v4.c	\
 			execution/executor.c	\
 			execution/expander.c	\
 			execution/enviroment.c	\
 			builtins/echo.c		\
 			builtins/cd.c		\
+			builtins/cd_v2.c		\
 			builtins/pwd.c		\
 			builtins/export_v1.c	\
 			builtins/unset.c	\
