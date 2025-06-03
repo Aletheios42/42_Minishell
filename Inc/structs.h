@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #ifndef STRUCS_H
-#define STRUCS_H
+# define STRUCS_H
 
 // Token types enum
 typedef enum e_token_type {
@@ -75,5 +75,28 @@ typedef struct s_local_vars
 	char					*value;
 	struct s_local_vars		*next;
 }		t_local_vars;
+
+typedef struct s_quote_context {
+	char quote_char;
+	int in_quotes;
+	t_token_type quote_type;
+} t_quote_context;
+
+// ========== STRING BUILDER ==========
+
+typedef struct s_string_builder {
+	char *str;
+	size_t len;
+	size_t capacity;
+} t_string_builder;
+
+typedef struct s_tokenizer
+{
+	t_token				*head;
+	t_token				*tail;
+	t_string_builder	*builder;
+	t_quote_context		ctx;
+	t_token_type		type;
+}	t_tokenizer;
 
 #endif
