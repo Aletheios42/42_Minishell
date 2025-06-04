@@ -108,9 +108,8 @@ void	sort_string_array(char **array)
 char	**build_full_paths(const char *dir_path, char **filenames)
 {
 	char	**full_paths;
-	char	*temp;
-	int		i;
 	int		count;
+	int		i;
 
 	if (!filenames)
 		return (NULL);
@@ -123,64 +122,11 @@ char	**build_full_paths(const char *dir_path, char **filenames)
 	i = 0;
 	while (i < count)
 	{
-		if (ft_strcmp(dir_path, ".") == 0)
-			full_paths[i] = ft_strdup(filenames[i]);
-		else
-		{
-			temp = ft_strjoin(dir_path, "/");
-			if (!temp)
-				return (ft_free_matrix(full_paths), NULL);
-			full_paths[i] = ft_strjoin(temp, filenames[i]);
-			free(temp);
-			if (!full_paths[i])
-				return (ft_free_matrix(full_paths), NULL);
-		}
+		full_paths[i] = build_path(dir_path, filenames[i]);
+		if (!full_paths[i])
+			return (ft_free_matrix(full_paths), NULL);
 		i++;
 	}
 	full_paths[count] = NULL;
 	return (full_paths);
-}
-
-char	**expand_wildcard_pattern(const char *pattern)
-{
-	char	*dir_path;
-	char	*file_pattern;
-	char	**matches;
-	char	**full_paths;
-
-	if (!pattern || !has_wildcard(pattern))
-		return (NULL);
-	dir_path = extract_directory_path(pattern);
-	file_pattern = extract_filename_pattern(pattern);
-	if (!dir_path || !file_pattern)
-		return (free(dir_path), free(file_pattern), NULL);
-	matches = collect_matching_files(dir_path, file_pattern);
-	if (!matches || !matches[0])
-	{
-		free(dir_path);
-		free(file_pattern);
-		ft_free_matrix(matches);
-		return (NULL);
-	}
-	sort_string_array(matches);
-	full_paths = build_full_paths(dir_path, matches);
-	free(dir_path);
-	free(file_pattern);
-	ft_free_matrix(matches);
-	return (full_paths);
-}
-
-// ========== TOKEN SPLITTING ==========
-
-int	needs_splitting(const char *str)
-{
-	if (!str)
-		return (0);
-	while (*str)
-	{
-		if (*str == ' ' || *str == '\t')
-			return (1);
-		str++;
-	}
-	return (0);
 }
