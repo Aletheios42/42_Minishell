@@ -24,8 +24,24 @@ SRC_FILES = main.c		\
 			parser/parser_v3.c	\
 			parser/parser_v4.c	\
 			execution/executor.c	\
+			execution/executor_v2.c	\
+			execution/executor_v3.c	\
+			execution/executor_v4.c	\
+			execution/executor_v5.c	\
+			execution/executor_v6.c	\
+			execution/executor_v7.c	\
+			execution/executor_v8.c	\
 			execution/expander.c	\
+			execution/expander_v2.c	\
+			execution/expander_v3.c	\
+			execution/expander_v4.c	\
+			execution/expander_v5.c	\
+			execution/expander_v6.c	\
+			execution/expander_v7.c	\
 			execution/enviroment.c	\
+			execution/enviroment_v2.c	\
+			execution/enviroment_v3.c	\
+			execution/enviroment_v4.c	\
 			builtins/echo.c		\
 			builtins/cd.c		\
 			builtins/cd_v2.c		\

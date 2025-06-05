@@ -43,7 +43,7 @@ int	env_key_exists(t_env *env, const char *key)
 
 // ========== ENVIRONMENT MODIFICATION ==========
 
-static	t_env	*create_env_node(const char *key, const char *value)
+t_env	*create_env_node(const char *key, const char *value)
 {
 	t_env	*node;
 

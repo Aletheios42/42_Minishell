@@ -98,18 +98,15 @@ int	setup_output_redirection(t_token *redir_token)
 	return (0);
 }
 
-int	setup_redirections(t_token *tokens, int *saved_stdin, 
-                      int *saved_stdout, t_env *env, int exit_status)
+int	setup_redirections(t_token *tokens, t_env *env,
+	int exit_status, t_redir_ctx *ctx)
 {
 	t_token	*current;
 
-	*saved_stdin = dup(STDIN_FILENO);
-	*saved_stdout = dup(STDOUT_FILENO);
-	if (*saved_stdin == -1 || *saved_stdout == -1)
-	{
-		perror("dup");
-		return -1;
-	}
+	ctx->saved_stdin = dup(STDIN_FILENO);
+	ctx->saved_stdout = dup(STDOUT_FILENO);
+	if (ctx->saved_stdin == -1 || ctx->saved_stdout == -1)
+		return (perror("dup"), -1);
 	current = tokens;
 	while (current)
 	{
