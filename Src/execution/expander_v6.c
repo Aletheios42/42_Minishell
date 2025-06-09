@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_v6.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 00:15:48 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/05 00:15:48 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 20:16:57 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,22 +37,25 @@ void	append_token_list(t_token **head, t_token **tail, t_token *new_tokens)
 	*tail = last;
 }
 
-t_token	*expand_token_list_copy(t_token *original, t_env *env, int status)
+void	handle_expanded_token(t_token *expanded, t_token **head, t_token **tail)
 {
-	t_token	*head;
-	t_token	*tail;
-	t_token	*expanded;
+	t_token	*next;
 
-	head = NULL;
-	tail = NULL;
-	while (original)
+	while (expanded)
 	{
-		expanded = expand_and_split_token_copy(original, env, status);
-		if (expanded)
-			append_token_list(&head, &tail, expanded);
-		original = original->next;
+		next = expanded->next;
+		if (expanded->value && expanded->value[0] != '\0')
+		{
+			expanded->next = NULL;
+			add_token_to_list(head, tail, expanded);
+		}
+		else
+		{
+			free(expanded->value);
+			free(expanded);
+		}
+		expanded = next;
 	}
-	return (head);
 }
 
 // ========== ASSIGNMENT PROCESSING ==========

@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 16:40:02 by elorente          #+#    #+#             */
-/*   Updated: 2025/05/27 19:10:47 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/09 17:06:34 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,6 @@ void	sort_string_array(char **array)
 {
 	int		i;
 	int		j;
-	char	*temp;
 	int		len;
 
 	if (!array)

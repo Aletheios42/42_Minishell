@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   structs.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 20:23:06 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/02 20:23:06 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 17:37:58 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,14 @@ typedef struct s_env // estructura para el env
 	struct s_env	*next;
 }	t_env;
 
+typedef struct s_expand_ctx
+{
+	const char	*line;
+	int			*index;
+	t_env		*env;
+	int			exit_status;
+}	t_expand_ctx;
+
 typedef struct s_local_vars
 {
 	char					*key;
@@ -105,12 +113,20 @@ typedef struct s_tokenizer
 	t_token_type		type;
 }	t_tokenizer;
 
+typedef struct s_redir_ctx
+{
+	int	saved_stdin;
+	int	saved_stdout;
+}	t_redir_ctx;
+
 typedef struct s_exec_context
 {
 	t_command_type	cmd_type;
 	t_token			*expanded_tokens;
 	char			**args;
 	int				result;
+	int				saved_stdin;
+	int				saved_stdout;
 	t_redir_ctx		redir_ctx;
 }	t_exec_context;
 
@@ -123,11 +139,5 @@ typedef struct s_pipeline_ctx
 	int		saved_stdin;
 	int		saved_stdout;
 }	t_pipeline_ctx;
-
-typedef struct s_redir_ctx
-{
-	int	saved_stdin;
-	int	saved_stdout;
-}	t_redir_ctx;
 
 #endif

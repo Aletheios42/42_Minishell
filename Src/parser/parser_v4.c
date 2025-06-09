@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_v4.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 23:03:44 by alepinto          #+#    #+#             */
-/*   Updated: 2025/05/29 23:03:44 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 17:40:13 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,8 +98,11 @@ int	validate_syntax(t_token *tokens)
 
 t_tree	*parser(t_token *tokens)
 {
-	if (!tokens)
+	if (!tokens || !tokens->value || *tokens->value == '\0')
+	{
+		ft_putendl_fd("minishell: empty input or invalid token", 2);
 		return (NULL);
+	}
 	if (!validate_syntax(tokens))
 		return (NULL);
 	return (parse_expression(tokens));

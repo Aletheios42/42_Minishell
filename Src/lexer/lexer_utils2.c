@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 22:49:21 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/03 22:49:21 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/09 20:01:47 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,14 +65,18 @@ t_string_builder	*create_string_builder(void)
 int	append_char_to_builder(t_string_builder *sb, char c)
 {
 	char	*new_str;
+	size_t	new_capacity;
 
 	if (sb->len + 1 >= sb->capacity)
 	{
-		sb->capacity *= 2;
-		new_str = ft_realloc(sb->str, sizeof(char), sb->capacity);
+		new_capacity = sb->capacity * 2;
+		new_str = malloc(new_capacity);
 		if (!new_str)
 			return (0);
+		ft_memcpy(new_str, sb->str, sb->len + 1);
+		free(sb->str);
 		sb->str = new_str;
+		sb->capacity = new_capacity;
 	}
 	sb->str[sb->len++] = c;
 	sb->str[sb->len] = '\0';
@@ -81,18 +85,7 @@ int	append_char_to_builder(t_string_builder *sb, char c)
 
 char	*finalize_string_builder(t_string_builder *sb)
 {
-	char	*result;
-
-	if (!sb)
-		return (NULL);
-	if (sb->len == 0)
-	{
-		free(sb->str);
-		free(sb);
+	if (!sb || !sb->str)
 		return (ft_strdup(""));
-	}
-	result = ft_strdup(sb->str);
-	free(sb->str);
-	free(sb);
-	return (result);
+	return (ft_strdup(sb->str));
 }

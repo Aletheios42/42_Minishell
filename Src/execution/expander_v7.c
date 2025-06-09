@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 00:22:07 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/05 00:22:07 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/09 20:43:18 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,65 @@ char	*build_path(const char *dir_path, const char *filename)
 	full = ft_strjoin(temp, filename);
 	free(temp);
 	return (full);
+}
+
+char	*append_variable_expansion(char *result, t_expand_ctx *ctx)
+{
+	char	*var_name;
+	char	*var_value;
+	int		consumed;
+
+	var_name = extract_variable_name(&ctx->line[*(ctx->index)], &consumed);
+	var_value = resolve_variable_value(var_name, ctx->env, ctx->exit_status);
+	free(var_name);
+	*(ctx->index) += consumed;
+	return (join_and_free(result, var_value));
+}
+
+char	*append_raw_segment(char *result, const char *line, int end)
+{
+	char	*segment;
+
+	segment = ft_substr(line, 0, end);
+	result = join_and_free(result, segment);
+	return (result);
+}
+
+char	*expand_variable_segment(char *result, t_expand_ctx *ctx)
+{
+	char	*var_name;
+	char	*value;
+	int		consumed;
+
+	(*(ctx->index))++;
+	consumed = 0;
+	var_name = extract_variable_name(&(ctx->line[*(ctx->index)]), &consumed);
+	if (!var_name)
+		return (result);
+	*(ctx->index) += consumed;
+	value = get_env_value(ctx->env, var_name);
+	free(var_name);
+	if (!value)
+		value = "";
+	result = join_and_free(result, ft_strdup(value));
+	if (!result)
+		return (NULL);
+	ctx->line = &(ctx->line[*(ctx->index)]);
+	*(ctx->index) = 0;
+	return (result);
+}
+
+char	*append_segment(char *res, const char *line, int start, int end)
+{
+	char	*seg;
+	char	*new_res;
+
+	seg = ft_substr(line, start, end - start);
+	if (!seg)
+	{
+		free(res);
+		return (NULL);
+	}
+	new_res = join_and_free(res, seg);
+	return (new_res);
 }

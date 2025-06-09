@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   enviroment.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 20:51:55 by alepinto          #+#    #+#             */
-/*   Updated: 2025/05/25 20:51:55 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 21:18:53 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 // ========== ENVIRONMENT VALUE ACCESS ==========
 
-char	get_env_value(t_env *env, const char *key)
+char	*get_env_value(t_env *env, const char *key)
 {
 	if (!key)
 		return (NULL);
@@ -39,31 +39,6 @@ int	env_key_exists(t_env *env, const char *key)
 		env = env->next;
 	}
 	return (0);
-}
-
-// ========== ENVIRONMENT MODIFICATION ==========
-
-t_env	*create_env_node(const char *key, const char *value)
-{
-	t_env	*node;
-
-	node = malloc(sizeof(t_env));
-	if (!node)
-		return (NULL);
-	node->key = ft_strdup(key);
-	if (value != NULL)
-		node->value = ft_strdup(value);
-	else
-		node->value = NULL;
-	node->next = NULL;
-	if (!node->key || (value != NULL && !node->value))
-	{
-		free(node->key);
-		free(node->value);
-		free(node);
-		return (NULL);
-	}
-	return (node);
 }
 
 void	update_env_value(t_env *entry, const char *value)

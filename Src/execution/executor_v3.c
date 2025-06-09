@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_v3.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 16:07:22 by alepinto          #+#    #+#             */
-/*   Updated: 2025/05/26 16:07:22 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 17:51:49 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,10 @@ char	**tokens_to_args_array(t_token *tokens)
 
 	count = count_word_tokens(tokens);
 	if (count == 0)
+	{
+		ft_putendl_fd("minishell: command has no valid arguments", 2);
 		return (NULL);
+	}
 	args = malloc(sizeof(char *) * (count + 1));
 	if (!args)
 		return (NULL);

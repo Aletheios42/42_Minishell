@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:43:14 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/05 15:43:14 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 20:59:10 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,8 @@
 
 //enviroment.c
 
-char			get_env_value(t_env *env, const char *key);
+char			*get_env_value(t_env *env, const char *key);
 int				env_key_exists(t_env *env, const char *key);
-t_env			*create_env_node(const char *key, const char *value);
 void			update_env_value(t_env *entry, const char *value);
 void			env_set_value(t_env **env, const char *key, const char *value);
 
@@ -55,6 +54,7 @@ t_env			*copy_env_list(t_env *original);
 //expander.c
 
 char			*extract_variable_name(const char *str, int *consumed_len);
+char			*return_var_segment(const char *str, int i, int *consumed_len);
 char			*resolve_variable_value(const char *var_name,
 					t_env *env, int exit);
 char			*join_and_free(char *s1, char *s2);
@@ -101,8 +101,8 @@ t_token			*expand_and_split_token_copy(t_token *original,
 
 void			append_token_list(t_token **head, t_token **tail,
 					t_token *new_tokens);
-t_token			*expand_token_list_copy(t_token *original,
-					t_env *env, int status);
+void			handle_expanded_token(t_token *expanded,
+					t_token **head, t_token **tail);
 int				process_assignment(const char *assignment, t_env **env);
 char			**expand_wildcard_pattern(const char *pattern);
 int				needs_splitting(const char *str);
@@ -110,6 +110,22 @@ int				needs_splitting(const char *str);
 //expander_v7.c
 
 char			*build_path(const char *dir_path, const char *filename);
+char			*append_variable_expansion(char *result, t_expand_ctx *ctx);
+char			*append_raw_segment(char *result, const char *line, int end);
+char			*expand_variable_segment(char *result, t_expand_ctx *ctx);
+char			*append_segment(char *res, const char *line,
+					int start, int end);
+
+//expander_v8.c
+
+t_token			*expand_token_list_copy(t_token *original,
+					t_env *env, int status);
+int				should_expand_segment(int i, int start);
+int				expand_and_append(char **res, const char *line,
+					int *start, int i);
+int				handle_dollar_loop(const char *line, char **res,
+					t_expand_ctx *ctx);
+char			*expand_string(const char *line, t_env *env, int exit_status);
 
 //executor.c
 

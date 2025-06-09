@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 19:21:24 by elorente          #+#    #+#             */
-/*   Updated: 2025/05/26 19:21:24 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/09 19:59:09 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,13 @@ int	execute_assignments(t_token *tokens, t_env **env)
 int	prepare_arguments(t_exec_context *ctx)
 {
 	ctx->args = tokens_to_args_array(ctx->expanded_tokens);
-	if (!ctx->args)
+	if (!ctx->args || !ctx->args[0])
 	{
-		restore_redirections(ctx->saved_stdin, ctx->saved_stdout);
+		restore_redirections(ctx->redir_ctx.saved_stdin,
+			ctx->redir_ctx.saved_stdout);
 		free_token_list(ctx->expanded_tokens);
+		if (ctx->args)
+			ft_free_matrix(ctx->args);
 		return (0);
 	}
 	return (1);
@@ -59,6 +62,12 @@ int	prepare_arguments(t_exec_context *ctx)
 
 void	execute_final_command(t_exec_context *ctx, t_env **env)
 {
+	if (!ctx->args || !ctx->args[0] || ctx->args[0][0] == '\0')
+	{
+		ft_putendl_fd("minishell: command not found", 2);
+		ctx->result = 127;
+		return ;
+	}
 	if (ctx->cmd_type == CMD_BUILTIN)
 		ctx->result = execute_builtin_command(ctx->args, env);
 	else if (ctx->cmd_type == CMD_EXTERNAL)

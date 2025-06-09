@@ -1,7 +1,7 @@
 BIN = minishell
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
-CFLAGS += -g3 -fsanitize=address
+#CFLAGS += -g3 -fsanitize=address
 
 ## Directories
 SRC_DIR = ./Src/
@@ -11,6 +11,7 @@ INCLUDES_DIR = ./Inc/
 
 ## Files
 SRC_FILES = main.c		\
+			main_v2.c		\
 			signals/signals.c	\
 			lexer/lexer.c	\
 			lexer/lexer_utils.c	\
@@ -38,6 +39,7 @@ SRC_FILES = main.c		\
 			execution/expander_v5.c	\
 			execution/expander_v6.c	\
 			execution/expander_v7.c	\
+			execution/expander_v8.c	\
 			execution/enviroment.c	\
 			execution/enviroment_v2.c	\
 			execution/enviroment_v3.c	\

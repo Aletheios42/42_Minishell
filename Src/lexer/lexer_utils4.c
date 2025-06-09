@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 23:20:21 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/03 23:20:21 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/09 20:02:34 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ char	*handle_multiline_input(char *input)
 }
 
 // ========== MAIN TOKENIZER ==========
-
 int	add_current_token(t_string_builder *sb, t_token **head,
 					t_token **tail, t_token_type token_type)
 {
@@ -53,15 +52,7 @@ int	add_current_token(t_string_builder *sb, t_token **head,
 	t_token	*new_token;
 
 	if (!sb || sb->len == 0)
-	{
-		if (sb)
-		{
-			if (sb->str)
-				free(sb->str);
-			free(sb);
-		}
 		return (1);
-	}
 	token_value = finalize_string_builder(sb);
 	if (!token_value)
 		return (0);
@@ -94,7 +85,6 @@ int	add_operator_token(char *op, t_token **head, t_token **tail)
 }
 
 // ========== PUBLIC INTERFACE ==========
-
 t_token	*lexer(char *input)
 {
 	char	*processed_input;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_v2.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 21:37:09 by alepinto          #+#    #+#             */
-/*   Updated: 2025/05/29 21:37:09 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 17:41:20 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,8 @@ t_token	*extract_and_cut_external_redirections(t_token *close_paren)
 
 t_tree	*parse_command(t_token *tokens)
 {
-	if (!tokens)
+	if (!tokens || (tokens->type != TOKEN_WORD
+			&& tokens->type != TOKEN_LITERAL_WORD))
 		return (NULL);
 	if (find_token_type(tokens, TOKEN_PAREN_OPEN))
 		return (parse_parentheses_group(&tokens));

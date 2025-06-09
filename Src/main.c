@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 23:36:02 by alepinto          #+#    #+#             */
-/*   Updated: 2025/05/29 23:36:02 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 21:08:00 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,50 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
+{
+	t_token	*tokens;
+	int		result;
+
+	printf("[DEBUG] execute_input: input = \"%s\"\n", input);
+	if (!input || !*input)
+	{
+		printf("[DEBUG] input vacío o NULL\n");
+		return (exit_status);
+	}
+
+	printf("[DEBUG] llamando a lexer()\n");
+	tokens = lexer(input);
+
+	if (!tokens)
+	{
+		ft_putendl_fd("minishell: syntax error", 2);
+		return (2);
+	}
+
+	printf("[DEBUG] lexer devolvió tokens\n");
+	print_token_list(tokens);
+
+	printf("[DEBUG] llamando a process_tokens_and_tree()\n");
+	result = process_tokens_and_tree(tokens, env, exit_status);
+	printf("[DEBUG] process_tokens_and_tree result = %d\n", result);
+
+	if (result >= 1000)
+	{
+		*should_exit = 1;
+		if (result == 1000)
+			return (0);
+		if (result == 1001)
+			return (1);
+		if (result == 1255)
+			return (255);
+		return ((result - 1000) % 256);
+	}
+	return (result);
+}
+
+
+/*
 int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
 {
 	t_token	*tokens;
@@ -44,11 +88,17 @@ int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
 	}
 	return (result);
 }
+*/
 
 // ========== INPUT HANDLING ==========
 
 char	*get_input_line(int is_command_mode, char **av)
 {
+	if (is_command_mode && av[2] == NULL)
+	{
+		ft_putendl_fd("minishell: -c requires an argument", 2);
+		return (NULL);
+	}
 	if (is_command_mode)
 		return (ft_strdup(av[2]));
 	return (readline("minishell$ "));
@@ -62,9 +112,45 @@ int	should_continue_loop(char *input, int is_command_mode)
 		return (!is_command_mode);
 	return (1);
 }
+int	run_shell_loop(t_env **env, int is_command_mode, char **av)
+{
+	char	*input;
+	int		exit_status;
+	int		should_exit;
 
-// ========== MAIN LOOP ==========
+	exit_status = 0;
+	should_exit = 0;
 
+	// DEBUG INICIAL
+	if (!env)
+		printf("[DEBUG] env es NULL (puntero a puntero)\n");
+	else if (!*env)
+		printf("[DEBUG] *env es NULL (puntero a lista)\n");
+	else
+		printf("[DEBUG] run_shell_loop: env OK, lista inicializada\n");
+
+	while (!should_exit)
+	{
+		input = get_input_line(is_command_mode, av);
+		if (!should_continue_loop(input, is_command_mode))
+		{
+			if (!input)
+				ft_putendl_fd("exit", 1);
+			free(input);
+			break ;
+		}
+		if (!is_command_mode)
+			add_history(input);
+		exit_status = execute_input(input, env, exit_status, &should_exit);
+		free(input);
+		if (is_command_mode)
+			break ;
+	}
+	return (exit_status);
+}
+
+
+/*
 int	run_shell_loop(t_env **env, int is_command_mode, char **av)
 {
 	char	*input;
@@ -92,8 +178,9 @@ int	run_shell_loop(t_env **env, int is_command_mode, char **av)
 	}
 	return (exit_status);
 }
+*/
 
-// ========== MAIN FUNCTION ==========
+// ========== MAIN LOOP ==========
 
 int	main(int ac, char **av, char **envp)
 {

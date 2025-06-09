@@ -36,8 +36,6 @@ int	handle_exit_result(char **args)
 
 int	execute_builtin_command(char **args, t_env **env)
 {
-	int	result;
-
 	if (!args || !args[0])
 		return (1);
 	if (ft_strcmp(args[0], "echo") == 0)
@@ -61,12 +59,12 @@ int	execute_builtin_command(char **args, t_env **env)
 
 int	should_include_token(t_token *token, t_token *prev)
 {
+	if (!token || !token->value || token->value[0] == '\0')
+		return (0);
 	if (token->type != TOKEN_WORD && token->type != TOKEN_LITERAL_WORD)
 		return (0);
-	if (!prev)
-		return (1);
-	if (prev->type == TOKEN_REDIR_IN || prev->type == TOKEN_REDIR_OUT
-		|| prev->type == TOKEN_APPEND || prev->type == TOKEN_HEREDOC)
+	if (prev && (prev->type == TOKEN_REDIR_IN || prev->type == TOKEN_REDIR_OUT
+			|| prev->type == TOKEN_APPEND || prev->type == TOKEN_HEREDOC))
 		return (0);
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 19:52:41 by elorente          #+#    #+#             */
-/*   Updated: 2025/05/27 18:06:54 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/09 21:20:52 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,32 +17,81 @@
 
 // ========== VARIABLE NAME EXTRACTION ==========
 
+char	*return_var_segment(const char *str, int i, int *consumed_len)
+{
+	if (i == 0)
+	{
+		*consumed_len = 0;
+		return (ft_strdup(""));
+	}
+	*consumed_len = i;
+	return (ft_substr(str, 0, i));
+}
+
+static char	*empty_var_name(int *consumed_len)
+{
+	if (consumed_len)
+		*consumed_len = 0;
+	return (ft_strdup(""));
+}
+
 char	*extract_variable_name(const char *str, int *consumed_len)
 {
 	int	i;
 
 	if (!str || !consumed_len)
-		return (NULL);
-	*consumed_len = 0;
+		return (empty_var_name(NULL));
 	if (str[0] == '?')
-		return (*consumed_len = 1, ft_strdup("?"));
+	{
+		*consumed_len = 1;
+		return (ft_strdup("?"));
+	}
 	if (str[0] == '{')
 	{
 		i = 1;
 		while (str[i] && str[i] != '}')
 			i++;
-		if (str[i] == '}')
-			return (*consumed_len = i + 1, ft_substr(str, 1, i - 1));
-		return (NULL);
+		if (str[i] != '}')
+			return (empty_var_name(consumed_len));
+		*consumed_len = i + 1;
+		return (ft_substr(str, 1, i - 1));
 	}
 	i = 0;
 	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
 		i++;
 	if (i == 0)
-		return (NULL);
+		return (empty_var_name(consumed_len));
 	*consumed_len = i;
 	return (ft_substr(str, 0, i));
 }
+
+/*
+char	*extract_variable_name(const char *str, int *consumed_len)
+{
+	int	i;
+
+	if (!str || !consumed_len)
+		return (ft_strdup(""));
+	if (str[0] == '?')
+	{
+		*consumed_len = 1;
+		return (ft_strdup("?"));
+	}
+	if (str[0] == '{')
+	{
+		i = 1;
+		while (str[i] && str[i] != '}')
+			i++;
+		if (str[i] != '}')
+			return (ft_strdup(""));
+		*consumed_len = i + 1;
+		return (ft_substr(str, 1, i - 1));
+	}
+	i = 0;
+	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
+		i++;
+	return (return_var_segment(str, i, consumed_len));
+}*/
 
 // ========== VARIABLE VALUE RESOLUTION ==========
 

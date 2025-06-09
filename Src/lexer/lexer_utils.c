@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alepinto <alepinto@student.42.fr>          +#+  +:+       +#+        */
+/*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 22:43:01 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/03 22:43:01 by alepinto         ###   ########.fr       */
+/*   Updated: 2025/06/09 20:01:21 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,12 +94,11 @@ int	process_quote_char(t_quote_context *ctx, char c)
 }
 
 // ========== TOKEN MANAGEMENT ==========
-
 t_token	*create_token(char *value, t_token_type type)
 {
 	t_token	*token;
 
-	if (!value)
+	if (!value || *value == '\0')
 		return (NULL);
 	token = malloc(sizeof(t_token));
 	if (!token)
