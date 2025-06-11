@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 00:13:04 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/11 20:53:53 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/11 21:15:51 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,8 @@ t_token	*expand_and_split_token_copy(t_token *original,
 	if (ft_strchr(original->value, '='))
 		return (expand_assignment_token(original, env, exit_status));
 	expanded = expand_string(original->value, env, exit_status);
-	if (!expanded)
-		return (NULL);
+	if (!*expanded)
+		return (free(expanded), NULL);
 	if (has_wildcard(expanded))
 		return (handle_wildcard_token(expanded, original->type));
 	if (!needs_splitting(expanded))
