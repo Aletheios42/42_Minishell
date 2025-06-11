@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 21:37:09 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/09 17:41:20 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/11 20:08:46 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ t_token	*extract_and_cut_external_redirections(t_token *close_paren)
 }
 
 // ========== PARSING FUNCTIONS ==========
-
+/*
 t_tree	*parse_command(t_token *tokens)
 {
 	if (!tokens || (tokens->type != TOKEN_WORD
@@ -93,4 +93,13 @@ t_tree	*parse_command(t_token *tokens)
 	if (find_token_type(tokens, TOKEN_PAREN_OPEN))
 		return (parse_parentheses_group(&tokens));
 	return (create_tree_node(NODE_COMMAND, tokens));
+}*/
+
+t_tree	*parse_command(t_token *tokens)
+{
+	if (!tokens || (tokens->type != TOKEN_WORD
+			&& tokens->type != TOKEN_LITERAL_WORD))
+		return (NULL);
+	return (create_tree_node(NODE_COMMAND, tokens));
 }
+

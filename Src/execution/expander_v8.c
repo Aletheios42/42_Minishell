@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 20:16:01 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/11 17:58:35 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/11 21:03:00 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_token	*expand_token_list_copy(t_token *original, t_env *env, int status)
 
 	while (original)
 	{
-		//pierdo la info de $? , ya que devuelvo null
+		
 		expanded = expand_and_split_token_copy(original, env, status);
 		handle_expanded_token(expanded, &head, &tail);
 		original = original->next;
@@ -90,13 +90,18 @@ int	handle_dollar_loop(const char *line, char **res, t_expand_ctx *ctx)
 			{
 				*res = expand_exit_status(*res, ctx->exit_status);
 				if (!*res)
-					break ;
+					return (0);
+				i += 2;
 			}
-			*res = expand_variable_segment(*res, ctx);
-			if (!*res)
-				return (0);
+			else
+			{
+				ctx->index = &i;
+				*res = expand_variable_segment(*res, ctx);
+				if (!*res)
+					return (0);
+				i = *(ctx->index);
+			}
 			start = i;
-			break ;
 		}
 		else
 			i++;
@@ -105,6 +110,8 @@ int	handle_dollar_loop(const char *line, char **res, t_expand_ctx *ctx)
 		return (0);
 	return (1);
 }
+
+
 /*
 char	*expand_string(const char *line, t_env *env, int exit_status)
 {
@@ -132,20 +139,22 @@ char	*expand_string(const char *line, t_env *env, int exit_status)
 	int				i;
 
 	i = 0;
-	res = ft_strdup("");
-	if (!res)
-		return (NULL);
-
-	ctx.line = line;
-	ctx.index = &i;
-	ctx.env = env;
-	ctx.exit_status = exit_status;
-
-	if (!handle_dollar_loop(line, &res, &ctx))
+	if (res)
 	{
-		free(res);  // ← esto evita el leak de 1 byte
-		return (NULL);
+		res = ft_strdup("");
+		ctx.line = line;
+		ctx.index = &i;
+		ctx.env = env;
+		ctx.exit_status = exit_status;
+
+		if (!handle_dollar_loop(line, &res, &ctx))
+		{
+			free(res);  // ← esto evita el leak de 1 byte
+			return (NULL);
+		}
+		return (res);
 	}
-	return (res);
+	
+	return (NULL);
 }
 

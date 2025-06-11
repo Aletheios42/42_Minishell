@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 00:15:48 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/11 17:09:21 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/11 20:12:10 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ int	process_assignment(const char *assignment, t_env **env)
 	free(expanded_value);
 	return (1);
 }
-
+/*
 char	**expand_wildcard_pattern(const char *pattern)
 {
 	char	*dir_path;
@@ -105,7 +105,59 @@ char	**expand_wildcard_pattern(const char *pattern)
 	free(file_pattern);
 	ft_free_matrix(matches);
 	return (full_paths);
+}*/
+
+char	**expand_wildcard_pattern(const char *pattern)
+{
+	char	*dir_path;
+	char	*file_pattern;
+	char	**matches;
+	char	**full_paths;
+
+	if (!pattern || !has_wildcard(pattern))
+		return (NULL);
+
+	dir_path = extract_directory_path(pattern);
+	file_pattern = extract_filename_pattern(pattern);
+	if (!dir_path || !file_pattern)
+	{
+		free(dir_path);
+		free(file_pattern);
+		return (NULL);
+	}
+
+	matches = collect_matching_files(dir_path, file_pattern);
+
+	// ❗ Si no hay coincidencias, devolver el patrón original como string literal
+	if (!matches || !matches[0])
+	{
+		char **fallback = malloc(sizeof(char *) * 2);
+		if (!fallback)
+		{
+			free(dir_path);
+			free(file_pattern);
+			ft_free_matrix(matches);
+			return (NULL);
+		}
+		fallback[0] = ft_strdup(pattern);
+		fallback[1] = NULL;
+		free(dir_path);
+		free(file_pattern);
+		ft_free_matrix(matches);
+		return (fallback);
+	}
+
+	// Coincidencias encontradas, construir paths completos
+	sort_string_array(matches);
+	full_paths = build_full_paths(dir_path, matches);
+
+	free(dir_path);
+	free(file_pattern);
+	ft_free_matrix(matches);
+
+	return (full_paths);
 }
+
 
 // ========== TOKEN SPLITTING ==========
 

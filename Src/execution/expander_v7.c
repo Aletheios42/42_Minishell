@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 00:22:07 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/11 17:55:57 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/11 19:53:41 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,6 @@ char	*expand_variable_segment(char *result, t_expand_ctx *ctx)
 		if (!result)
 			return (NULL);
 	}
-	// si no hay valor, simplemente no agregamos nada
 	return (result);
 }
 
