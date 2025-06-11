@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 20:16:01 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/09 21:17:53 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/11 17:58:35 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,10 @@ t_token	*expand_token_list_copy(t_token *original, t_env *env, int status)
 
 	head = NULL;
 	tail = NULL;
+
 	while (original)
 	{
+		//pierdo la info de $? , ya que devuelvo null
 		expanded = expand_and_split_token_copy(original, env, status);
 		handle_expanded_token(expanded, &head, &tail);
 		original = original->next;
@@ -57,6 +59,20 @@ int	expand_and_append(char **res, const char *line, int *start, int i)
 	return (1);
 }
 
+char	*expand_exit_status(char *res, int exit_status)
+{
+	char	*status_str;
+	char	*tmp;
+
+	status_str = ft_itoa(exit_status);
+	if (!status_str)
+		return (NULL);
+	tmp = ft_strjoin(res, status_str);
+	free(res);
+	free(status_str);
+	return (tmp);
+}
+
 int	handle_dollar_loop(const char *line, char **res, t_expand_ctx *ctx)
 {
 	int		i;
@@ -70,10 +86,17 @@ int	handle_dollar_loop(const char *line, char **res, t_expand_ctx *ctx)
 		{
 			if (i > start && !expand_and_append(res, line, &start, i))
 				return (0);
+			if (line[i + 1] == '?')
+			{
+				*res = expand_exit_status(*res, ctx->exit_status);
+				if (!*res)
+					break ;
+			}
 			*res = expand_variable_segment(*res, ctx);
 			if (!*res)
 				return (0);
 			start = i;
+			break ;
 		}
 		else
 			i++;
@@ -82,7 +105,7 @@ int	handle_dollar_loop(const char *line, char **res, t_expand_ctx *ctx)
 		return (0);
 	return (1);
 }
-
+/*
 char	*expand_string(const char *line, t_env *env, int exit_status)
 {
 	char			*res;
@@ -100,4 +123,29 @@ char	*expand_string(const char *line, t_env *env, int exit_status)
 	if (!handle_dollar_loop(line, &res, &ctx))
 		return (NULL);
 	return (res);
+}*/
+
+char	*expand_string(const char *line, t_env *env, int exit_status)
+{
+	char			*res;
+	t_expand_ctx	ctx;
+	int				i;
+
+	i = 0;
+	res = ft_strdup("");
+	if (!res)
+		return (NULL);
+
+	ctx.line = line;
+	ctx.index = &i;
+	ctx.env = env;
+	ctx.exit_status = exit_status;
+
+	if (!handle_dollar_loop(line, &res, &ctx))
+	{
+		free(res);  // ← esto evita el leak de 1 byte
+		return (NULL);
+	}
+	return (res);
 }
+

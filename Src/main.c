@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 23:36:02 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/09 21:08:00 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/11 17:09:20 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,10 @@ int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
 	t_token	*tokens;
 	int		result;
 
-	printf("[DEBUG] execute_input: input = \"%s\"\n", input);
 	if (!input || !*input)
 	{
-		printf("[DEBUG] input vacío o NULL\n");
 		return (exit_status);
 	}
-
-	printf("[DEBUG] llamando a lexer()\n");
 	tokens = lexer(input);
 
 	if (!tokens)
@@ -38,12 +34,8 @@ int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
 		return (2);
 	}
 
-	printf("[DEBUG] lexer devolvió tokens\n");
-	print_token_list(tokens);
 
-	printf("[DEBUG] llamando a process_tokens_and_tree()\n");
 	result = process_tokens_and_tree(tokens, env, exit_status);
-	printf("[DEBUG] process_tokens_and_tree result = %d\n", result);
 
 	if (result >= 1000)
 	{
@@ -120,14 +112,6 @@ int	run_shell_loop(t_env **env, int is_command_mode, char **av)
 
 	exit_status = 0;
 	should_exit = 0;
-
-	// DEBUG INICIAL
-	if (!env)
-		printf("[DEBUG] env es NULL (puntero a puntero)\n");
-	else if (!*env)
-		printf("[DEBUG] *env es NULL (puntero a lista)\n");
-	else
-		printf("[DEBUG] run_shell_loop: env OK, lista inicializada\n");
 
 	while (!should_exit)
 	{

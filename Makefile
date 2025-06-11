@@ -1,7 +1,7 @@
 BIN = minishell
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
-#CFLAGS += -g3 -fsanitize=address
+CFLAGS += -g3 -fsanitize=address
 
 ## Directories
 SRC_DIR = ./Src/
