@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 16:23:23 by elorente          #+#    #+#             */
-/*   Updated: 2025/05/26 16:23:23 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 17:48:46 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ int	ft_mkstemp(char *buffer, size_t size)
 		ft_strcat(buffer, number);
 		fd = open(buffer, O_CREAT | O_EXCL | O_RDWR, 0600);
 		if (fd != -1)
-			return (fd);
+			return (free(number), fd);
 		i++;
 	}
 	return (-1);

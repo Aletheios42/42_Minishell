@@ -3,17 +3,3 @@
 **/Objs/
 minishell
 
-
-Direct leak of 1 byte(s) in 1 object(s) allocated from:
-    #0 0x7f0bf54ca887 in __interceptor_malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:145
-    #1 0x55d7c49f1877 in ft_strdup (/home/elorente/42home/42_Minishell/minishell+0x16877)
-    #2 0x55d7c49ecc02 in expand_string Src/execution/expander_v8.c:144
-    #3 0x55d7c49eadf8 in expand_and_split_token_copy Src/execution/expander_v5.c:76
-    #4 0x55d7c49ec122 in expand_token_list_copy Src/execution/expander_v8.c:30
-    #5 0x55d7c49e7642 in execute_simple_command Src/execution/executor_v6.c:91
-    #6 0x55d7c49e8b2b in execute_tree Src/execution/executor_v8.c:93
-    #7 0x55d7c49e0ec5 in process_tokens_and_tree Src/main_v2.c:42
-    #8 0x55d7c49e07f9 in execute_input Src/main.c:38
-    #9 0x55d7c49e0b35 in run_shell_loop Src/main.c:128
-    #10 0x55d7c49e0d6f in main Src/main.c:184
-    #11 0x7f0bf51c2d8f in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
