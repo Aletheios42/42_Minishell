@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 00:22:07 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/11 19:53:41 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 15:52:31 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,57 +51,6 @@ char	*append_raw_segment(char *result, const char *line, int end)
 	result = join_and_free(result, segment);
 	return (result);
 }
-/*
-char	*expand_variable_segment(char *result, t_expand_ctx *ctx)
-{
-	char	*var_name;
-	char	*value;
-	int		consumed;
-
-	(*(ctx->index))++;
-	consumed = 0;
-	var_name = extract_variable_name(&(ctx->line[*(ctx->index)]), &consumed);
-	if (!var_name)
-		return (result);
-	*(ctx->index) += consumed;
-	value = get_env_value(ctx->env, var_name);
-	free(var_name);
-	if (!value)
-		value = "";
-	char *expanded = ft_strdup(value);
-	if (!expanded)
-		return (NULL);
-	result = join_and_free(result, expanded);
-	return (result);
-}
-*/
-/*
-char	*expand_variable_segment(char *result, t_expand_ctx *ctx)
-{
-	char	*var_name;
-	char	*value;
-	char	*tmp;
-	int		consumed;
-
-	(*(ctx->index))++;
-	consumed = 0;
-	var_name = extract_variable_name(&(ctx->line[*(ctx->index)]), &consumed);
-	if (!var_name)
-		return (result);
-	*(ctx->index) += consumed;
-	value = get_env_value(ctx->env, var_name);
-	free(var_name);
-	if (!value)
-		result = join_and_free(result, ft_strdup(""));
-	else
-		result = join_and_free(result, ft_strdup(value));
-	if (!result)
-		return (NULL);
-	ctx->line = &(ctx->line[*(ctx->index)]);
-	*(ctx->index) = 0;
-	return (result);
-}
-*/
 
 char	*expand_variable_segment(char *result, t_expand_ctx *ctx)
 {
@@ -118,7 +67,6 @@ char	*expand_variable_segment(char *result, t_expand_ctx *ctx)
 	*(ctx->index) += consumed;
 	value = get_env_value(ctx->env, var_name);
 	free(var_name);
-
 	if (value)
 	{
 		tmp = ft_strdup(value);
@@ -130,7 +78,6 @@ char	*expand_variable_segment(char *result, t_expand_ctx *ctx)
 	}
 	return (result);
 }
-
 
 char	*append_segment(char *res, const char *line, int start, int end)
 {

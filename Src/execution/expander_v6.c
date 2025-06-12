@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 00:15:48 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/11 20:12:10 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 16:00:33 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,87 +77,35 @@ int	process_assignment(const char *assignment, t_env **env)
 	free(expanded_value);
 	return (1);
 }
-/*
-char	**expand_wildcard_pattern(const char *pattern)
-{
-	char	*dir_path;
-	char	*file_pattern;
-	char	**matches;
-	char	**full_paths;
-
-	if (!pattern || !has_wildcard(pattern))
-		return (NULL);
-	dir_path = extract_directory_path(pattern);
-	file_pattern = extract_filename_pattern(pattern);
-	if (!dir_path || !file_pattern)
-		return (free(dir_path), free(file_pattern), NULL);
-	matches = collect_matching_files(dir_path, file_pattern);
-	if (!matches || !matches[0])
-	{
-		free(dir_path);
-		free(file_pattern);
-		ft_free_matrix(matches);
-		return (NULL);
-	}
-	sort_string_array(matches);
-	full_paths = build_full_paths(dir_path, matches);
-	free(dir_path);
-	free(file_pattern);
-	ft_free_matrix(matches);
-	return (full_paths);
-}*/
 
 char	**expand_wildcard_pattern(const char *pattern)
 {
-	char	*dir_path;
-	char	*file_pattern;
+	char	*dpath;
+	char	*fpattern;
 	char	**matches;
 	char	**full_paths;
+	char	**fallback;
 
 	if (!pattern || !has_wildcard(pattern))
 		return (NULL);
-
-	dir_path = extract_directory_path(pattern);
-	file_pattern = extract_filename_pattern(pattern);
-	if (!dir_path || !file_pattern)
-	{
-		free(dir_path);
-		free(file_pattern);
-		return (NULL);
-	}
-
-	matches = collect_matching_files(dir_path, file_pattern);
-
-	// ❗ Si no hay coincidencias, devolver el patrón original como string literal
+	dpath = extract_directory_path(pattern);
+	fpattern = extract_filename_pattern(pattern);
+	if (!dpath || !fpattern)
+		return (free(dpath), free(fpattern), NULL);
+	matches = collect_matching_files(dpath, fpattern);
 	if (!matches || !matches[0])
 	{
-		char **fallback = malloc(sizeof(char *) * 2);
+		fallback = malloc(sizeof(char *) * 2);
 		if (!fallback)
-		{
-			free(dir_path);
-			free(file_pattern);
-			ft_free_matrix(matches);
-			return (NULL);
-		}
+			return (free(dpath), free(fpattern), ft_free_matrix(matches), NULL);
 		fallback[0] = ft_strdup(pattern);
 		fallback[1] = NULL;
-		free(dir_path);
-		free(file_pattern);
-		ft_free_matrix(matches);
-		return (fallback);
+		return (free(dpath), free(fpattern), ft_free_matrix(matches), fallback);
 	}
-
-	// Coincidencias encontradas, construir paths completos
 	sort_string_array(matches);
-	full_paths = build_full_paths(dir_path, matches);
-
-	free(dir_path);
-	free(file_pattern);
-	ft_free_matrix(matches);
-
-	return (full_paths);
+	full_paths = build_full_paths(dpath, matches);
+	return (free(dpath), free(fpattern), ft_free_matrix(matches), full_paths);
 }
-
 
 // ========== TOKEN SPLITTING ==========
 

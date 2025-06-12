@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 23:36:02 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/11 21:02:39 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 15:53:43 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,42 +23,6 @@ int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
 	int		result;
 
 	if (!input || !*input)
-	{
-		return (exit_status);
-	}
-	tokens = lexer(input);
-
-	if (!tokens)
-	{
-		ft_putendl_fd("minishell: syntax error", 2);
-		return (2);
-	}
-
-
-	result = process_tokens_and_tree(tokens, env, exit_status);
-
-	if (result >= 1000)
-	{
-		*should_exit = 1;
-		if (result == 1000)
-			return (0);
-		if (result == 1001)
-			return (1);
-		if (result == 1255)
-			return (255);
-		return ((result - 1000) % 256);
-	}
-	return (result);
-}
-
-
-/*
-int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
-{
-	t_token	*tokens;
-	int		result;
-
-	if (!input || !*input)
 		return (exit_status);
 	tokens = lexer(input);
 	if (!tokens)
@@ -80,7 +44,6 @@ int	execute_input(char *input, t_env **env, int exit_status, int *should_exit)
 	}
 	return (result);
 }
-*/
 
 // ========== INPUT HANDLING ==========
 
@@ -104,37 +67,7 @@ int	should_continue_loop(char *input, int is_command_mode)
 		return (!is_command_mode);
 	return (1);
 }
-int	run_shell_loop(t_env **env, int is_command_mode, char **av)
-{
-	char	*input;
-	int		exit_status;
-	int		should_exit;
 
-	exit_status = 0;
-	should_exit = 0;
-
-	while (!should_exit)
-	{
-		input = get_input_line(is_command_mode, av);
-		if (!should_continue_loop(input, is_command_mode))
-		{
-			if (!input)
-				ft_putendl_fd("exit", 1);
-			free(input);
-			break ;
-		}
-		if (!is_command_mode)
-			add_history(input);
-		exit_status = execute_input(input, env, exit_status, &should_exit);
-		free(input);
-		if (is_command_mode)
-			break ;
-	}
-	return (exit_status);
-}
-
-
-/*
 int	run_shell_loop(t_env **env, int is_command_mode, char **av)
 {
 	char	*input;
@@ -162,7 +95,6 @@ int	run_shell_loop(t_env **env, int is_command_mode, char **av)
 	}
 	return (exit_status);
 }
-*/
 
 // ========== MAIN LOOP ==========
 

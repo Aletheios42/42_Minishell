@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 23:01:14 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/11 20:09:04 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 15:51:39 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,34 +51,15 @@ t_tree	*parse_parentheses_group(t_token **tokens)
 	node->right = parse_expression(inner);
 	return (node);
 }
-/*
+
 t_tree	*parse_pipeline(t_token *tokens)
 {
 	t_token	*pipe_op;
 	t_token	*right_tokens;
 	t_tree	*pipe_node;
 
-	pipe_op = find_pipe_operator(tokens);
-	if (!pipe_op)
-		return (parse_command(tokens));
-	right_tokens = cut_token_list_at(&tokens, pipe_op);
-	pipe_node = create_tree_node(NODE_PIPE, pipe_op);
-	if (!pipe_node)
-		return (NULL);
-	pipe_node->left = parse_command(tokens);
-	pipe_node->right = parse_pipeline(right_tokens);
-	return (pipe_node);
-}*/
-
-t_tree	*parse_pipeline(t_token *tokens)
-{
 	if (tokens && tokens->type == TOKEN_PAREN_OPEN)
 		return (parse_parentheses_group(&tokens));
-
-	t_token	*pipe_op;
-	t_token	*right_tokens;
-	t_tree	*pipe_node;
-
 	pipe_op = find_pipe_operator(tokens);
 	if (!pipe_op)
 		return (parse_command(tokens));
@@ -90,7 +71,6 @@ t_tree	*parse_pipeline(t_token *tokens)
 	pipe_node->right = parse_pipeline(right_tokens);
 	return (pipe_node);
 }
-
 
 t_tree	*parse_logical_ops(t_token *tokens)
 {

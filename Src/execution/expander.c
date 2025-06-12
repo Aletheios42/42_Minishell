@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 19:52:41 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/11 17:26:59 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 16:04:15 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,7 @@ char	*extract_variable_name(const char *str, int *consumed_len)
 	if (!str || !consumed_len)
 		return (empty_var_name(NULL));
 	if (str[0] == '?')
-	{
-		*consumed_len = 1;
-		return (ft_strdup("?"));
-	}
+		return (*consumed_len = 1, ft_strdup("?"));
 	if (str[0] == '{')
 	{
 		i = 1;
@@ -64,34 +61,6 @@ char	*extract_variable_name(const char *str, int *consumed_len)
 	*consumed_len = i;
 	return (ft_substr(str, 0, i));
 }
-
-/*
-char	*extract_variable_name(const char *str, int *consumed_len)
-{
-	int	i;
-
-	if (!str || !consumed_len)
-		return (ft_strdup(""));
-	if (str[0] == '?')
-	{
-		*consumed_len = 1;
-		return (ft_strdup("?"));
-	}
-	if (str[0] == '{')
-	{
-		i = 1;
-		while (str[i] && str[i] != '}')
-			i++;
-		if (str[i] != '}')
-			return (ft_strdup(""));
-		*consumed_len = i + 1;
-		return (ft_substr(str, 1, i - 1));
-	}
-	i = 0;
-	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
-		i++;
-	return (return_var_segment(str, i, consumed_len));
-}*/
 
 // ========== VARIABLE VALUE RESOLUTION ==========
 
@@ -123,16 +92,4 @@ char	*join_and_free(char *s1, char *s2)
 	if (s2)
 		free(s2);
 	return (joined);
-}
-
-char	*append_char_and_free(char *str, char c)
-{
-	char	tmp[2];
-	char	*res;
-
-	tmp[0] = c;
-	tmp[1] = '\0';
-	res = ft_strjoin(str, tmp);
-	free(str);
-	return (res);
 }

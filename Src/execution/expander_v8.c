@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 20:16:01 by elorente          #+#    #+#             */
-/*   Updated: 2025/06/11 21:12:40 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 15:55:49 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,8 @@ t_token	*expand_token_list_copy(t_token *original, t_env *env, int status)
 
 	head = NULL;
 	tail = NULL;
-
 	while (original)
 	{
-		
 		expanded = expand_and_split_token_copy(original, env, status);
 		handle_expanded_token(expanded, &head, &tail);
 		original = original->next;
@@ -73,65 +71,6 @@ char	*expand_exit_status(char *res, int exit_status)
 	return (tmp);
 }
 
-int	handle_dollar_loop(const char *line, char **res, t_expand_ctx *ctx)
-{
-	int		i;
-	int		start;
-
-	i = 0;
-	start = 0;
-	while (line[i])
-	{
-		if (line[i] == '$')
-		{
-			if (i > start && !expand_and_append(res, line, &start, i))
-				return (0);
-			if (line[i + 1] == '?')
-			{
-				*res = expand_exit_status(*res, ctx->exit_status);
-				if (!*res)
-					return (0);
-				i += 2;
-			}
-			else
-			{
-				ctx->index = &i;
-				*res = expand_variable_segment(*res, ctx);
-				if (!*res)
-					return (0);
-				i = *(ctx->index);
-			}
-			start = i;
-		}
-		else
-			i++;
-	}
-	if (i > start && !expand_and_append(res, line, &start, i))
-		return (0);
-	return (1);
-}
-
-
-/*
-char	*expand_string(const char *line, t_env *env, int exit_status)
-{
-	char			*res;
-	t_expand_ctx	ctx;
-	int				i;
-
-	i = 0;
-	res = ft_strdup("");
-	if (!res)
-		return (NULL);
-	ctx.line = line;
-	ctx.index = &i;
-	ctx.env = env;
-	ctx.exit_status = exit_status;
-	if (!handle_dollar_loop(line, &res, &ctx))
-		return (NULL);
-	return (res);
-}*/
-
 char	*expand_string(const char *line, t_env *env, int exit_status)
 {
 	char			*res;
@@ -146,15 +85,12 @@ char	*expand_string(const char *line, t_env *env, int exit_status)
 		ctx.index = &i;
 		ctx.env = env;
 		ctx.exit_status = exit_status;
-
 		if (!handle_dollar_loop(line, &res, &ctx))
 		{
-			free(res);  // ← esto evita el leak de 1 byte
+			free(res);
 			return (NULL);
 		}
 		return (res);
 	}
-	
 	return (NULL);
 }
-

@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 20:23:06 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/11 21:02:35 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 16:12:27 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,5 +139,14 @@ typedef struct s_pipeline_ctx
 	int		saved_stdin;
 	int		saved_stdout;
 }	t_pipeline_ctx;
+
+typedef struct s_dollar_loop_data
+{
+	int				i;
+	int				start;
+	const char		*line;
+	char			**res;
+	t_expand_ctx	*ctx;
+}	t_dollar_loop_data;
 
 #endif

@@ -40,6 +40,7 @@ SRC_FILES = main.c		\
 			execution/expander_v6.c	\
 			execution/expander_v7.c	\
 			execution/expander_v8.c	\
+			execution/expander_v9.c	\
 			execution/enviroment.c	\
 			execution/enviroment_v2.c	\
 			execution/enviroment_v3.c	\

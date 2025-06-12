@@ -6,7 +6,7 @@
 /*   By: elorente <elorente@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:43:14 by alepinto          #+#    #+#             */
-/*   Updated: 2025/06/09 20:59:10 by elorente         ###   ########.fr       */
+/*   Updated: 2025/06/12 16:02:15 by elorente         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,5 +197,7 @@ int				execute_logical_and(t_tree *tree, t_env **env, int exit_status);
 int				execute_logical_or(t_tree *tree, t_env **env, int exit_status);
 int				execute_parentheses(t_tree *tree, t_env **env, int exit_status);
 int				execute_tree(t_tree *tree, t_env **env, int exit_status);
+
+char			*expand_exit_status(char *res, int exit_status);
 
 #endif
